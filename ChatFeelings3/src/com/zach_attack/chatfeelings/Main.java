@@ -1,20 +1,13 @@
 package com.zach_attack.chatfeelings;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.Particle;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -29,12 +22,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitTask;
 
 import com.zach_attack.cf.other.Metrics;
 import com.zach_attack.cf.other.Updater;
@@ -57,16 +47,7 @@ public class Main
   String vv = "v" + getDescription().getVersion();
   Server server = Bukkit.getServer();
   
-  // Oh great, you're looking at this mess of code.
-  // First off, I'd like to say: Yes I know this is the most disgusting method of making plugins
-  // I get it... I'm not perfect and still have a WHOLE WHOLE lot to learn. ChatFeelings started
-  // as an inspiration from an abandoned /hug plugin. I acted upon it and it grew far faster than
-  // I ever fathomed. So I just code WHAT WORKS, it may work weirdly, but if it works it's good.
-  
   //       Please please please read the READ_ME.txt before doing anything. Thanks.  //
-  
-  String previousVersion = "3.7.1";
-  String previousVersion2 = "3.7.2";
   
   int configVersion = 3;
   
