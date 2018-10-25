@@ -1,0 +1,7 @@
+name: ChatFeelings
+main: com.zach_attack.chatfeelings.Bungee
+website: https://www.spigotmc.org/resources/chatfeelings.12987/
+version: 0
+author: zach_attack
+api-version: 1.13
+description: ChatFeelings IS NOT a bungee plugin.
