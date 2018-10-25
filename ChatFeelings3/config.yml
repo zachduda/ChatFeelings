@@ -40,8 +40,5 @@ debug: false
 # Please leave this on, it's to help me make a better ChatFeelings! :)
 Metrics: true
 
-# Check if player has helmet for /spook
-spook-helmet-check: true
-
 # Don't touch please ;)
-config-version: 3
+config-version: 4
