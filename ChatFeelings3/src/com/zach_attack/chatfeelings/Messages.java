@@ -199,7 +199,6 @@ public class Messages implements Listener {
     
 	  try {
 		  if(plugin.getConfig().getInt("config-version") == plugin.configVersion) {
-			  plugin.getConfig().set("config-version", plugin.configVersion);
 			 plugin.getLogger().info("Config is up to date! Nothing needs to be changed."); 
 		  } else {
 			  System.out.print("-----------------------------------------------------");
@@ -211,24 +210,11 @@ public class Messages implements Listener {
 			  plugin.getLogger().info("Now updating your Config...");
 			  System.out.print("-----------------------------------------------------");
 			  plugin.getConfig().set("config-version", plugin.configVersion);
-			  
-			  if(plugin.getConfig().getInt("config-version") < 2) {
-				  if(Bukkit.getBukkitVersion().contains("1.8") || Bukkit.getBukkitVersion().contains("1.7")) {
-					  plugin.getConfig().set("other-effects", false);
-					  plugin.getConfig().set("particles", false);
-				  } else {
-			  plugin.getConfig().set("other-effects", true);
-			  plugin.getConfig().set("particles", true);
-				  } 
-				  
-			plugin.getConfig().set("spook-helmet-check", true);
-			  setEmotes("stalk-active", true);
-			  } else {
-		    	plugin.getConfig().set("spook-helmet-check", true);
-			  }
+			  plugin.getConfig().set("spook-helemet-check", null);
 			  plugin.saveConfig();
 			  plugin.reloadConfig();
 			  plugin.saveConfig();
+			  
 	    	    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
 	    	    {
 	    	        public void run()

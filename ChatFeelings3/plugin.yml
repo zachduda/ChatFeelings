@@ -53,5 +53,3 @@ commands:
     description: Pat a players head for being a good boy... or girl.
   stalk:
     description: Stalk a player carefully... carefully.
-  spook:
-    description: Spook a player out of their socks!

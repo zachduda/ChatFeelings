@@ -13,7 +13,6 @@ public class Cooldowns implements Listener {
 
 
 	public static HashMap<Player, String> cooldown = new HashMap<Player, String>();
-	public static HashMap<Player, String> spook = new HashMap<Player, String>();
 	  
 	  public static void startCooldown(final Player p)
 	  {

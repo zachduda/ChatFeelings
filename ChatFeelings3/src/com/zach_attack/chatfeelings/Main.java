@@ -40,7 +40,7 @@ public class Main
   
   //       Please please please read the READ_ME.txt before doing anything. Thanks.  //
   
-  int configVersion = 3;
+  int configVersion = 4;
   
   public void addMetric() {
 	  double version = Double.parseDouble(System.getProperty("java.specification.version"));
@@ -50,7 +50,7 @@ public class Main
 			  System.out.print("ChatFeelings Debug: Java version is below 8.");
 		  }
 		  getLogger().info("Java " + version+ " detected. ChatFeelings requires Java 8 or higher.");
-		  getLogger().info("For old java support use v3.4 and BELOW. ChatFeeling's will continue, but you've been warned.");
+		  getLogger().info("For old java support disable Metrics. ChatFeeling's will continue, but you've been warned.");
 		  getLogger().info("If you believe this is an error, enable debug mode and see..");
 	  } else { 
 	  if(getConfig().getBoolean("Metrics")) {
@@ -148,62 +148,8 @@ public class Main
             }
         }));
         
-        metrics.addCustomChart(new Metrics.SimplePie("AnimatedInventory", () -> {
-       if(getServer().getPluginManager().isPluginEnabled("AnimatedInventory") && (getServer().getPluginManager().getPlugin("AnimatedInventory") != null)) {
-                return "Found";
-            } else {
-            	return "Not Found";
-            }
-        }));
-        
         metrics.addCustomChart(new Metrics.SimplePie("cooldown", () -> {
-            if(getConfig().getInt("Cooldown-Delay-Seconds") == 0) {
-                return "0";
-            } else if(getConfig().getString("Cooldown-Delay-Seconds").equalsIgnoreCase("none")) {
-            	return "0";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 1) {
-            	return "1";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 2) {
-            	return "2";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 3) {
-            	return "3";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 4) {
-            	return "4";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 5) {
-            	return "5";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 6) {
-            	return "6";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 7) {
-            	return "7";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 8) {
-            	return "8";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 9) {
-            	return "9";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 10) {
-            	return "10";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 11) {
-            	return "11";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 12) {
-            	return "12";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 13) {
-            	return "13";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 14) {
-            	return "14";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 15) {
-            	return "15";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 16) {
-            	return "16";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 17) {
-            	return "17";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 18) {
-            	return "18";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 19) {
-            	return "19";	
-            } else if(getConfig().getInt("Cooldown-Delay-Seconds") == 20) {
-            	return "20";	
-            } else {
-            	return "20+";
-            }
+                return Integer.toString(getConfig().getInt("Cooldown-Delay-Seconds"));
         }));
         
 	  
