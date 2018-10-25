@@ -1,40 +1,31 @@
-Yes the code is unorganized and crazy, leave me alone!!!!
+Copyright 2018 :: zachrocks22
+				     ChatFeeling's License Agreement:
 
-PLEASE NOTICE THAT THE FOLLOWING PLUGIN IS UNDER AN
-** ALL RIGHTS RESERVED ** LICENCE!
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
-ChatFeelings is a registered plugin under bukkit + spigot
-and is not to be re-published without notifying Zach.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-Republishing or reusing code without consulting me first is heavily frowned upon.
-
-______________________________________________________________________________________________________________________________
-
-Hey! I'm flattered you want to see the simple code inside the plugin ChatFeelings.
-I just want to let you know that using my code, and just editing the messages for
-your own server is NOT okay. Even if you are not re-uploading it, its not okay.
-
-Changing this code in the plugin is NOT allowed, and if I catch you (wink wink)
-then you will lose the amazing right that is ChatFeelings.
-
-Please PM me before changing anything about this plugin on Spigot.org
-
-I will be more then happy to grant you access to change the plugin if you notify me via Spigot.
-
-I also reserve the right to disable ChatFeelings at any time and you grant this by downloading.
-(This will only happen if you break the terms ^3^) [I have ways]
-
-Love,
-Zachary, KoleDogCodes, and TheIntelloBox.
-______________________________________________________________________________________________________________________________
- 
- 
+    Basically:
+       - You may use code from this project in your own public (open source) if you provide credit.
+       - If you redistribute with modifications, it must be open source.
+       - You may NOT redistribute without permission.
+       - You may NOT sell this resource.
+       - You may NOT use revenue links when sharing this resource.
+       - You MAY edit for personal or private use.
+       - You MAY edit for free public use (with credit).
+       - You MAY provide infinite hugs to Zach. <3
  
    ________          __     ______          ___                 
   / ____/ /_  ____ _/ /_   / ____/__  ___  / (_)___  ____ ______
  / /   / __ \/ __ `/ __/  / /_  / _ \/ _ \/ / / __ \/ __ `/ ___/
 / /___/ / / / /_/ / /_   / __/ /  __/  __/ / / / / / /_/ (__  ) 
 \____/_/ /_/\__,_/\__/  /_/    \___/\___/_/_/_/ /_/\__, /____/  
-                                                  /____/        All rights reserved.
+                                                  /____/        GPLv3 License.
                                                   
                                                   
