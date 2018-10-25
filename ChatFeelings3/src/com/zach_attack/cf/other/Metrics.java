@@ -23,12 +23,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -36,6 +34,7 @@ import java.util.zip.GZIPOutputStream;
  *
  * Check out https://bStats.org/ to learn more about bStats!
  */
+@SuppressWarnings("unchecked")
 public class Metrics {
 
     static {
@@ -75,7 +74,8 @@ public class Metrics {
      *
      * @param plugin The plugin which stats should be submitted.
      */
-    public Metrics(JavaPlugin plugin) {
+    @SuppressWarnings("null")
+	public Metrics(JavaPlugin plugin) {
         if (plugin == null) {
             if(plugin.getConfig().getBoolean("debug")) {
             System.out.print("ChatFeelings Debug:        -- ERROR --    [Disable debug to ignore errors]");
@@ -191,7 +191,8 @@ public class Metrics {
      *
      * @return The plugin specific data.
      */
-    public JSONObject getPluginData() {
+    @SuppressWarnings("unused")
+	public JSONObject getPluginData() {
         JSONObject data = new JSONObject();
 
         String pluginName = "ChatFeelings";
@@ -218,7 +219,8 @@ public class Metrics {
      *
      * @return The server specific data.
      */
-    private JSONObject getServerData() {
+    
+	private JSONObject getServerData() {
         // Minecraft specific data
         int playerAmount;
         try {

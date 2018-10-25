@@ -2,12 +2,9 @@ package com.zach_attack.chatfeelings;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.Server;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -17,14 +14,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import com.zach_attack.cf.other.Metrics;
 import com.zach_attack.cf.other.Updater;
@@ -751,15 +742,6 @@ public class Main
           sender.sendMessage(ChatColor.YELLOW + "/boi " + ChatColor.WHITE + "- Here comes dat boi. How dank!");
           sender.sendMessage(ChatColor.YELLOW + "/dab " + ChatColor.WHITE + "- Cash me outside. How bout dab?");
           sender.sendMessage(ChatColor.YELLOW + "/stalk " + ChatColor.WHITE + "- Carefully stalk your pals... carefully.");
-	       Date now = new Date();
-	 	      SimpleDateFormat format = new SimpleDateFormat("MM");
-	 	      if(format.format(now).equals("10")) {
-		 	    	 if(Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.12")) {
-	 	   sender.sendMessage(ChatColor.GOLD + "§l/spook " + ChatColor.WHITE + "- Show your halloween spirit by spooking others!"); 	
-		 	    	 } else {
-		 	 	 	   sender.sendMessage(ChatColor.GOLD + "§c/spook " + ChatColor.WHITE + "- Command only available for 1.13 & 1.12"); 		 	    		 
-		 	    	 }
-	 	    	 }
         sender.sendMessage(" ");
         click(sender);
       }}
@@ -795,24 +777,15 @@ public class Main
         (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
         (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
         (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))) && 
+        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))) && 
         (args.length == 0))
       {
       	if(emotes.getBoolean(label.toLowerCase() + "-active") && 
          	   !Cooldowns.cooldown.containsKey(p)) {
        bass(sender);
        try {
-    	   if(label.equalsIgnoreCase("spook")) {
-     	       Date now = new Date();
- 	 	      SimpleDateFormat format = new SimpleDateFormat("MM");
- 	 	      if(!format.format(now).equals("10")) {
- 	 	        sender.sendMessage(messages.getString("prefix").replace("&", "§") + " §c§lSorry!§f This was a §7October §fseasonal command.");  
- 	 	      } else {
- 	 	    	sender.sendMessage(messages.getString("prefix").replace("&", "§") + " §r" + messages.getString("no-player-provided").replace("%cmd%", label).replace("&", "§")); 
- 	 	      }
-    	   } else {
+
        sender.sendMessage(messages.getString("prefix").replace("&", "§") + " §r" + messages.getString("no-player-provided").replace("%cmd%", label).replace("&", "§"));
-    	   }
     	   
     	   } catch(Exception e) {
    		 getLogger().info("Error when trying to display 'no-player-provided' message in messages.yml. Check your file!");
@@ -835,7 +808,7 @@ public class Main
         (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
         (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
         (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))) && 
+        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))) && 
         (args.length >= 2))
       {
       	if(emotes.getBoolean(label.toLowerCase() + "-active") && 
@@ -863,7 +836,7 @@ public class Main
     	        (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
     	        (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
     	        (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-    	        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))))
+    	        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))))
     	      {
     	    	  if(!emotes.getBoolean(label.toLowerCase() + "-active")){
     	        bass(sender);
@@ -881,7 +854,7 @@ public class Main
         (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
         (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
         (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))) && 
+        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))) && 
         (args.length == 1))
       {
       	if(emotes.getBoolean(label.toLowerCase() + "-active") && 
@@ -909,7 +882,7 @@ public class Main
     	        (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
     	        (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
     	        (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-    	        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))))
+    	        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))))
     	      {
     	    	  if(emotes.getBoolean(label.toLowerCase() + "-active")){
     	    	      if (Cooldowns.cooldown.containsKey(p.getPlayer()))  // COOLDOWN EVENT
@@ -932,7 +905,7 @@ public class Main
         (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
         (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
         (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))) && 
+        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))) && 
         (args.length == 1))
       {
     	if(emotes.getBoolean(label.toLowerCase() + "-active") && 
@@ -1827,115 +1800,6 @@ online.sendMessage(messages.getString(label+"-global").replace("&", "§").replac
         }
       }
       
-      if ((label.equalsIgnoreCase("spook")) && 
-  	        (args.length == 1) && (emotes.getBoolean(label.toLowerCase() + "-active"))) {
-  	        if ((!sender.hasPermission("chatfeelings." + label)) && (!sender.hasPermission("chatfeelings.all")) && (!p.isOp()))
-  	        {
-  	          noFeelingPermission(sender, label);
-  	        }
-  	        else
-  	        {   	          Player target = Bukkit.getServer().getPlayer(args[0]);
- 	       Date now = new Date();
-	 	      SimpleDateFormat format = new SimpleDateFormat("MM");
-	 	      if(!format.format(now).equals("10")) {
-	 	    	  if(getConfig().getBoolean("debug")) {
-	 	    	     System.out.print("ChatFeelings Debug: It's not October, not allowing event.");
-	 	    	  }
-	        		p.sendMessage("§c§lSorry! §7This seasonal command has expired.");
-	        		bass(p); 
-	 	      } else 
-  	        	if(Cooldowns.spook.containsKey(target)) {
-  	 	    	  if(getConfig().getBoolean("debug")) {
- 	 	    	     System.out.print("ChatFeelings Debug: Player already being spooked.");
- 	 	    	  }
-  	        		p.sendMessage("§c§lToo Spooky! §7" + target.getName() + " §fis already being spooked.");
-  	        		bass(p);
-  	        	} else
-  	        		if(!(target.getInventory().getHelmet() == (new ItemStack(Material.AIR, 1)) || (target.getInventory().getHelmet() == null)) && getConfig().getBoolean("spook-helmet-check")) {
-  	        			p.sendMessage("§c§lSorry! §7" + target.getName() + " §fhas a helmet, and cannot be spooked.");
-  	  	        		bass(p);
-  	  	 	    	  if(getConfig().getBoolean("debug")) {
-  	 	 	    	     System.out.print("ChatFeelings Debug: Player " + target.getName() + " had a helmet and couldn't be spooked.  [Helmet: " + target.getInventory().getHelmet() + "]");
-  	 	 	    	  }
-  	        		} else
-  	        	if(!Bukkit.getBukkitVersion().contains("1.13") && !Bukkit.getBukkitVersion().contains("1.12")) {
-  	        		p.sendMessage("§c§lSorry! §7/spook§f isn't compatiable below §71.12");
-  	        		bass(p);
-  	 	    	  if(getConfig().getBoolean("debug")) {
- 	 	    	     System.out.print("ChatFeelings Debug: Server doesn't meet requirements.");
- 	 	    	  }
-  	        	} else {
-  	          if (!sender.equals(target))
-  	          {
-
-    	            Cooldowns.spook.put(target, p.getName());
-  	            if (getConfig().getBoolean("sounds"))
-  	            {
-  	              click(sender);
-  	            if(Bukkit.getBukkitVersion().contains("1.13")) {
-  	                    target.playSound(target.getLocation(), Sound.MUSIC_DISC_13, 0.8F, 1.0F);
-  	            } else {
-  	              target.playSound(target.getLocation(), Sound.valueOf("RECORD_13"), 0.8F, 1.0F);	
-  	            }
-  	                    target.playSound(target.getLocation(), Sound.ENTITY_WITCH_AMBIENT, 1.0F, 0.1F);
-  	            }
-  	            if (getConfig().getBoolean("other-effects")) {
-  	            	target.getInventory().setHelmet(new ItemStack(Material.PUMPKIN, 1));
-  	            	target.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 99999, 2));
-  	            	target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 99999, 1));
-  	            	target.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 99999, 10));
-  	            	target.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 99999, 1));
-  	            }
-  	            
-	    	    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
-	    	    {
-	    	        public void run()
-	    	        {
-	    	        	if(Bukkit.getBukkitVersion().contains("1.13")) {
-	    	        	target.stopSound(Sound.MUSIC_DISC_13);
-	    	        	}else {
-	    	        	target.stopSound(Sound.valueOf("RECORD_13"));	
-	    	        	}
-  	    	            Cooldowns.spook.remove(target);
-  	    	            target.sendMessage("§e" + target.getName() + "§7, your spooky days are finally over.");
-  	    	            click(target);
-
-  	  	            if (getConfig().getBoolean("other-effects")) {
-  	  	            	target.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-  	  	            	target.removePotionEffect(PotionEffectType.SLOW);
-  	  	            	target.removePotionEffect(PotionEffectType.BLINDNESS);
-  	  	            	target.removePotionEffect(PotionEffectType.SATURATION);
-  	  	            	target.removePotionEffect(PotionEffectType.CONFUSION);
-  	  	            }
-	    	        }
-	    	      }, 200L);
-  	            
-  	            try {
-  	            if(this.getConfig().getBoolean("global-feelings")) {
-  	          for(final Player online:Bukkit.getServer().getOnlinePlayers())
-              {
-online.sendMessage(sender.getName() +" §7sent mad spooks to §6§l" + target.getName() +"§7. §e§oFestive!");
-              	}
-  	                } else {
-  	                sender.sendMessage("§7You sent mad spooks to §6§l" + target.getName() +"§7. §e§oFestive!");
-  	                target.sendMessage("§7You were sent mad spooks by §e" + sender.getName() +"§7. §6§oFestive!");
-  	                }
-  	          }catch (Exception e){
-  	        	  sender.sendMessage("§c§lSorry! §fSomething happend, try again later. §7(See Console)");
-  	        	  getLogger().info("Error when trying to send /" + label + " messages to " + p.getName());
-  	      		  if(this.getConfig().getBoolean("debug")) {
-  	      			  System.out.print("ChatFeelings Debug: "); e.printStackTrace();
-  	      			  }
-  	          }
-  Cooldowns.cooldown.put(p, p.getName());
-  Cooldowns.startCooldown(p);  
-  Particles.spookParticles(target);
-  Particles.spookParticles2(target);
-  	        }
-  	        	}
-  	        }
-  	      }
-      
       if ((label.equalsIgnoreCase("pat")) && 
     	        (args.length == 1) && (emotes.getBoolean(label.toLowerCase() + "-active"))) {
     	        if ((!sender.hasPermission("chatfeelings." + label)) && (!sender.hasPermission("chatfeelings.all")) && (!p.isOp()))
@@ -2089,7 +1953,7 @@ online.sendMessage(messages.getString(label+"-global").replace("&", "§").replac
     	        (label.equalsIgnoreCase("shake")) || (label.equalsIgnoreCase("snuggle")) || (label.equalsIgnoreCase("kiss")) || (label.equalsIgnoreCase("stab")) || 
     	        (label.equalsIgnoreCase("punch")) || (label.equalsIgnoreCase("slap")) || (label.equalsIgnoreCase("poke")) || (label.equalsIgnoreCase("highfive")) || 
     	        (label.equalsIgnoreCase("facepalm")) || (label.equalsIgnoreCase("yell")) || (label.equalsIgnoreCase("cry")) || (label.equalsIgnoreCase("lick")) || (label.equalsIgnoreCase("murder")) || 
-    	        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk")) || (label.equalsIgnoreCase("spook"))))
+    	        (label.equalsIgnoreCase("scorn")) || (label.equalsIgnoreCase("pat")) || (label.equalsIgnoreCase("stalk"))))
     	      {
 	  sender.sendMessage(messages.getString("prefix").replace("&", "§") + " §r" + "§cSorry, only players can do feeling commands!");
     	      }
@@ -2203,24 +2067,6 @@ online.sendMessage(messages.getString(label+"-global").replace("&", "§").replac
     } // command end
   
   @EventHandler
-  public void onPlayerLeave(PlayerQuitEvent e) {
-	    final Player player = e.getPlayer(); 
-	    
-	    if(Cooldowns.spook.containsKey(player)) {
-	            if (getConfig().getBoolean("other-effects")) {
-	  	            	player.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-  	  	            	player.removePotionEffect(PotionEffectType.SLOW);
-  	  	            	player.removePotionEffect(PotionEffectType.BLINDNESS);
-  	  	            	player.removePotionEffect(PotionEffectType.SATURATION);
-  	  	            	player.removePotionEffect(PotionEffectType.CONFUSION);
-	  	            	if(getConfig().getBoolean("debug")) {
-	  	            		System.out.print("ChatFeelings Debug: " + player.getName() + " left while being spooked!! Removed helmet.");
-	  	            	}
-	            }
-	    }
-   }
-  
-  @EventHandler
   public void onPlayerJoinGameEvent(PlayerJoinEvent e)
   {
     final Player player = e.getPlayer();
@@ -2297,21 +2143,7 @@ online.sendMessage(messages.getString(label+"-global").replace("&", "§").replac
       	}
 	    }}
 	  } // END OF ON JOIN EVENT
-  
-  @EventHandler
-  public void onChestEvent(InventoryClickEvent event) {
-	  if(Cooldowns.spook.containsKey(event.getWhoClicked())) {
-	  event.setCancelled(true);
-	  }
-  }
-  
-  @EventHandler
-  public void onMove(PlayerMoveEvent event) {
-	  if(Cooldowns.spook.containsKey(event.getPlayer())) {
-		  Particles.spookParticles2(event.getPlayer());
-	  }
-  }
-  
+
   public void onDisable() {
       FileConfiguration soundconfig = YamlConfiguration.loadConfiguration(soundfile);
 		sounds.set("Version", Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));

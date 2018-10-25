@@ -1,8 +1,6 @@
 package com.zach_attack.chatfeelings;
 
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 import com.zach_attack.chatfeelings.Main;
 
 import org.bukkit.Bukkit;
