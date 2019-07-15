@@ -809,7 +809,7 @@ public class Main extends JavaPlugin implements Listener {
 	    	updateLastOn(e.getPlayer());
 	    	
 	    	if(e.getPlayer().getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
-	    		Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion() + " &ffor " + Bukkit.getBukkitVersion());
+	    		Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion() + " &ffor " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
 	    	}
 	    }
 }
