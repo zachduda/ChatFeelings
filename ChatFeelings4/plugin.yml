@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zach_attack.chatfeelings.Main
 website: https://www.spigotmc.org/resources/chatfeelings.12987/
 author: zach_attack
-version: 4.0
+version: 4.1
 api-version: 1.13
 description: ChatFeelings lets you show your affection to players!
 commands:
