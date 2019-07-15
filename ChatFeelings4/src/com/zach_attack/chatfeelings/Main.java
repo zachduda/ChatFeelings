@@ -54,6 +54,11 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void purgeOldFiles() {
+		File folder = new File(this.getDataFolder(), File.separator + "Data");
+		if(!folder.exists()) {
+			return;
+		}
+		
 	  Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 		boolean debug = getConfig().getBoolean("Other.Debug");
 		
@@ -64,7 +69,6 @@ public class Main extends JavaPlugin implements Listener {
 			return;
 		}
 		
-		File folder = new File(this.getDataFolder(), File.separator + "Data");
 		int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
 		
 		for(File cachefile:folder.listFiles())
@@ -605,19 +609,20 @@ public class Main extends JavaPlugin implements Listener {
 	       			long secondsLeft = ((cooldown.get(p.getPlayer())/1000)+cooldownTime) - (System.currentTimeMillis()/1000);
 	       			if(secondsLeft > 0) {
 	       				Msgs.sendPrefix(sender, msg.getString("Cooldown-Active").replace("%time%", Long.toString(secondsLeft) + "s"));
-	       				bass(p.getPlayer());
+	       				bass(sender);
 	       				return true;
 	       				}
 	      		}}}
 	    	  
 	    	  String cmdconfig = (StringUtils.capitalize(cmd.getName().toString()));
 	    	  
-	    	  if(args[0].equalsIgnoreCase(sender.getName())) {
+	    	  if(sender instanceof Player) {
+	    	  if(args[0].equalsIgnoreCase(sender.getName().toString())) {
 	    		  if(getConfig().getBoolean("General.Prevent-Self-Feelings")) {
 	    		  bass(sender);
 	    		  Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
 	    		  return true;
-	    	}}
+	    	}}}
 	    	  
 	    	  if(sender instanceof Player) {
 	    		  Player p = (Player)sender;

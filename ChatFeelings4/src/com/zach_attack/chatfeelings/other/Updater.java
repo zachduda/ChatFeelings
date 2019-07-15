@@ -23,8 +23,7 @@ public class Updater {
     private String spigotPluginVersion;
 
     private static final int ID = 12987;
-    private static final String ERR_MSG = "&cCouldn't check for updates. &rSee error below:";
-    private static final long CHECK_INTERVAL = 12_000; //In ticks.
+    private static final long CHECK_INTERVAL = 1_728_000; //In ticks.
     
     public Updater(final JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
@@ -32,6 +31,7 @@ public class Updater {
     }
 
     public void checkForUpdate() {
+    	try {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -41,8 +41,7 @@ public class Updater {
                         connection.setRequestMethod("GET");
                         spigotPluginVersion = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
                     } catch (final IOException e) {
-                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', ERR_MSG));
-                        e.printStackTrace();
+                        Bukkit.getServer().getConsoleSender().sendMessage("[ChatFeelings] Unable to check for updates. Is your server online?");
                         cancel();
                         return;
                     }
@@ -58,5 +57,8 @@ public class Updater {
                 });
             }
         }.runTaskTimer(javaPlugin, 0, CHECK_INTERVAL);
+    	}catch(Exception err) {
+    		javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
+    	}
     }
 }
