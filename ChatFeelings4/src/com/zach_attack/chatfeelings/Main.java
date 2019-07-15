@@ -313,6 +313,21 @@ public class Main extends JavaPlugin implements Listener {
 	  getLogger().info("Reloaded with " + onlinecount + " players online...");
 	  }
 	  
+	  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+	  File msgsfile = new File(folder, File.separator + "messages.yml");
+	  FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
+	  
+	  if(msgsfile.exists()) {
+	  if(msg.contains("Version")) {
+	  if(msg.getInt("Version") == 1) {
+		  getLogger().info("Updated your messages.yml...");
+		  msg.set("No-Player", "&cOops! &fYou need to provide a player to do that to.");
+		  msg.set("Version", 2);
+		  try {
+		  msg.save(msgsfile);
+		  } catch(Exception err) {}
+	  }}}
+	  
 	  getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 	} // [!] End of OnEnable Event
 	  

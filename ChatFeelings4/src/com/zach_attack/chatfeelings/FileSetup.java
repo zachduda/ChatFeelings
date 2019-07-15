@@ -85,7 +85,7 @@ public class FileSetup {
 	    	msgs.set("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	msgs.set("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	msgs.set("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	msgs.set("Version", 1);
+	    	msgs.set("Version", 2);
 	    	msgs.save(msgsfile);
 	    	
 	    	plugin.getLogger().info("Created new messages.yml file...");
