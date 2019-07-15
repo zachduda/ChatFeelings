@@ -1,0 +1,113 @@
+name: ChatFeelings
+main: com.zach_attack.chatfeelings.Main
+website: https://www.spigotmc.org/resources/chatfeelings.12987/
+author: zach_attack
+version: 4.0
+api-version: 1.13
+description: ChatFeelings lets you show your affection to players!
+commands:
+  hug:
+    description: Gives somebody a nice warm hug!
+  slap:
+    description: Slap some sense back into someone.
+  poke:
+    description: Poke someone to get their attention.
+  highfive:
+    description: Show your support, and give a highfive!
+  facepalm:
+    description: Need to show some disapproval?
+  yell:
+    description: Yell at someone as loud as possible!
+  chatfeelings:
+    description: General command for chatfeelings.
+    aliases: [cf]
+  feelings:
+    description: Lists all the feelings you can do!
+    aliases: [emotions]
+  bite:
+    description: Bite a player right on the arm.
+  snuggle:
+    description: Snuggle up with the power of warm hugs!
+  shake:
+    description: Shakes a player to their feet.
+  stab:
+    description: Stab someone with a knife. Ouch!
+  kiss:
+    description: Make sweet sweet love. uwu
+  punch:
+    description: Punch the lights out of someone!
+  murder:
+    description: Finna kill someone here.
+  boi:
+    description: Living in 2016? Boi at a player.
+  cry:
+    description: Real sad hours? Cry at a player.
+  dab:
+    description: Cash me outside. How bout dab?
+  lick:
+    description: Lick someone like an ice-cream sundae!
+  scorn:
+    description: Shame a player for what they've done.
+  pat:
+    description: Pat a players head for being good.
+  stalk:
+    description: Stalk a player carefully... carefully.
+permissions:
+   chatfeelings.*:
+     description: Allows all chatfeelings commands & admin commands.
+     children:
+       chatfeelings.help: true
+       chatfeelings.admin: true
+       chatfeelings.hug: true
+       chatfeelings.slap: true
+       chatfeelings.poke: true
+       chatfeelings.highfive: true
+       chatfeelings.facepalm: true
+       chatfeelings.yell: true
+       chatfeelings.highfive: true
+       chatfeelings.bite: true
+       chatfeelings.snuggle: true
+       chatfeelings.shake: true
+       chatfeelings.stab: true
+       chatfeelings.kiss: true
+       chatfeelings.punch: true
+       chatfeelings.murder: true
+       chatfeelings.boi: true
+       chatfeelings.dab: true
+       chatfeelings.cry: true
+       chatfeelings.lick: true
+       chatfeelings.highfive: true
+       chatfeelings.ignore: true
+   chatfeelings.all:
+     description: Allows all feeling commands.
+     default: true
+     children:
+       chatfeelings.hug: true
+       chatfeelings.slap: true
+       chatfeelings.poke: true
+       chatfeelings.highfive: true
+       chatfeelings.facepalm: true
+       chatfeelings.yell: true
+       chatfeelings.highfive: true
+       chatfeelings.bite: true
+       chatfeelings.snuggle: true
+       chatfeelings.shake: true
+       chatfeelings.stab: true
+       chatfeelings.kiss: true
+       chatfeelings.punch: true
+       chatfeelings.murder: true
+       chatfeelings.boi: true
+       chatfeelings.dab: true
+       chatfeelings.cry: true
+       chatfeelings.lick: true
+       chatfeelings.highfive: true
+       chatfeelings.ignore: false
+   chatfeelings.ignore:
+     description: Players with this permission will ignore feelings etc.
+     default: true
+   chatfeelings.help:
+     description: Allows players to see available feelings.
+     default: true
+   chatfeelings.admin:
+     description: Allows players to see available feelings.
+     default: op

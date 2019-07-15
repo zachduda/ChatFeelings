@@ -1,0 +1,30 @@
+General:
+  Global-Feelings:
+    Enabled: true
+    Broadcast-To-Console: true
+  Prevent-Self-Feelings: true
+  Violent-Command-Harm: true
+  Cooldowns:
+    Feelings:
+      Enabled: true
+      Seconds: 10
+    Ignoring:
+      Enabled: true
+      Seconds: 5
+  Particles: true
+  Disabled-Sending-Worlds: []
+  Disabled-Receiving-Worlds:
+  - world_the_end
+Other:
+  Bypass-Version-Block: false
+  Vanished-Players:
+    Check: true
+    Use-Legacy: false
+  Player-Files:
+    Cleanup: true
+    Cleanup-After-Days: 185
+  Updates:
+    Check: true
+  Metrics: true
+  Debug: false
+Version: 1
