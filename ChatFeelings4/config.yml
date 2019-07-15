@@ -1,30 +1,30 @@
 General:
   Global-Feelings:
-    Enabled: true
-    Broadcast-To-Console: true
-  Prevent-Self-Feelings: true
-  Violent-Command-Harm: true
+    Enabled: false        # Should feelings be broadcasted instead of between the target and sender?
+    Broadcast-To-Console: true        # If Global-Feelings are on, should the CONSOLE see the messages too?
+  Prevent-Self-Feelings: true        # Can players use feelings on themselves? (EX: A player named Notch doing: /hug Notch)
+  Violent-Command-Harm: true        # Should violent commands shake the players screen?
   Cooldowns:
     Feelings:
-      Enabled: true
-      Seconds: 10
+      Enabled: false        # Enable feeling cooldowns?
+      Seconds: 10        # How many seconds in between feelings must a player wait?
     Ignoring:
-      Enabled: true
-      Seconds: 5
-  Particles: true
-  Disabled-Sending-Worlds: []
-  Disabled-Receiving-Worlds:
-  - world_the_end
+      Enabled: true        # Use cooldowns for Ignoring?
+      Seconds: 5        # How many seconds until someone can ignore another player?
+  Particles: true        # Show the target particles for feelings
+  Disabled-Sending-Worlds: []      # Which worlds can players not send feelings?
+  Disabled-Receiving-Worlds:        # Which worlds can players not receive /feelings?
+  -  world_the_end
+  
 Other:
-  Bypass-Version-Block: false
+  Bypass-Version-Block: false        # If using 1.12 or below, setting this to true forces ChatFeelings to run.
   Vanished-Players:
-    Check: true
-    Use-Legacy: false
-  Player-Files:
-    Cleanup: true
-    Cleanup-After-Days: 185
+  Check: true        # Should we tell people that vanished players are offline if players try feelings on them?
+  Use-Legacy: false        # Leave on False unless you are having issues with vanish checks not working.Player-Files:
+   Cleanup: true        # Should we erase ChatFeelings data for players who haven't joined in a while?
+   Cleanup-After-Days: 185        # How many days from the time the player last joined until we can erase their ChatFeeling's data?
   Updates:
-    Check: true
-  Metrics: true
-  Debug: false
-Version: 1
+    Check: true        # Recommend to set to true. This checks for updates to ChatFeelings
+  Metrics: true        # Recommended to set to true. This helps to improve ChatFeelings by sending stats about your server.
+  Debug: false        # When true, shows additional console messages & errors.
+Version: 1        # Do not touch. This helps keep your config up to date.
