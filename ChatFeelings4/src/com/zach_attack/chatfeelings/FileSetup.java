@@ -69,7 +69,7 @@ public class FileSetup {
 	    	msgs.set("Sending-World-Disabled", "&cSorry. &fYou can't use feelings in this world.");
 	    	msgs.set("Receiving-World-Disabled", "&cSorry. &fYour target is in a world with feelings disabled.");
 	    	msgs.set("Page-Not-Found", "&cOops. &fThat page doesn't exist, try &7/feelings 1");
-	    	msgs.set("No-Player", "&cYou need to provide a player to do that to.");
+	    	msgs.set("No-Player", "&cOops! &fYou need to provide a player to do that to.");
 	    	msgs.set("Player-Offline", "&cPlayer Offline. &fWe couldn't find &7&l%player% &fon the server.");
 	    	msgs.set("Player-Never-Joined", "&cHmm. &fThat player has never joined before.");
 	    	msgs.set("Cooldown-Active", "&cSlow Down. &fWait &7%time% &fbefore doing that again.");

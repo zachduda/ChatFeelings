@@ -312,6 +312,8 @@ public class Main extends JavaPlugin implements Listener {
 		  }
 	  getLogger().info("Reloaded with " + onlinecount + " players online...");
 	  }
+	  
+	  getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 	} // [!] End of OnEnable Event
 	  
 	   private boolean isVanished(Player player) {
@@ -613,6 +615,12 @@ public class Main extends JavaPlugin implements Listener {
 	       				return true;
 	       				}
 	      		}}}
+	    
+	    if(args.length == 0) {
+	    	Msgs.sendPrefix(sender, msg.getString("No-Player"));
+	    	bass(sender);
+	    	return true;
+	    }
 	    	  
 	    	  String cmdconfig = (StringUtils.capitalize(cmd.getName().toString()));
 	    	  
