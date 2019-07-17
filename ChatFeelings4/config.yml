@@ -12,6 +12,7 @@ General:
       Enabled: true
       Seconds: 5
   Particles: true
+  Extra-Help: true
   Disabled-Sending-Worlds: []
   Disabled-Receiving-Worlds:
   - world_the_end
@@ -27,4 +28,4 @@ Other:
     Check: true
   Metrics: true
   Debug: false
-Version: 1
+Version: 2

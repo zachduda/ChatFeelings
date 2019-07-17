@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zach_attack.chatfeelings.Main
 website: https://www.spigotmc.org/resources/chatfeelings.12987/
 author: zach_attack
-version: 4.1.1
+version: 4.2
 api-version: 1.13
 soft-depend: [Essentials, VanishNoPacket]
 description: ChatFeelings lets you show your affection to players!
@@ -103,8 +103,12 @@ permissions:
        chatfeelings.lick: true
        chatfeelings.highfive: true
        chatfeelings.ignore: false
+       chatfeelings.mute: false
    chatfeelings.ignore:
      description: Players with this permission will ignore feelings etc.
+     default: true
+   chatfeelings.mute:
+     description: Allows a player to mute other players.
      default: true
    chatfeelings.help:
      description: Allows players to see available feelings.

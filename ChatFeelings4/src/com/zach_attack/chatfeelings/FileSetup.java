@@ -69,15 +69,21 @@ public class FileSetup {
 	    	msgs.set("Sending-World-Disabled", "&cSorry. &fYou can't use feelings in this world.");
 	    	msgs.set("Receiving-World-Disabled", "&cSorry. &fYour target is in a world with feelings disabled.");
 	    	msgs.set("Page-Not-Found", "&cOops. &fThat page doesn't exist, try &7/feelings 1");
-	    	msgs.set("No-Player", "&cOops! &fYou need to provide a player to do that to.");
+	    	msgs.set("No-Player", "&cOops! &fYou need to provide a player to do that to."); // updated in version 2
+	    	msgs.set("No-Player-Ignore", "&cOops! &fYou must provide a player to ignore.");
+	    	msgs.set("No-Player-Mute", "&cOops! &fYou must provide a player to mute."); // added in version 3
 	    	msgs.set("Player-Offline", "&cPlayer Offline. &fWe couldn't find &7&l%player% &fon the server.");
 	    	msgs.set("Player-Never-Joined", "&cHmm. &fThat player has never joined before.");
 	    	msgs.set("Cooldown-Active", "&cSlow Down. &fWait &7%time% &fbefore doing that again.");
 	    	msgs.set("Ignore-Cooldown", "&cSlow Down. &fPlease wait before ignoring another player.");
 	    	msgs.set("Console-Not-Player", "&cGoofball! &fThe &7CONSOLE&f is not a real player.");
 	    	msgs.set("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");
+	    	msgs.set("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings."); // added in version 3
+	    	msgs.set("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings."); // added in version 3
+	    	msgs.set("Player-Has-Been-Unmuted", "&aUser Unmuted. &7%player% &fcan now use feelings again."); // added in version 3
+	    	msgs.set("Cant-Mute-Self", "&cYou Silly! &fYou can't mute yourself."); // added in version 3
+	    	msgs.set("No-Perm-Mute-Suggestion", "&7&oCould you have ment &e&o/cf ignore&7&o?");
 	    	msgs.set("Emote-Disabled", "&cEmote Disabled. &fThis emotion has been disabled by the server.");
-	    	msgs.set("No-Player-Ignore", "&cOops! &fYou must provide a player to ignore.");
 	    	msgs.set("Ingoring-On-Player", "&7You've now &c&lBLOCKED &r&7feelings from: &f%player%");
 	    	msgs.set("Ingoring-Off-Player", "&7Now &a&lALLOWING &7feelings from: &f%player%");
 	    	msgs.set("Ingoring-On-All", "&7You've now &c&lBLOCKED &r&7feelings from all players.");
@@ -85,7 +91,7 @@ public class FileSetup {
 	    	msgs.set("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	msgs.set("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	msgs.set("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	msgs.set("Version", 2);
+	    	msgs.set("Version", 3);
 	    	msgs.save(msgsfile);
 	    	
 	    	plugin.getLogger().info("Created new messages.yml file...");
@@ -99,6 +105,7 @@ public class FileSetup {
 	emotes.set("Feelings.Hug.Msgs.Sender", "&7You give &a&l%player% &r&7a warm hug. &cAwww &4❤");
 	emotes.set("Feelings.Hug.Msgs.Target", "&a&l%player% &r&7gives you a warm hug. &cAwww &4❤");
 	emotes.set("Feelings.Hug.Msgs.Global", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
+//	emotes.set("Feelings.Hug.Msgs.Everyone", "&a&l%player% &r&7gives everyone a warm hug. &cAwww &4❤");
 	emotes.set("Feelings.Hug.Sounds.Sound1.Name", "ENTITY_CAT_PURREOW");
 	emotes.set("Feelings.Hug.Sounds.Sound1.Volume", 2.0);
 	emotes.set("Feelings.Hug.Sounds.Sound1.Pitch", 2.0);
@@ -110,6 +117,7 @@ public class FileSetup {
 	emotes.set("Feelings.Bite.Msgs.Sender", "&7You sink your teeth info &c&l%player%&r&7's skin.");
 	emotes.set("Feelings.Bite.Msgs.Target", "&c&l%player% &r&7sinks their teeth into your skin.");
 	emotes.set("Feelings.Bite.Msgs.Global", "&c&l%sender% &r&7sank their teeth into &4&l%target%&r&7's skin");
+//	emotes.set("Feelings.Bite.Msgs.Everyone", "&c&l%player% &r&7sinks their teeth into everyone's skin.");
 	emotes.set("Feelings.Bite.Sounds.Sound1.Name", "ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR");
 	emotes.set("Feelings.Bite.Sounds.Sound1.Volume", 2.0);
 	emotes.set("Feelings.Bite.Sounds.Sound1.Pitch", 2.0);
@@ -120,7 +128,8 @@ public class FileSetup {
 	emotes.set("Feelings.Punch.Enable", true);
 	emotes.set("Feelings.Punch.Msgs.Sender", "&7You strike &c&l%player% &r&7with a punch. Ouch!");
 	emotes.set("Feelings.Punch.Msgs.Target", "&c&l%player% &r&7strikes you with a punch. Ouch!");
-	emotes.set("Feelings.Punch.Msgs.Global", "&c&l%sender% &r&7punched &4&l%target% &r&7right in the face.");
+//	emotes.set("Feelings.Punch.Msgs.Global", "&c&l%sender% &r&7punched &4&l%target% &r&7right in the face.");
+	emotes.set("Feelings.Punch.Msgs.Everyone", "&c&l%player% &r&7punches everyone in the face.");
 	emotes.set("Feelings.Punch.Sounds.Sound1.Name", "ENTITY_IRON_GOLEM_ATTACK");
 	emotes.set("Feelings.Punch.Sounds.Sound1.Volume", 2.0);
 	emotes.set("Feelings.Punch.Sounds.Sound1.Pitch", 0.6);
@@ -319,12 +328,11 @@ public class FileSetup {
 	emotes.set("Feelings.Stalk.Sounds.Sound2.Name", "None");
 	emotes.set("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 	emotes.set("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
-	
-	
-	
+
 	emotes.set("Version", 1);
 	emotes.save(emotesfile);
 	plugin.getLogger().info("Created new emotes.yml file...");
-	  }}catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new emotes.yml file.");}
+
+	  }}catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new emotes.yml file."); }
 	}
 }

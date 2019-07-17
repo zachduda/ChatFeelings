@@ -12,6 +12,7 @@ General:
       Enabled: true        # Use cooldowns for Ignoring?
       Seconds: 5        # How many seconds until someone can ignore another player?
   Particles: true        # Show the target particles for feelings
+  Extra-Help: true        # Show additional command recommendations if a player does a command w/o Permission.
   Disabled-Sending-Worlds: []      # Which worlds can players not send feelings?
   Disabled-Receiving-Worlds:        # Which worlds can players not receive /feelings?
   -  world_the_end
