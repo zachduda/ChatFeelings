@@ -207,6 +207,7 @@ public class FileSetup {
 	    	setMsgs("Cooldown-Active", "&cSlow Down. &fWait &7%time% &fbefore doing that again.");
 	    	setMsgs("Ignore-Cooldown", "&cSlow Down. &fPlease wait before ignoring another player.");
 	    	setMsgs("Console-Not-Player", "&cGoofball! &fThe &7CONSOLE&f is not a real player.");
+	    	setMsgs("Player-Is-Sleeping", "&cZzz. &fYou can't %command% &7%player% &fwhile they're sleeping."); // added in version 3
 	    	setMsgs("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");
 	    	setMsgs("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings."); // added in version 3
 	    	setMsgs("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings."); // added in version 3

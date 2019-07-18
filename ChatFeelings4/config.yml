@@ -4,6 +4,7 @@ General:
     Broadcast-To-Console: true
   Prevent-Self-Feelings: true
   Violent-Command-Harm: true
+  No-Violent-Cmds-When-Sleeping: true
   Cooldowns:
     Feelings:
       Enabled: true

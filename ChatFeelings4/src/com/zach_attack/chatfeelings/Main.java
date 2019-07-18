@@ -298,7 +298,7 @@ public class Main extends JavaPlugin implements Listener {
 		disabledreceivingworlds.addAll(getConfig().getStringList("General.Disabled-Receiving-Worlds"));
 
 		outdatedplugin = false;
-		addMetric();
+	// Removed for Pre-Release	addMetric();
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
 		if (debug) {
@@ -330,10 +330,11 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		if(getConfig().contains("Version")) {
-			if(getConfig().getInt("Version") == 1) {
+			if(getConfig().getInt("Version") == 1 || getConfig().getInt("Version") == 2) {
 				getLogger().info("Updating your config to the latest v4.2 version...");
 				getConfig().set("General.Extra-Help", true);
-				getConfig().set("Version", 2);
+				getConfig().set("General.No-Violent-Cmds-When-Sleeping", true);
+				getConfig().set("Version", 3);
 				saveConfig();
 				reloadConfig();
 			}
@@ -885,6 +886,21 @@ public class Main extends JavaPlugin implements Listener {
 
 			boolean debug = getConfig().getBoolean("Other.Debug");
 			
+			if (getConfig().getBoolean("General.Violent-Command-Harm")) {
+				if (cmd.getName().equalsIgnoreCase("slap") || cmd.getName().equalsIgnoreCase("bite")
+						|| cmd.getName().equalsIgnoreCase("shake") || cmd.getName().equalsIgnoreCase("stab")
+						|| cmd.getName().equalsIgnoreCase("punch") || cmd.getName().equalsIgnoreCase("murder")) {
+			if(getConfig().getBoolean("No-Violent-Cmds-When-Sleeping")) {
+			if(target.isSleeping()) {
+				bass(sender);
+				Msgs.sendPrefix(sender, msg.getString("Player-Is-Sleeping"));
+				if(debug) {
+					getLogger().info("[Debug] " + sender.getName() + " tried to " + cmd.getName().toString() + " while sleeping. Canceled their feeling!");
+				}
+				return true;
+			}
+			}}}
+			
 			// Ignoring & Mute Check ----------------
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
@@ -1115,10 +1131,11 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		if(e.getPlayer().hasPermission("chatfeelings.admin") || e.getPlayer().isOp()) {
 		if (outdatedplugin) {
 			Msgs.sendPrefix(e.getPlayer(), "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
 					+ " while the latest is &f&l" + outdatedpluginversion);
-		}
+		}}
 
 		updateLastOn(e.getPlayer());
 
