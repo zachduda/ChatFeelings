@@ -90,8 +90,8 @@ public class Main extends JavaPlugin implements Listener {
 								+ "s old. (Max is " + maxDays + " Days)");
 					}
 				} else {
-					if(!setcache.contains("Mute")) {
-						setcache.set("Muted", true);
+					if(!setcache.contains("Muted") || !setcache.contains("Version")) {
+						setcache.set("Muted", false);
 						setcache.set("Version", 1);
 						getLogger().info("[Debug] Updated " + playername + "'s data file to work with new v4.2 system.");
 						try {
@@ -332,48 +332,10 @@ public class Main extends JavaPlugin implements Listener {
 		if(getConfig().contains("Version")) {
 			if(getConfig().getInt("Version") == 1) {
 				getLogger().info("Updating your config to the latest v4.2 version...");
-				getConfig().set("Extra-Help", true);
+				getConfig().set("General.Extra-Help", true);
 				getConfig().set("Version", 2);
 				saveConfig();
 				reloadConfig();
-			}
-		}
-
-		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
-		File msgsfile = new File(folder, File.separator + "messages.yml");
-		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
-
-		if (msgsfile.exists()) {
-			if (msg.contains("Version")) {
-				if (msg.getInt("Version") == 1) {
-					getLogger().info("Updating your messages.yml from v4.0 to v4.2...");
-					msg.set("No-Player", "&cOops! &fYou need to provide a player to do that to.");
-					msg.set("No-Player-Mute", "&cOops! &fYou must provide a player to mute.");
-					msg.set("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings.");
-					msg.set("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings.");
-					msg.set("Player-Has-Been-Unmuted", "&aUser Unmuted. &7%player% &fcan now use feelings again.");
-					msg.set("Cant-Mute-Self", "&cYou Silly! &fYou can't mute yourself.");
-					msg.set("Version", 3);
-					
-					try {
-						msg.save(msgsfile);
-					} catch (Exception err) {
-					}
-					
-				} else if(msg.getInt("Version") == 2) {
-					getLogger().info("Updating your messages.yml from v4.1.1 to the v4.2 update....");
-					msg.set("No-Player-Mute", "&cOops! &fYou must provide a player to mute.");
-					msg.set("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings.");
-					msg.set("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings.");
-					msg.set("Player-Has-Been-Unmuted", "&aUser Unmuted. &7%player% &fcan now use feelings again.");
-					msg.set("Cant-Mute-Self", "&cYou Silly! &fYou can't mute yourself.");
-					msg.set("Version", 3);
-					
-					try {
-						msg.save(msgsfile);
-					} catch (Exception err) {
-					}
-				}
 			}
 		}
 
@@ -464,7 +426,8 @@ public class Main extends JavaPlugin implements Listener {
 				disabledreceivingworlds.clear();
 				disabledsendingworlds.addAll(getConfig().getStringList("General.Disabled-Sending-Worlds"));
 				disabledreceivingworlds.addAll(getConfig().getStringList("General.Disabled-Receiving-Worlds"));
-
+				
+				FileSetup.enableFiles();
 			} catch (Exception err2) {
 				getLogger().info("Error occured when trying to reload your config: ----------");
 				err2.printStackTrace();
@@ -490,7 +453,11 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(sender, "&8&l> &e&l/cf help &7Shows you this page.");
 			if (sender.hasPermission("chatfeelings.ignore") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7Ignore/Unignore feelings from players.");
-				Msgs.send(sender, "&8&l> &e&l/cf ignore all &7Blocks/Unblocks anyone from using feelings on you.");
+				Msgs.send(sender, "&8&l> &e&l/cf ignore all &7Toggles everyone being able to use feelings.");
+			}
+			if (sender.hasPermission("chatfeelings.mute") || sender.isOp()) {
+				Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7Prevents a player from using feelings.");
+				Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7Unmutes a muted player.");
 			}
 			if (sender.hasPermission("chatfeelings.admin") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf version &7Shows you the plugin version.");
@@ -534,18 +501,18 @@ public class Main extends JavaPlugin implements Listener {
 			return true;
 		}
 		
-		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mute")) {
+		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("unmute")) {
 			if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
 				noPermission(sender);
-				if(getConfig().contains("Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
-				if(getConfig().getBoolean("Extra-Help")) {
+				if(getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
+				if(getConfig().getBoolean("General.Extra-Help")) {
 				Msgs.sendPrefix(sender, msg.getString("No-Perm-Mute-Suggestion"));
 				}}
 				return true;
 			}
 
 			if (args.length == 1) {
-				Msgs.sendPrefix(sender, msg.getString("No-Player-Mute"));
+				Msgs.sendPrefix(sender, msg.getString("No-Player-Unmute"));
 				bass(sender);
 				return true;
 			}
@@ -574,24 +541,98 @@ public class Main extends JavaPlugin implements Listener {
 			}
 			
 			if(setcache.getBoolean("Muted")) {
+					setcache.set("Muted", false);
+					
+					try {
+						setcache.save(f);
+					} catch (Exception err) {
+						getLogger().warning("Unable to save " + sender.getName() + "'s data file:");
+						err.printStackTrace();
+						getLogger().warning("-----------------------------------------------------");
+						getLogger().warning("Please message us on discord or spigot about this error.");
+					}
+					
+					Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", args[1]));
+					pop(sender);
+			} else if(!setcache.getBoolean("Muted")) {
+				bass(sender);
+			Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));	
+			} else {
+				bass(sender);
+			Msgs.sendPrefix(sender, "&cError. &fWe couldn't find your mute status in your data file.");
+			getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.");
+			}
+			
+			return true;
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mute")) {
+			if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
+				noPermission(sender);
+				if(getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
+				if(getConfig().getBoolean("General.Extra-Help")) {
+				Msgs.sendPrefix(sender, msg.getString("No-Perm-Mute-Suggestion"));
+				}}
+				return true;
+			}
+
+			if (args.length == 1) {
+				Msgs.sendPrefix(sender, msg.getString("No-Player-Mute"));
+				bass(sender);
+				return true;
+			}
+
+			String muteUUID = hasPlayedNameGetUUID(args[1]);
+			
+			if (muteUUID == "0" || muteUUID == null) {
+				bass(sender);
+				Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+				return true;
+			}
+			
+			File cache = new File(this.getDataFolder(), File.separator + "Data");
+			File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(args[1]).toString() + ".yml");
+			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+
+			if (!f.exists()) {
+					Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
+					bass(sender);
+					return true;
+			}
+			
+			if(!setcache.contains("Muted")) {
+				Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
+			}
+			
 				if (args[1].equalsIgnoreCase(sender.getName())) {
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Cant-Mute-Self"));
 					return true;
 				}
 				
-					setcache.set("Muted", false);
-					Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", args[1]));
-			} else {
+				if(!setcache.getBoolean("Muted")) {
 				setcache.set("Muted", true);
-				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", args[1]));	
+				try {
+					setcache.save(f);
+				} catch (Exception err) {
+					getLogger().warning("Unable to save " + sender.getName() + "'s data file:");
+					err.printStackTrace();
+					getLogger().warning("-----------------------------------------------------");
+					getLogger().warning("Please message us on discord or spigot about this error.");
+				}
+				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", args[1]));
+				pop(sender);
+				} else if(setcache.getBoolean("Muted")){
+					bass(sender);
+				Msgs.sendPrefix(sender, msg.getString("Player-Already-Muted"));	
+				if(getConfig().contains("General.Extra-Help") && msg.contains("Already-Mute-Unmute-Suggestion")) {
+				if(getConfig().getBoolean("General.Extra-Help")) {
+				Msgs.sendPrefix(sender, msg.getString("Already-Mute-Unmute-Suggestion"));
+				}}} else {
+					bass(sender);
+				Msgs.sendPrefix(sender, "&cError. &fWe couldn't find your mute status in your data file.");
+				getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s mute status in the player file.");
 			}
-			
-			try {
-				setcache.save(f);
-			} catch (Exception err) {}
-			
-			pop(sender);
 			
 			return true;
 		}
@@ -848,7 +889,7 @@ public class Main extends JavaPlugin implements Listener {
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
 				File cache = new File(this.getDataFolder(), File.separator + "Data");
-				File f = new File(cache, File.separator + "" + target.getUniqueId().toString() + ".yml");
+				File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
 				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
 				if (f.exists()) {
