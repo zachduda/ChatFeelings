@@ -12,6 +12,9 @@ General:
     Ignoring:
       Enabled: true
       Seconds: 5
+  Radius:
+    Enabled: false
+    Radius-In-Blocks: 35    
   Particles: true
   Extra-Help: true
   Disabled-Sending-Worlds: []
@@ -29,4 +32,4 @@ Other:
     Check: true
   Metrics: true
   Debug: false
-Version: 2
+Version: 4

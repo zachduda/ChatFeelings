@@ -204,6 +204,7 @@ public class FileSetup {
 	    	setMsgs("No-Player-Mute", "&cOops! &fYou must provide a player to mute."); // added in version 3
 	    	setMsgs("Player-Offline", "&cPlayer Offline. &fWe couldn't find &7&l%player% &fon the server.");
 	    	setMsgs("Player-Never-Joined", "&cHmm. &fThat player has never joined before.");
+	    	setMsgs("Outside-Of-Radius", "&cHmm. &fYou're too far away from &7%player% &fto use that.");
 	    	setMsgs("Cooldown-Active", "&cSlow Down. &fWait &7%time% &fbefore doing that again.");
 	    	setMsgs("Ignore-Cooldown", "&cSlow Down. &fPlease wait before ignoring another player.");
 	    	setMsgs("Console-Not-Player", "&cGoofball! &fThe &7CONSOLE&f is not a real player.");

@@ -110,6 +110,13 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void addMetric() {
+		if(!getDescription().getVersion().contains("pre")) {
+			if(getConfig().getBoolean("Other.Debug")) {
+				getLogger().info("Running a pre-release from GitHub. Skipping metrics.");
+			}
+			return;
+		}
+		
 		double version = Double.parseDouble(System.getProperty("java.specification.version"));
 		if (version < 1.8) {
 			getLogger().warning(
@@ -298,7 +305,9 @@ public class Main extends JavaPlugin implements Listener {
 		disabledreceivingworlds.addAll(getConfig().getStringList("General.Disabled-Receiving-Worlds"));
 
 		outdatedplugin = false;
-	// Removed for Pre-Release	addMetric();
+		
+	    addMetric();
+		
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
 		if (debug) {
@@ -307,12 +316,19 @@ public class Main extends JavaPlugin implements Listener {
 		}
 
 		if (getConfig().getBoolean("Other.Updates.Check")) {
-			try {
-				new Updater(this).checkForUpdate();
-			} catch (Exception e) {
-				getLogger().warning("There was an issue while trying to check for updates.");
-			}
-		} else {
+			if(getDescription().getVersion().contains("pre")) {
+				if(debug) {
+					getLogger().info("Running a pre-release from GitHub. Update checking was skipped.");
+				outdatedplugin = false;
+				outdatedpluginversion = "0";
+				}
+			} else {
+				try {
+					new Updater(this).checkForUpdate();
+				} catch (Exception e) {
+					getLogger().warning("There was an issue while trying to check for updates.");
+				}}
+			} else {
 			getLogger().info("[!] Update checking has been disabled in the config.yml");
 		}
 
@@ -333,8 +349,10 @@ public class Main extends JavaPlugin implements Listener {
 			if(getConfig().getInt("Version") == 1 || getConfig().getInt("Version") == 2) {
 				getLogger().info("Updating your config to the latest v4.2 version...");
 				getConfig().set("General.Extra-Help", true);
+				getConfig().set("General.Radius.Enabled", false);
+				getConfig().set("General.Radius.Radius-In-Blocks", 35);
 				getConfig().set("General.No-Violent-Cmds-When-Sleeping", true);
-				getConfig().set("Version", 3);
+				getConfig().set("Version", 4);
 				saveConfig();
 				reloadConfig();
 			}
@@ -885,6 +903,21 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			boolean debug = getConfig().getBoolean("Other.Debug");
+			
+			if(getConfig().getBoolean("General.Radius.Enabled")) {
+			if(sender instanceof Player) {
+				Player p = (Player)sender;
+				
+				Double distance = p.getLocation().distance(target.getLocation());
+				Double radius = getConfig().getDouble("General.Radius.Radius-In-Blocks");	
+			if(distance > radius) {
+				if(debug) {
+					getLogger().info(sender.getName() + " was outside the radius of " + radius + ". (They're " + distance + ")");
+				}
+				Msgs.sendPrefix(sender, msg.getString("Outside-Of-Radius"));
+				bass(sender);
+				return true;
+			}}}
 			
 			if (getConfig().getBoolean("General.Violent-Command-Harm")) {
 				if (cmd.getName().equalsIgnoreCase("slap") || cmd.getName().equalsIgnoreCase("bite")
