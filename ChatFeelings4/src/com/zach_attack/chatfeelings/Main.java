@@ -57,12 +57,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	public void purgeOldFiles() {
 		boolean debug = getConfig().getBoolean("Other.Debug");
-		if (!getConfig().getBoolean("Other.Player-Files.Cleanup")) {
-			if (debug) {
-				getLogger().info("[Debug] Purging disabled 'Cleanup' was set to False.");
-			}
-			return;
-		}
+		boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
 		
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 			
@@ -74,22 +69,21 @@ public class Main extends JavaPlugin implements Listener {
 			int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
 
 			for (File cachefile : folder.listFiles()) {
-
 				File f = new File(cachefile.getPath());
 				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
+				
 				long daysAgo = Math
 						.abs(((setcache.getLong("Last-On")) / 86400000) - (System.currentTimeMillis() / 86400000));
 
 				String playername = setcache.getString("Username");
 				
-				if (daysAgo >= maxDays) {
+				if (daysAgo >= maxDays && useclean) {
 					f.delete();
 					if (debug) {
 						getLogger().info("[Debug] Deleted " + playername + "'s data file because it's " + daysAgo
 								+ "s old. (Max is " + maxDays + " Days)");
-					}
-				} else {
+					}} else {
+						
 					if(!setcache.contains("Muted") || !setcache.contains("Version")) {
 						setcache.set("Muted", false);
 						setcache.set("Version", 1);
