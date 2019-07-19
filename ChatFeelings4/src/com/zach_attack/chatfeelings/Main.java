@@ -213,6 +213,7 @@ public class Main extends JavaPlugin implements Listener {
 				setcache.set("UUID", UUID);
 				setcache.set("Allow-Feelings", true);
 				setcache.set("Muted", false);
+				setcache.set("Version", 1);
 			}
 
 			setcache.set("Username", p.getName().toString());
