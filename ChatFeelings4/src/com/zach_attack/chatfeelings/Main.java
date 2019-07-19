@@ -911,7 +911,7 @@ public class Main extends JavaPlugin implements Listener {
 				if(debug) {
 					getLogger().info(sender.getName() + " was outside the radius of " + radius + ". (They're " + distance + ")");
 				}
-				Msgs.sendPrefix(sender, msg.getString("Outside-Of-Radius"));
+				Msgs.sendPrefix(sender, msg.getString("Outside-Of-Radius").replace("%player%", target.getName()).replace("%command%", cmd.getName().toString()));
 				bass(sender);
 				return true;
 			}}}
