@@ -56,20 +56,20 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void purgeOldFiles() {
+		boolean debug = getConfig().getBoolean("Other.Debug");
+		if (!getConfig().getBoolean("Other.Player-Files.Cleanup")) {
+			if (debug) {
+				getLogger().info("[Debug] Purging disabled 'Cleanup' was set to False.");
+			}
+			return;
+		}
+		
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			
 		File folder = new File(this.getDataFolder(), File.separator + "Data");
 		if (!folder.exists()) {
 			return;
 		}
-
-		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-			boolean debug = getConfig().getBoolean("Other.Debug");
-
-			if (!getConfig().getBoolean("Other.Player-Files.Cleanup")) {
-				if (debug) {
-					getLogger().info("[Debug] Purging disabled 'Cleanup' was set to False.");
-				}
-				return;
-			}
 
 			int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
 
@@ -93,7 +93,9 @@ public class Main extends JavaPlugin implements Listener {
 					if(!setcache.contains("Muted") || !setcache.contains("Version")) {
 						setcache.set("Muted", false);
 						setcache.set("Version", 1);
+						if(debug) {
 						getLogger().info("[Debug] Updated " + playername + "'s data file to work with new v4.2 system.");
+						}
 						try {
 						setcache.save(f);
 						}catch(Exception err) {}
