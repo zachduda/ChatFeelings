@@ -106,10 +106,8 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void addMetric() {
-		if(!getDescription().getVersion().contains("pre")) {
-			if(getConfig().getBoolean("Other.Debug")) {
-				getLogger().info("Running a pre-release from GitHub. Skipping metrics.");
-			}
+		if(getDescription().getVersion().contains("pre")) {
+				getLogger().info("Running a pre-release from GitHub. Skipping Metrics.");
 			return;
 		}
 		
@@ -312,21 +310,19 @@ public class Main extends JavaPlugin implements Listener {
 			getLogger().info("[Debug] Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
 		}
 
+		if(getDescription().getVersion().contains("pre")) {
 		if (getConfig().getBoolean("Other.Updates.Check")) {
-			if(getDescription().getVersion().contains("pre")) {
-				if(debug) {
-					getLogger().info("Running a pre-release from GitHub. Update checking was skipped.");
-				outdatedplugin = false;
-				outdatedpluginversion = "0";
-				}
-			} else {
 				try {
 					new Updater(this).checkForUpdate();
 				} catch (Exception e) {
 					getLogger().warning("There was an issue while trying to check for updates.");
-				}}
+				}
 			} else {
 			getLogger().info("[!] Update checking has been disabled in the config.yml");
+		}}else {
+			getLogger().info("Running a pre-release from GitHub. Update checking was skipped.");
+			outdatedplugin = false;
+			outdatedpluginversion = "0";
 		}
 
 		FileSetup.enableFiles();
@@ -901,9 +897,10 @@ public class Main extends JavaPlugin implements Listener {
 
 			boolean debug = getConfig().getBoolean("Other.Debug");
 			
-			if(getConfig().getBoolean("General.Radius.Enabled")) {
+			// Radius & Sleeping Check ---------------------------
 			if(sender instanceof Player) {
 				Player p = (Player)sender;
+			if(getConfig().getBoolean("General.Radius.Enabled")) {
 				
 				Double distance = p.getLocation().distance(target.getLocation());
 				Double radius = getConfig().getDouble("General.Radius.Radius-In-Blocks");	
@@ -914,22 +911,23 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.sendPrefix(sender, msg.getString("Outside-Of-Radius").replace("%player%", target.getName()).replace("%command%", cmd.getName().toString()));
 				bass(sender);
 				return true;
-			}}}
+			}}
 			
+			if(getConfig().getBoolean("General.No-Violent-Cmds-When-Sleeping")) {
 			if (getConfig().getBoolean("General.Violent-Command-Harm")) {
 				if (cmd.getName().equalsIgnoreCase("slap") || cmd.getName().equalsIgnoreCase("bite")
 						|| cmd.getName().equalsIgnoreCase("shake") || cmd.getName().equalsIgnoreCase("stab")
 						|| cmd.getName().equalsIgnoreCase("punch") || cmd.getName().equalsIgnoreCase("murder")) {
-			if(getConfig().getBoolean("No-Violent-Cmds-When-Sleeping")) {
 			if(target.isSleeping()) {
 				bass(sender);
-				Msgs.sendPrefix(sender, msg.getString("Player-Is-Sleeping"));
+				Msgs.sendPrefix(sender, msg.getString("Player-Is-Sleeping").replace("%player%", target.getName()).replace("%command%", cmd.getName()));
 				if(debug) {
 					getLogger().info("[Debug] " + sender.getName() + " tried to " + cmd.getName().toString() + " while sleeping. Canceled their feeling!");
 				}
 				return true;
 			}
 			}}}
+		}
 			
 			// Ignoring & Mute Check ----------------
 			if (sender instanceof Player) {
@@ -1152,7 +1150,7 @@ public class Main extends JavaPlugin implements Listener {
 
 		return true;
 	}
-
+	
 	@EventHandler
 	public void onleave(PlayerQuitEvent e) {
 		removeAll(e.getPlayer());
@@ -1161,14 +1159,15 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler
 	public void onJoin(PlayerJoinEvent e) {
+		if(getConfig().getBoolean("Other.Updates.Check")) {
 		if(e.getPlayer().hasPermission("chatfeelings.admin") || e.getPlayer().isOp()) {
 		if (outdatedplugin) {
 			Msgs.sendPrefix(e.getPlayer(), "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
 					+ " while the latest is &f&l" + outdatedpluginversion);
-		}}
+		}}}
 
 		updateLastOn(e.getPlayer());
-
+		
 		if (e.getPlayer().getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
 			Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
 					+ " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
