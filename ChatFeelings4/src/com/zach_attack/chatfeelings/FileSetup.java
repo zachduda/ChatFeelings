@@ -207,7 +207,7 @@ public class FileSetup {
 	    	setMsgs("Player-Never-Joined", "&cHmm. &fThat player has never joined before.");
 	    	setMsgs("Outside-Of-Radius", "&cHmm. &fYou're too far away from &7%player% &fto use that.");
 	    	setMsgs("Cooldown-Active", "&cSlow Down. &fWait &7%time% &fbefore doing that again.");
-	    	setMsgs("Ignore-Cooldown", "&cSlow Down. &fPlease wait before ignoring another player.");
+	    	setMsgs("Ignore-Cooldown", "&cSlow Down. &fPlease wait before ignoring again.");
 	    	setMsgs("Console-Not-Player", "&cGoofball! &fThe &7CONSOLE&f is not a real player.");
 	    	setMsgs("Player-Is-Sleeping", "&cZzz. &fYou can't %command% &7%player% &fwhile they're sleeping."); // added in version 3
 	    	setMsgs("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");

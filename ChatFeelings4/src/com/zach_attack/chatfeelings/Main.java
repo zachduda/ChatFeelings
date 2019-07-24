@@ -186,6 +186,17 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 	}
+	
+	public void configChecks() {
+		if(getConfig().getBoolean("General.Radius.Enabled")) {
+		if(getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
+			getLogger().warning("Feeling radius cannot be 0, disabling the radius.");
+			getConfig().set("General.Radius.Radius-In-Blocks", 35);
+			getConfig().set("General.Radius.Enabled", false);
+			saveConfig();
+			reloadConfig();
+		}}
+	}
 
 	public void updateLastOn(Player p) {
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
@@ -276,6 +287,7 @@ public class Main extends JavaPlugin implements Listener {
 				getLogger().info("");
 				getLogger().info("By setting this config variable to true, you agree & understand you");
 				getLogger().info("will recieve NO SUPPORT for this version in this environment.");
+				getLogger().warning("IF YOU BYPASS THIS MESSAGE, AND GET BUGS/ERRORS, DO NOT REPORT THEM.");
 				getLogger().info("---------------------------------------------------");
 				this.getPluginLoader().disablePlugin(this);
 				return;
@@ -289,11 +301,23 @@ public class Main extends JavaPlugin implements Listener {
 			getLogger().info("---------------------------------------------------");
 		}
 		getConfig().options().copyDefaults(true);
+		saveConfig();
+		boolean debug = getConfig().getBoolean("Options.Debug");
+		if (!getConfig().getBoolean("Other.Bypass-Version-Block") && (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
 		getConfig().options().header(
 				"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nHaving trouble? Join our support discord: https://discord.gg/6ugXPfX");
+		if(debug) {	
+		getLogger().info("[Debug] Setting 'supported' header in the config. Using 1.13+");
+		}
+		} else {
+			if(debug) {
+				getLogger().info("[Debug] Setting 'unsupported' header in the config. Using below 1.13.");
+			}
+			getConfig().options().header(
+					"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nDO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.");	
+		}
 		saveConfig();
 
-		boolean debug = getConfig().getBoolean("Other.Debug");
 		disabledsendingworlds.clear();
 		disabledreceivingworlds.clear();
 		disabledsendingworlds.addAll(getConfig().getStringList("General.Disabled-Sending-Worlds"));
@@ -350,8 +374,15 @@ public class Main extends JavaPlugin implements Listener {
 				reloadConfig();
 			}
 		}
-
+		
+		configChecks();
+		if (!getConfig().getBoolean("Other.Bypass-Version-Block") && (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
 		getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
+		} else {
+			if(debug) {
+				getLogger().info("Not showing support discord link. They are using a unsupported version :(");
+			}
+		}
 	} // [!] End of OnEnable Event
 
 	private boolean isVanished(Player player) {
@@ -440,6 +471,7 @@ public class Main extends JavaPlugin implements Listener {
 				disabledreceivingworlds.addAll(getConfig().getStringList("General.Disabled-Receiving-Worlds"));
 				
 				FileSetup.enableFiles();
+				configChecks();
 			} catch (Exception err2) {
 				getLogger().info("Error occured when trying to reload your config: ----------");
 				err2.printStackTrace();
@@ -939,7 +971,7 @@ public class Main extends JavaPlugin implements Listener {
 				if (f.exists()) {
 					if(setcache.getBoolean("Muted")) {
 						bass(sender);
-						Msgs.send(sender, msg.getString("Is-Muted"));
+						Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
 						return true;
 					}	
 					
