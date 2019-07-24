@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.zip.GZIPOutputStream;
 
-
 public class Metrics {
 
     static {
