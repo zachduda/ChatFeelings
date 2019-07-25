@@ -1,3 +1,4 @@
+![Alt text](Images/chatfeelingsbanner.png?raw=true "ChatFeelings Banner")
 # ChatFeelings
 The GitHub open source page for the famous ChatFeeling's plugin for SpigotMC.
 
