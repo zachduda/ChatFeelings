@@ -247,7 +247,20 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public boolean isTargetIgnoringSender(Player target, Player sender) {
-
+		File cache = new File(this.getDataFolder(), File.separator + "Data");
+		File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
+		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+		
+		List<String> ignoredplayers = new ArrayList<String>();
+		ignoredplayers.clear();
+		ignoredplayers.addAll(setcache.getStringList("Ignoring"));
+		
+		if(ignoredplayers.contains(sender.getUniqueId().toString())) {
+			ignoredplayers.clear();
+			return true;
+		}
+		
+		ignoredplayers.clear();
 		return false;
 	}
 
@@ -502,6 +515,7 @@ public class Main extends JavaPlugin implements Listener {
 			if (sender.hasPermission("chatfeelings.mute") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7Prevents a player from using feelings.");
 				Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7Unmutes a muted player.");
+				Msgs.send(sender, "&8&l> &e&l/cf mutelist &7Shows who's currently muted.");
 			}
 			if (sender.hasPermission("chatfeelings.admin") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf version &7Shows you the plugin version.");
@@ -545,6 +559,65 @@ public class Main extends JavaPlugin implements Listener {
 			return true;
 		}
 		
+		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mutelist")) {
+			if(!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
+				noPermission(sender);
+				return true;
+			}
+			
+			File datafolder = new File(this.getDataFolder(), File.separator + "Data");
+			
+			if (!datafolder.exists()) {
+				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+				return true;
+			}
+			
+			Msgs.send(sender, "");
+			Msgs.send(sender, msg.getString("Mute-List-Header"));
+			
+			int totalmuted = 0;
+			
+				for (File cachefile : datafolder.listFiles()) {
+					File f = new File(cachefile.getPath());
+					FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+					
+					boolean isMutedEss = false;
+					
+					if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
+							&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+					Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+					if(ess.getUser((String)setcache.get("Username"))._getMuted()) {
+						isMutedEss = true;
+					}}
+						
+					if(setcache.contains("Muted") && setcache.contains("Username")) {
+						if(setcache.getBoolean("Muted")) {
+							totalmuted++;
+							if(isMutedEss) {
+								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials & CF)");	
+							} else {
+							Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")));
+							}
+				} else {
+					if(isMutedEss) {
+						totalmuted++;
+						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials)");
+					}
+				}
+		}}
+				
+				if(totalmuted == 1) {
+				Msgs.send(sender, msg.getString("Mute-List-Total-One").replace("%total%", "1"));
+				} else if(totalmuted == 0) {
+				Msgs.send(sender, msg.getString("Mute-List-Total-Zero").replace("%total%", "0"));
+				} else {
+			    Msgs.send(sender, msg.getString("Mute-List-Total-Many").replace("%total%", Integer.toString(totalmuted)));	
+				}
+				Msgs.send(sender, "");
+				pop(sender);
+				return true;
+		}
+		
 		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("unmute")) {
 			if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
 				noPermission(sender);
@@ -573,6 +646,11 @@ public class Main extends JavaPlugin implements Listener {
 			File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(args[1]) + ".yml");
 			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
+			if (!cache.exists()) {
+				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+				return true;
+			}
+			
 			if (!f.exists()) {
 				try {
 					Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
@@ -638,6 +716,11 @@ public class Main extends JavaPlugin implements Listener {
 			File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(args[1]).toString() + ".yml");
 			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
+			if (!cache.exists()) {
+				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+				return true;
+			}
+			
 			if (!f.exists()) {
 					Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
 					bass(sender);
@@ -722,6 +805,13 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			File cache = new File(this.getDataFolder(), File.separator + "Data");
+			
+
+			if (!cache.exists()) {
+				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+				return true;
+			}
+			
 			File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
 			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
@@ -964,12 +1054,27 @@ public class Main extends JavaPlugin implements Listener {
 			// Ignoring & Mute Check ----------------
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
+				
+				if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
+						&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+				Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+				if(ess.getUser(p.getUniqueId())._getMuted()) {
+					if(debug) {
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmd.getName() + ", but was muted via Essentials.");
+					}
+					bass(sender);
+					Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
+				}}
+				
 				File cache = new File(this.getDataFolder(), File.separator + "Data");
 				File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
 				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
 				if (f.exists()) {
 					if(setcache.getBoolean("Muted")) {
+						if(debug) {
+							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmd.getName() + ", but was muted (via CF).");
+						}
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
 						return true;
@@ -984,7 +1089,7 @@ public class Main extends JavaPlugin implements Listener {
 						return true;
 					}
 
-					if (setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
+					if (isTargetIgnoringSender(target, p)) {
 						bass(sender);
 						Msgs.sendPrefix(sender,
 								msg.getString("Target-Is-Ignoring").replace("%player%", target.getName()));
@@ -1027,7 +1132,7 @@ public class Main extends JavaPlugin implements Listener {
 					} else { // else NOT ignoring ALL
 						if(sender instanceof Player) {
 							Player p = (Player)sender;
-						if (setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
+						if (isTargetIgnoringSender(target, p)) {
 							// Player is Ignoring from sender but is not target. (GlobaL)
 							if(debug) {
 								getLogger().info(online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");

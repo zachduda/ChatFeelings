@@ -212,6 +212,12 @@ public class FileSetup {
 	    	setMsgs("Player-Is-Sleeping", "&cZzz. &fYou can't %command% &7%player% &fwhile they're sleeping."); // added in version 3
 	    	setMsgs("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");
 	    	setMsgs("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings."); // added in version 3
+	    	setMsgs("Folder-Not-Found", "&cHmm. &fThere is no data to display here."); // added in version 4
+	    	setMsgs("Mute-List-Header", "&e&lMuted Players:"); // added in version 4
+	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
+	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
+	    	setMsgs("Mute-List-Total-Many", "&r  &7There are &f&l%total% &7muted players."); // added in version 4
+	    	setMsgs("Mute-List-Total-Zero", "&r  &8&l> &a&lYay! &7No players are currently muted."); // added in version 4
 	    	setMsgs("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings."); // added in version 3
 	    	setMsgs("Player-Has-Been-Unmuted", "&aUser Unmuted. &7%player% &fcan now use feelings again."); // added in version 3
 	    	setMsgs("Cant-Mute-Self", "&cYou Silly! &fYou can't mute yourself."); // added in version 3
@@ -397,7 +403,7 @@ public class FileSetup {
 	setEmotesDouble("Feelings.Yell.Sounds.Sound2.Pitch", 0.0);
 	
 	setEmotesBoolean("Feelings.Poke.Enable", true);
-	setEmotes("Feelings.Poke.Msgs.Sender", "&7You poked &e&l%player%&7. Maybe they're on vacation?.");
+	setEmotes("Feelings.Poke.Msgs.Sender", "&7You poked &e&l%player%&7. Maybe they're on vacation?");
 	setEmotes("Feelings.Poke.Msgs.Target", "&e&l%player% &r&7has poked you. Anyone there?");
 	setEmotes("Feelings.Poke.Msgs.Global", "&e&l%target% &r&7was poked by &6&l%sender%&r&7. &7&oAnyone home?");
 	setEmotes("Feelings.Poke.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
