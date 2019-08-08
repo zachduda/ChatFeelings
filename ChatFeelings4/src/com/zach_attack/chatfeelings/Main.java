@@ -32,6 +32,15 @@ import com.zach_attack.chatfeelings.Msgs;
 
 public class Main extends JavaPlugin implements Listener {
 
+	
+	
+	// FOR GITHUB PRE-RELEASES -----------------
+	
+	public static boolean isPreRelease = true;
+	
+	// ----------------------------------
+	
+	
 	public static boolean outdatedplugin = false;
 	public static String outdatedpluginversion = "0";
 
@@ -110,8 +119,8 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void addMetric() {
-		if(getDescription().getVersion().contains("pre")) {
-				getLogger().info("Running a pre-release from GitHub. Skipping Metrics.");
+		if(isPreRelease) {
+				getLogger().info("Skipping Metrics due to using a PRE-RELEASE.");
 			return;
 		}
 		
@@ -296,6 +305,10 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {
+		if(isPreRelease) {
+			getLogger().info("Thank you for testing this PRE-RELEASE, please report any bugs you find.");
+		}
+		
 		if (!Bukkit.getBukkitVersion().contains("1.14") && !Bukkit.getBukkitVersion().contains("1.13")) {
 			if (!getConfig().getBoolean("Other.Bypass-Version-Block")) {
 				getConfig().options().copyDefaults(true);
@@ -349,6 +362,7 @@ public class Main extends JavaPlugin implements Listener {
 		disabledreceivingworlds.addAll(getConfig().getStringList("General.Disabled-Receiving-Worlds"));
 
 		outdatedplugin = false;
+		outdatedpluginversion = "0";
 		
 	    addMetric();
 		
@@ -359,7 +373,9 @@ public class Main extends JavaPlugin implements Listener {
 			getLogger().info("[Debug] Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
 		}
 
-		if(!getDescription().getVersion().contains("pre")) {
+		if(isPreRelease) {
+				getLogger().info("Using a PRE-RELEASE, skipped update checking.");
+		} else {
 		if (getConfig().getBoolean("Other.Updates.Check")) {
 				try {
 					new Updater(this).checkForUpdate();
@@ -368,11 +384,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			} else {
 			getLogger().info("[!] Update checking has been disabled in the config.yml");
-		}}else {
-			getLogger().info("Running a pre-release from GitHub. Update checking was skipped.");
-			outdatedplugin = false;
-			outdatedpluginversion = "0";
-		}
+		}}
 
 		FileSetup.enableFiles();
 		purgeOldFiles();
@@ -419,6 +431,7 @@ public class Main extends JavaPlugin implements Listener {
 	} // [!] End of OnEnable Event
 
 	private boolean isEssMuted(String uuid) {
+		try {
 		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
 				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
 			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
@@ -427,9 +440,14 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		return false;
+			} catch(Exception err) {
+			getLogger().warning("Error when trying to check if a player was muted. (ES)");
+			return false;
+		}
 	}
 	
 	private boolean isLiteBanMuted(UUID uuid, String IPAdd) {
+		try {
 		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
 				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
 			if(Database.get().isPlayerMuted(uuid, IPAdd)) {
@@ -437,6 +455,10 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		return false;
+		} catch(Exception err) {
+			getLogger().warning("Error when trying to check if a player was muted. (LB)");
+			return false;
+		}
 	}
 	
 	private boolean isVanished(Player player) {
@@ -708,6 +730,7 @@ public class Main extends JavaPlugin implements Listener {
 			
 			String playername = setcache.getString("Username");
 			String uuid = setcache.getString("UUID");
+			String IPAdd = setcache.getString("IP");
 			
 			if(setcache.getBoolean("Muted")) {
 					setcache.set("Muted", false);
@@ -725,6 +748,9 @@ public class Main extends JavaPlugin implements Listener {
 					pop(sender);
 			} else if(!setcache.getBoolean("Muted")) {
 				bass(sender);
+				if(isLiteBanMuted(UUID.fromString(uuid), IPAdd)) {
+					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-LiteBans"));	
+				} else 
 				if(isEssMuted(uuid)) {
 					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-Essentials"));		
 				} else {
