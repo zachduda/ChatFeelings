@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -23,6 +24,9 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.zach_attack.chatfeelings.other.Metrics;
 import com.zach_attack.chatfeelings.other.Updater;
+
+import litebans.api.Database;
+
 import com.earth2me.essentials.Essentials;
 import com.zach_attack.chatfeelings.Msgs;
 
@@ -86,9 +90,9 @@ public class Main extends JavaPlugin implements Listener {
 						
 					if(!setcache.contains("Muted") || !setcache.contains("Version")) {
 						setcache.set("Muted", false);
-						setcache.set("Version", 1);
+						setcache.set("Version", 2);
 						if(debug) {
-						getLogger().info("[Debug] Updated " + playername + "'s data file to work with new v4.2 system.");
+						getLogger().info("[Debug] Updated " + playername + "'s data file to work with new v4.4 system.");
 						}
 						try {
 						setcache.save(f);
@@ -212,13 +216,21 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			String UUID = p.getUniqueId().toString();
+			String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "");
+			int fileversion = setcache.getInt("Version");
+			int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
+			
 			if (!setcache.contains(UUID)) {
 				setcache.set("UUID", UUID);
 				setcache.set("Allow-Feelings", true);
 				setcache.set("Muted", false);
-				setcache.set("Version", 1);
+			}
+			
+			if(fileversion != currentfileversion || !setcache.contains("Version")) {
+				setcache.set("Version", currentfileversion);
 			}
 
+			setcache.set("IP", IPAdd);
 			setcache.set("Username", p.getName().toString());
 			setcache.set("Last-On", System.currentTimeMillis());
 			try {
@@ -347,7 +359,7 @@ public class Main extends JavaPlugin implements Listener {
 			getLogger().info("[Debug] Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
 		}
 
-		if(getDescription().getVersion().contains("pre")) {
+		if(!getDescription().getVersion().contains("pre")) {
 		if (getConfig().getBoolean("Other.Updates.Check")) {
 				try {
 					new Updater(this).checkForUpdate();
@@ -376,7 +388,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		if(getConfig().contains("Version")) {
-			if(getConfig().getInt("Version") == 1 || getConfig().getInt("Version") == 2) {
+			if(getConfig().getInt("Version") != 4) {
 				getLogger().info("Updating your config to the latest v4.2 version...");
 				getConfig().set("General.Extra-Help", true);
 				getConfig().set("General.Radius.Enabled", false);
@@ -388,16 +400,45 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		
+		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
+				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
+			getLogger().info("Hooking into the LiteBans mute system...");
+		} else if (this.getServer().getPluginManager().isPluginEnabled("Essentials") && this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+			getLogger().info("Hooking into the Essentials mute system...");
+		}
+			
+		
 		configChecks();
 		if (!getConfig().getBoolean("Other.Bypass-Version-Block") && (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
 		getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 		} else {
 			if(debug) {
-				getLogger().info("Not showing support discord link. They are using a unsupported version :(");
+				getLogger().info("[Debug] Not showing support discord link. They are using a unsupported version :(");
 			}
 		}
 	} // [!] End of OnEnable Event
 
+	private boolean isEssMuted(String uuid) {
+		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
+				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+			if(ess.getUser(uuid)._getMuted()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isLiteBanMuted(UUID uuid, String IPAdd) {
+		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
+				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
+			if(Database.get().isPlayerMuted(uuid, IPAdd)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	private boolean isVanished(Player player) {
 		if (getConfig().getBoolean("Others.Vanished-Players.Check")) {
 			try {
@@ -581,24 +622,27 @@ public class Main extends JavaPlugin implements Listener {
 					File f = new File(cachefile.getPath());
 					FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 					
-					boolean isMutedEss = false;
-					
-					if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
-							&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
-					Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-					if(ess.getUser((String)setcache.get("Username"))._getMuted()) {
-						isMutedEss = true;
-					}}
+					String uuid = setcache.getString("UUID");
+					String IPAdd = setcache.getString("IP");
+					boolean isMutedEss = isEssMuted(uuid);
+					boolean isMutedLite = isLiteBanMuted(UUID.fromString(uuid), IPAdd);
 						
 					if(setcache.contains("Muted") && setcache.contains("Username")) {
 						if(setcache.getBoolean("Muted")) {
 							totalmuted++;
-							if(isMutedEss) {
+							if(isMutedLite){
+								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans & CF)");	
+							}
+							else if(isMutedEss) {
 								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials & CF)");	
-							} else {
+							}else {
 							Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")));
 							}
 				} else {
+					if(isMutedLite) {
+						totalmuted++;
+						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans)");
+					} else 
 					if(isMutedEss) {
 						totalmuted++;
 						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials)");
@@ -662,26 +706,33 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
 			}
 			
+			String playername = setcache.getString("Username");
+			String uuid = setcache.getString("UUID");
+			
 			if(setcache.getBoolean("Muted")) {
 					setcache.set("Muted", false);
 					
 					try {
 						setcache.save(f);
 					} catch (Exception err) {
-						getLogger().warning("Unable to save " + sender.getName() + "'s data file:");
+						getLogger().warning("Unable to save " + playername + "'s data file:");
 						err.printStackTrace();
 						getLogger().warning("-----------------------------------------------------");
 						getLogger().warning("Please message us on discord or spigot about this error.");
 					}
 					
-					Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", args[1]));
+					Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", playername));
 					pop(sender);
 			} else if(!setcache.getBoolean("Muted")) {
 				bass(sender);
-			Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));	
+				if(isEssMuted(uuid)) {
+					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-Essentials"));		
+				} else {
+					Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));	
+				}
 			} else {
 				bass(sender);
-			Msgs.sendPrefix(sender, "&cError. &fWe couldn't find your mute status in your data file.");
+			Msgs.sendPrefix(sender, "&cError. &fWe couldn't find mute status in your data files.");
 			getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.");
 			}
 			

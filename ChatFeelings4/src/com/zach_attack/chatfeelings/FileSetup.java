@@ -219,6 +219,7 @@ public class FileSetup {
 	    	setMsgs("Mute-List-Total-Many", "&r  &7There are &f&l%total% &7muted players."); // added in version 4
 	    	setMsgs("Mute-List-Total-Zero", "&r  &8&l> &a&lYay! &7No players are currently muted."); // added in version 4
 	    	setMsgs("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings."); // added in version 3
+	    	setMsgs("Player-Muted-Via-Essentials", "&cOops! &7%player&f is muted via Essentials, use /unmute!"); // added in version 5
 	    	setMsgs("Player-Has-Been-Unmuted", "&aUser Unmuted. &7%player% &fcan now use feelings again."); // added in version 3
 	    	setMsgs("Cant-Mute-Self", "&cYou Silly! &fYou can't mute yourself."); // added in version 3
 	    	setMsgs("Player-Already-Muted", "&cOops. &fThis player is already muted."); // added in version 3
@@ -233,7 +234,7 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgsVersion(3);
+	    	setMsgsVersion(5);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {
