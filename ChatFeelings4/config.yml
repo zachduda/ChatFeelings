@@ -16,6 +16,7 @@ General:
     Enabled: false
     Radius-In-Blocks: 35    
   Particles: true
+  Sounds: true
   Extra-Help: true
   Disabled-Sending-Worlds: []
   Disabled-Receiving-Worlds:

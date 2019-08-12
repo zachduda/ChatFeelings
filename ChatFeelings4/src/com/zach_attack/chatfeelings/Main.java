@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -26,6 +27,7 @@ import com.zach_attack.chatfeelings.other.Metrics;
 import com.zach_attack.chatfeelings.other.Updater;
 
 import litebans.api.Database;
+import me.leoko.advancedban.manager.PunishmentManager;
 
 import com.earth2me.essentials.Essentials;
 import com.zach_attack.chatfeelings.Msgs;
@@ -40,6 +42,8 @@ public class Main extends JavaPlugin implements Listener {
 	
 	// ----------------------------------
 	
+	public static boolean useessnick = false;
+	public static boolean usevanishcheck = false;
 	
 	public static boolean outdatedplugin = false;
 	public static String outdatedpluginversion = "0";
@@ -62,6 +66,7 @@ public class Main extends JavaPlugin implements Listener {
 		disabledreceivingworlds.clear();
 
 		if (Bukkit.getOnlinePlayers().size() > 0) {
+			// Remove all HashMaps to prevent memory leaks if the plugin is reloaded when players are on.
 			for (Player online : Bukkit.getServer().getOnlinePlayers()) {
 				removeAll(online.getPlayer());
 			}
@@ -89,6 +94,25 @@ public class Main extends JavaPlugin implements Listener {
 						.abs(((setcache.getLong("Last-On")) / 86400000) - (System.currentTimeMillis() / 86400000));
 
 				String playername = setcache.getString("Username");
+				String uuid = setcache.getString("UUID");
+				String IPAdd = setcache.getString("IP");
+				UUID puuid = UUID.fromString(uuid);
+				
+				int banInt = isBanned(puuid, IPAdd);
+				
+				if(banInt == 1) {
+					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Essentials)");
+					f.delete();
+				} else if(banInt == 2) {
+					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (LiteBans)");
+					f.delete();
+				} else if(banInt == 3) {
+					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (AdvancedBan)");
+					f.delete();
+				} else if(banInt == 4) {
+					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Vanilla)");
+					f.delete();
+				} else { // Ban int = 0 means not banned.
 				
 				if (daysAgo >= maxDays && useclean) {
 					f.delete();
@@ -112,6 +136,7 @@ public class Main extends JavaPlugin implements Listener {
 						getLogger().info("[Debug] Keeping " + playername + "'s data file. (" + daysAgo + "/" + maxDays
 								+ " days left)");
 					}
+				}
 				}
 			} // end of For loop
 
@@ -167,7 +192,18 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	} // End Metrics
 
+	public boolean useSounds() {
+		if(getConfig().getBoolean("General.Sounds")) {
+			return true;
+		}
+		return false;
+	}
+	
 	public void pop(CommandSender sender) {
+		if(!useSounds()) {
+			return;
+		}
+		
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
 			if (!Bukkit.getBukkitVersion().contains("1.8")) {
@@ -179,6 +215,10 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void bass(CommandSender sender) {
+		if(!useSounds()) {
+			return;
+		}
+		
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
 			if (!Bukkit.getBukkitVersion().contains("1.8")) {
@@ -190,6 +230,10 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void levelup(CommandSender sender) {
+		if(!useSounds()) {
+			return;
+		}
+		
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
 			if (!Bukkit.getBukkitVersion().contains("1.8")) {
@@ -225,7 +269,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			String UUID = p.getUniqueId().toString();
-			String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "");
+			String IPAdd = p.getAddress().getAddress().toString().replace("/" + p.getAddress().getHostString() + "/", "");
 			int fileversion = setcache.getInt("Version");
 			int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
 			
@@ -241,6 +285,21 @@ public class Main extends JavaPlugin implements Listener {
 
 			setcache.set("IP", IPAdd);
 			setcache.set("Username", p.getName().toString());
+			
+			
+			
+			if(useessnick) {
+			try {
+			if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
+					&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+				Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+			setcache.set("Nickname", ChatColor.stripColor(ess.getUser(UUID).getNickname().toString()));
+			}
+			} catch (Exception esserr) {
+				getLogger().warning("Couldn't update " + p.getName() + "'s Essentials nickname in your database. Disabling this check until the next restart!");
+				useessnick = false;
+			}}
+			
 			setcache.set("Last-On", System.currentTimeMillis());
 			try {
 				setcache.save(f);
@@ -418,19 +477,63 @@ public class Main extends JavaPlugin implements Listener {
 		} else if (this.getServer().getPluginManager().isPluginEnabled("Essentials") && this.getServer().getPluginManager().getPlugin("Essentials") != null) {
 			getLogger().info("Hooking into the Essentials mute system...");
 		}
-			
+		
+		useessnick = true; // Reset nickname check. It's only false if an error was thrown.
+		
+		if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
+		usevanishcheck = true;
+		} else {
+			usevanishcheck = false;
+		}
 		
 		configChecks();
 		if (!getConfig().getBoolean("Other.Bypass-Version-Block") && (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
 		getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 		} else {
 			if(debug) {
-				getLogger().info("[Debug] Not showing support discord link. They are using a unsupported version :(");
+				getLogger().info("[Debug] Not showing support discord link. They are using " + Bukkit.getVersion().toString() + " :(");
 			}
 		}
 	} // [!] End of OnEnable Event
 
-	private boolean isEssMuted(String uuid) {
+	private int isBanned(UUID uuid, String IPAdd) {
+		
+		if(isABBanned(uuid)) {
+			return 3;
+		}
+		
+		if(isLiteBanBanned(uuid, IPAdd)) {
+			return 2;
+		}
+		
+		if(isEssBanned(uuid)) {
+			return 1;
+		}
+		
+		if(isVanillaBanned(uuid)) {
+			return 4;
+		}
+		
+		return 0;
+	}
+	
+	private int isMuted(UUID uuid, String IPAdd) {
+		if(isABMuted(uuid)) {
+			return 3;
+		}
+		
+		if(isLiteBanMuted(uuid, IPAdd)) {
+			return 2;
+		}
+		
+		if(isEssMuted(uuid)) {
+			return 1;
+		}
+		
+		return 0; // 0 in this case means no mute was found.
+	}
+	
+	private boolean isEssMuted(UUID uuid) {
 		try {
 		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
 				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
@@ -461,9 +564,79 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
+	private boolean isABMuted(UUID uuid) {
+		try {
+		if (this.getServer().getPluginManager().isPluginEnabled("AdvancedBan")
+				&& this.getServer().getPluginManager().getPlugin("AdvancedBan") != null) {
+			if(PunishmentManager.get().isMuted(uuid.toString())) {
+				return true;
+			}
+		}
+		return false;
+		} catch(Exception err) {
+			getLogger().warning("Error when trying to check if a player was muted. (AB)");
+			return false;
+		}
+	}
+	
+	private boolean isVanillaBanned(UUID uuid) {
+		if(Bukkit.getOfflinePlayer(uuid).isBanned()) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private boolean isEssBanned(UUID uuid) {
+		try {
+		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
+				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+			if(ess.getUser(uuid).getBase().isBanned()) {
+				return true;
+			}
+		}
+		return false;
+			} catch(Exception err) {
+			getLogger().warning("Error when trying to check if a player was banned. (ES)");
+			return false;
+		}
+	}
+	
+	private boolean isLiteBanBanned(UUID uuid, String IPAdd) {
+		try {
+		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
+				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
+			if(Database.get().isPlayerBanned(uuid, IPAdd)) {
+				return true;
+			}
+		}
+		return false;
+		} catch(Exception err) {
+			getLogger().warning("Error when trying to check if a player was banned. (LB)");
+			return false;
+		}
+	}
+	
+	private boolean isABBanned(UUID uuid) {
+		try {
+		if (this.getServer().getPluginManager().isPluginEnabled("AdvancedBan")
+				&& this.getServer().getPluginManager().getPlugin("AdvancedBan") != null) {
+			if(PunishmentManager.get().isBanned(uuid.toString())) {
+				return true;
+			}
+		}
+		return false;
+		} catch(Exception err) {
+			getLogger().warning("Error when trying to check if a player was Banned. (AB)");
+			return false;
+		}
+	}
+	
 	private boolean isVanished(Player player) {
-		if (getConfig().getBoolean("Others.Vanished-Players.Check")) {
+		if (usevanishcheck) {
 			try {
+				
 				if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
 						&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
 					Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
@@ -480,7 +653,8 @@ public class Main extends JavaPlugin implements Listener {
 				}
 
 			} catch (Exception err) {
-				this.getLogger().info("Error when checking for vanished players.");
+				this.getLogger().warning("Couldn't check for vanished players. Disabling this check until next restart.");
+				usevanishcheck = false;
 			}
 
 			if (getConfig().getBoolean("Other.Vanished-Players.Use-Legacy")) {
@@ -646,26 +820,33 @@ public class Main extends JavaPlugin implements Listener {
 					
 					String uuid = setcache.getString("UUID");
 					String IPAdd = setcache.getString("IP");
-					boolean isMutedEss = isEssMuted(uuid);
-					boolean isMutedLite = isLiteBanMuted(UUID.fromString(uuid), IPAdd);
+					UUID puuid = UUID.fromString(uuid);
+					
+					int muteInt = isMuted(puuid, IPAdd);
 						
 					if(setcache.contains("Muted") && setcache.contains("Username")) {
 						if(setcache.getBoolean("Muted")) {
 							totalmuted++;
-							if(isMutedLite){
-								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans & CF)");	
+							if(muteInt == 3){
+								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(AdvancedBan & CF)");	
 							}
-							else if(isMutedEss) {
+							else if(muteInt == 2) {
+								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans & CF)");	
+							} else if(muteInt == 1) {
 								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials & CF)");	
 							}else {
 							Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")));
 							}
 				} else {
-					if(isMutedLite) {
+					if(muteInt == 3) {
+						totalmuted++;
+						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(AdvancedBan)");
+					} else 
+					if(muteInt == 2) {
 						totalmuted++;
 						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans)");
 					} else 
-					if(isMutedEss) {
+					if(muteInt == 1) {
 						totalmuted++;
 						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials)");
 					}
@@ -731,6 +912,9 @@ public class Main extends JavaPlugin implements Listener {
 			String playername = setcache.getString("Username");
 			String uuid = setcache.getString("UUID");
 			String IPAdd = setcache.getString("IP");
+			UUID puuid = UUID.fromString(uuid);
+			
+			int muteInt = isMuted(puuid, IPAdd);
 			
 			if(setcache.getBoolean("Muted")) {
 					setcache.set("Muted", false);
@@ -748,10 +932,13 @@ public class Main extends JavaPlugin implements Listener {
 					pop(sender);
 			} else if(!setcache.getBoolean("Muted")) {
 				bass(sender);
-				if(isLiteBanMuted(UUID.fromString(uuid), IPAdd)) {
+				if(muteInt == 3) {
+					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-AdvancedBan"));	
+				} else
+				if(muteInt == 2) {
 					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-LiteBans"));	
 				} else 
-				if(isEssMuted(uuid)) {
+				if(muteInt == 1) {
 					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-Essentials"));		
 				} else {
 					Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));	
@@ -808,6 +995,13 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
 			}
 			
+			String playername = setcache.getString("Username");
+			String uuid = setcache.getString("UUID");
+			String IPAdd = setcache.getString("IP");
+			UUID puuid = UUID.fromString(uuid);
+			
+			int muteInt = isMuted(puuid, IPAdd);
+			
 				if (args[1].equalsIgnoreCase(sender.getName())) {
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Cant-Mute-Self"));
@@ -819,12 +1013,15 @@ public class Main extends JavaPlugin implements Listener {
 				try {
 					setcache.save(f);
 				} catch (Exception err) {
-					getLogger().warning("Unable to save " + sender.getName() + "'s data file:");
+					getLogger().warning("Unable to save " + playername + "'s data file:");
 					err.printStackTrace();
 					getLogger().warning("-----------------------------------------------------");
 					getLogger().warning("Please message us on discord or spigot about this error.");
 				}
-				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", args[1]));
+				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", playername));
+				if(muteInt != 0) {
+					Msgs.sendPrefix(sender, msg.getString("Extra-Mute-Present").replace("%player%", playername));	
+				}
 				pop(sender);
 				} else if(setcache.getBoolean("Muted")){
 					bass(sender);
@@ -1082,6 +1279,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			Player target = Bukkit.getServer().getPlayer(args[0]);
+			
 			if (target == null || isVanished(target)) {
 				bass(sender);
 				Msgs.sendPrefix(sender, msg.getString("Player-Offline").replace("%player%", args[0].toString()));
@@ -1119,7 +1317,7 @@ public class Main extends JavaPlugin implements Listener {
 						|| cmd.getName().equalsIgnoreCase("punch") || cmd.getName().equalsIgnoreCase("murder")) {
 			if(target.isSleeping()) {
 				bass(sender);
-				Msgs.sendPrefix(sender, msg.getString("Player-Is-Sleeping").replace("%player%", target.getName()).replace("%command%", cmd.getName()));
+				Msgs.sendPrefix(sender, msg.getString("Player-Is-Sleeping").replace("%player%", target.getName()).replace("%command%", cmdLabel));
 				if(debug) {
 					getLogger().info("[Debug] " + sender.getName() + " tried to " + cmd.getName().toString() + " while sleeping. Canceled their feeling!");
 				}
@@ -1137,7 +1335,7 @@ public class Main extends JavaPlugin implements Listener {
 				Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 				if(ess.getUser(p.getUniqueId())._getMuted()) {
 					if(debug) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmd.getName() + ", but was muted via Essentials.");
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted via Essentials.");
 					}
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
@@ -1150,7 +1348,7 @@ public class Main extends JavaPlugin implements Listener {
 				if (f.exists()) {
 					if(setcache.getBoolean("Muted")) {
 						if(debug) {
-							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmd.getName() + ", but was muted (via CF).");
+							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
 						}
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
@@ -1304,6 +1502,7 @@ public class Main extends JavaPlugin implements Listener {
 			// -----------------------------------------------------
 
 			// Sound Handler ----------------------------------------
+			if(useSounds()) {
 			try {
 				if (!emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name").equalsIgnoreCase("none")
 						&& !emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name").equalsIgnoreCase("off")
@@ -1345,11 +1544,12 @@ public class Main extends JavaPlugin implements Listener {
 				getLogger().info("DO NOT report this error. This is a configuration related issue.");
 				getLogger().info("---------------------------[End of Error]---------------------------");
 			}
+			} // end of config sound check
 			// ---------- End of Sounds
 
 			return true;
 		}
-
+			
 		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1) {
 			Msgs.send(sender, "");
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
@@ -1359,7 +1559,6 @@ public class Main extends JavaPlugin implements Listener {
 				Player p = (Player) sender;
 				bass(p.getPlayer());
 			}
-			return true;
 		}
 
 		return true;
