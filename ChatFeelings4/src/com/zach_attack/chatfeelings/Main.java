@@ -271,6 +271,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void updateLastOn(Player p) {
+		
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 			File cache = new File(this.getDataFolder(), File.separator + "Data");
 			File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
@@ -319,7 +320,7 @@ public class Main extends JavaPlugin implements Listener {
 			try {
 				setcache.save(f);
 			} catch (Exception err) {
-			}
+			};
 		});
 	}
 
@@ -461,7 +462,6 @@ public class Main extends JavaPlugin implements Listener {
 		}}
 
 		FileSetup.enableFiles();
-		purgeOldFiles();
 
 		int onlinecount = Bukkit.getOnlinePlayers().size();
 		if (onlinecount >= 1) {
@@ -470,7 +470,9 @@ public class Main extends JavaPlugin implements Listener {
 				updateLastOn(online); // Generates files for players who are on during restart that didn't join
 										// normally.
 			}
-			getLogger().info("Reloaded with " + onlinecount + " players online...");
+			getLogger().info("Reloaded with " + onlinecount + " players online... Skipping purge");
+		} else { 
+			purgeOldFiles();
 		}
 		
 		if(getConfig().contains("Version")) {
@@ -724,6 +726,8 @@ public class Main extends JavaPlugin implements Listener {
 				noPermission(sender);
 				return true;
 			}
+			
+			boolean debug = getConfig().getBoolean("Other.Debug");
 
 			Msgs.send(sender, "");
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
@@ -737,15 +741,42 @@ public class Main extends JavaPlugin implements Listener {
 				
 				FileSetup.enableFiles();
 				configChecks();
+				
+				if(debug) {
+					getLogger().info("[Debug] Sending Feelings is disabled in: " + disabledsendingworlds.toString());
+					getLogger().info("[Debug] Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
+				}
+				
+				if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
+					usevanishcheck = true;
+					} else {
+						usevanishcheck = false;
+					}
+				
 			} catch (Exception err2) {
 				getLogger().info("Error occured when trying to reload your config: ----------");
 				err2.printStackTrace();
 				getLogger().info("-----------------------[End of Error]-----------------------");
-				Msgs.send(sender,
-						"&a&lChat&f&lFeelings &8&l> &4&lError! &fSomething in your config isn't right. Check console!");
+				Msgs.send(sender, "&8&l> &4&lError! &fSomething in your config isn't right. Check console!");
 				bass(sender);
+				usevanishcheck = true;
 				return true;
 			}
+			
+			int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
+			if(onlinecount >= 1) {
+			for (final Player online : Bukkit.getServer().getOnlinePlayers()) {
+				updateLastOn(online);
+				if(debug) {
+				getLogger().info("[Debug] Updating " + onlinecount + " player files...");
+				}
+			}} else {
+				if(debug) {
+				getLogger().info("[Debug] Purging old data files since nobody is currently online...");
+				}
+			purgeOldFiles();
+			}
+			
 			try {
 				Msgs.send(sender, msg.getString("Reload"));
 			} catch (Exception err) {
@@ -1350,17 +1381,18 @@ public class Main extends JavaPlugin implements Listener {
 				if(muteInt != 0) {
 					if(debug) {
 						if(muteInt == 3) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted by AdvancedBan.");
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by AdvancedBan.");
 					}
 						if(muteInt == 2) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted by LiteBans.");
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by LiteBans.");
 					}
 						if(muteInt == 1) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted by Essentials.");
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by Essentials.");
 					}
 					}
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
+					return true;
 				}
 				
 				File cache = new File(this.getDataFolder(), File.separator + "Data");
