@@ -1345,16 +1345,23 @@ public class Main extends JavaPlugin implements Listener {
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
 				
-				if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
-						&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
-				Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-				if(ess.getUser(p.getUniqueId())._getMuted()) {
+				int muteInt = isMuted(p.getUniqueId(), null);
+				
+				if(muteInt != 0) {
 					if(debug) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted via Essentials.");
+						if(muteInt == 3) {
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted by AdvancedBan.");
+					}
+						if(muteInt == 2) {
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted by LiteBans.");
+					}
+						if(muteInt == 1) {
+						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted by Essentials.");
+					}
 					}
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
-				}}
+				}
 				
 				File cache = new File(this.getDataFolder(), File.separator + "Data");
 				File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
