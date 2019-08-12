@@ -152,8 +152,8 @@ public class Main extends JavaPlugin implements Listener {
 		double version = Double.parseDouble(System.getProperty("java.specification.version"));
 		if (version < 1.8) {
 			getLogger().warning(
-					"Java " + version + " detected. ChatFeelings requires Java 1.8 (8) or higher to fully function.");
-			getLogger().info("TIP: Use version v2.0.1 or below for Java " + version + "support.");
+					"Java " + Double.toString(version).replace("1.", "") + " detected. ChatFeelings requires Java 8 or higher to fully function.");
+			getLogger().info("TIP: Use version v2.0.1 or below for legacy Java support.");
 			return;
 		}
 
