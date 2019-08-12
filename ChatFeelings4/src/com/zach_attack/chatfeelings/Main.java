@@ -108,16 +108,24 @@ public class Main extends JavaPlugin implements Listener {
 				
 				
 				if(banInt == 1) {
+					if(debug) {
 					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Essentials)");
+					}
 					f.delete();
 				} else if(banInt == 2) {
+					if(debug) {
 					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (LiteBans)");
+					}
 					f.delete();
 				} else if(banInt == 3) {
+					if(debug) {
 					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (AdvancedBan)");
+					}
 					f.delete();
 				} else if(banInt == 4) {
+					if(debug) {
 					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Vanilla)");
+					}
 					f.delete();
 				} else { // Ban int = 0 means not banned.
 				
