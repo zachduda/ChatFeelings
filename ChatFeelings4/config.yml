@@ -29,6 +29,7 @@ Other:
   Player-Files:
     Cleanup: true
     Cleanup-After-Days: 185
+    Erase-If-Banned: true
   Updates:
     Check: true
   Metrics: true

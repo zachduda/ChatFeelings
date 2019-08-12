@@ -98,7 +98,14 @@ public class Main extends JavaPlugin implements Listener {
 				String IPAdd = setcache.getString("IP");
 				UUID puuid = UUID.fromString(uuid);
 				
-				int banInt = isBanned(puuid, IPAdd);
+				int banInt = 0;
+				
+				if(getConfig().getBoolean("Other.Player-Files.Erase-If-Banned")) {
+					banInt = isBanned(puuid, IPAdd);
+				} else {
+					banInt = 0;
+				}
+				
 				
 				if(banInt == 1) {
 					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Essentials)");
