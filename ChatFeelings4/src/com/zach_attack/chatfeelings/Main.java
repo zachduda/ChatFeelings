@@ -34,19 +34,19 @@ import com.zach_attack.chatfeelings.Msgs;
 
 public class Main extends JavaPlugin implements Listener {
 
-	
-	
 	// FOR GITHUB PRE-RELEASES -----------------
 	
-	public static boolean isPreRelease = true;
+	public static boolean isPreRelease = false;
 	
 	// ----------------------------------
 	
-	public static boolean useessnick = false;
-	public static boolean usevanishcheck = false;
+	private static boolean useessnick = false;
+	private static boolean usevanishcheck = false;
 	
 	public static boolean outdatedplugin = false;
 	public static String outdatedpluginversion = "0";
+	
+	private long lastreload = 0; 
 
 	HashMap<Player, Long> cooldown = new HashMap<Player, Long>();
 	HashMap<Player, String> ignorecooldown = new HashMap<Player, String>();
@@ -65,6 +65,8 @@ public class Main extends JavaPlugin implements Listener {
 		disabledsendingworlds.clear();
 		disabledreceivingworlds.clear();
 
+		lastreload = 0;
+		
 		if (Bukkit.getOnlinePlayers().size() > 0) {
 			// Remove all HashMaps to prevent memory leaks if the plugin is reloaded when players are on.
 			for (Player online : Bukkit.getServer().getOnlinePlayers()) {
@@ -285,7 +287,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			String UUID = p.getUniqueId().toString();
-			String IPAdd = p.getAddress().getAddress().toString().replace("/" + p.getAddress().getHostString() + "/", "");
+			String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
 			int fileversion = setcache.getInt("Version");
 			int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
 			
@@ -312,7 +314,7 @@ public class Main extends JavaPlugin implements Listener {
 			setcache.set("Nickname", ChatColor.stripColor(ess.getUser(UUID).getNickname().toString()));
 			}
 			} catch (Exception esserr) {
-				getLogger().warning("Couldn't update " + p.getName() + "'s Essentials nickname in your database. Disabling this check until the next restart!");
+				getLogger().warning("Couldn't update " + p.getName() + "'s Essentials nickname in our files. Disabling this check until the next restart!");
 				useessnick = false;
 			}}
 			
@@ -727,10 +729,21 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
-			boolean debug = getConfig().getBoolean("Other.Debug");
+			long secsLeft = ((lastreload / 1000) + 30) - (System.currentTimeMillis() / 1000);
+			if(secsLeft > 0) {
+				Msgs.sendPrefix(sender, "&7Please wait &f&l" + secsLeft + "s &7until reloading again.");
+				bass(sender);
+				return true;
+			}
+
+			lastreload = System.currentTimeMillis();
+			final long starttime = System.currentTimeMillis();
 
 			Msgs.send(sender, "");
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
+			
+			boolean debug = getConfig().getBoolean("Other.Debug");
+			
 			try {
 				reloadConfig();
 
@@ -742,11 +755,6 @@ public class Main extends JavaPlugin implements Listener {
 				FileSetup.enableFiles();
 				configChecks();
 				
-				if(debug) {
-					getLogger().info("[Debug] Sending Feelings is disabled in: " + disabledsendingworlds.toString());
-					getLogger().info("[Debug] Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
-				}
-				
 				if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
 					usevanishcheck = true;
 					} else {
@@ -754,36 +762,45 @@ public class Main extends JavaPlugin implements Listener {
 					}
 				
 			} catch (Exception err2) {
+				if(debug) {
 				getLogger().info("Error occured when trying to reload your config: ----------");
 				err2.printStackTrace();
 				getLogger().info("-----------------------[End of Error]-----------------------");
 				Msgs.send(sender, "&8&l> &4&lError! &fSomething in your config isn't right. Check console!");
+				} else {
+					Msgs.send(sender, "&8&l> &4&lError! &fSomething in your ChatFeelings files is wrong.");	
+				}
 				bass(sender);
 				usevanishcheck = true;
 				return true;
 			}
 			
+			debug = getConfig().getBoolean("Other.Debug");
+			
 			int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
-			if(onlinecount >= 1) {
-			for (final Player online : Bukkit.getServer().getOnlinePlayers()) {
-				updateLastOn(online);
-				if(debug) {
-				getLogger().info("[Debug] Updating " + onlinecount + " player files...");
-				}
-			}} else {
+			if(onlinecount ==  0) {
 				if(debug) {
 				getLogger().info("[Debug] Purging old data files since nobody is currently online...");
 				}
 			purgeOldFiles();
 			}
 			
+			
+			if(debug) {
+				getLogger().info("[Debug] Sending Feelings is disabled in: " + disabledsendingworlds.toString());
+				getLogger().info("[Debug] Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
+			}
+			
 			try {
-				Msgs.send(sender, msg.getString("Reload"));
+				long reloadtime = System.currentTimeMillis()-starttime;
+				Msgs.send(sender, msg.getString("Reload").replace("%time%", Long.toString(reloadtime) + "ms"));
+				getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
 			} catch (Exception err) {
-				Msgs.send(sender, "&8&l> &2&l✓ &aConfiguration Reloaded.");
+				Msgs.send(sender, "&8&l> &a&l✓  &7Configuration Reloaded. &c(1 file was regenerated)");
 			}
 			Msgs.send(sender, "");
 			levelup(sender);
+			
 			return true;
 		}
 
@@ -1262,13 +1279,18 @@ public class Main extends JavaPlugin implements Listener {
 				|| cmd.getName().equalsIgnoreCase("scorn") || cmd.getName().equalsIgnoreCase("pat")
 				|| cmd.getName().equalsIgnoreCase("stalk")) {
 
-			if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled")) {
+			if(sender instanceof Player && getConfig().getBoolean("General.Use-Feeling-Permissions")) {
+			if(!sender.hasPermission("chatfeelings. " + cmd.getName() + "") && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
+				noPermission(sender);
+				return true;
+			}}
+			
+ 			if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled")) {
 				if (sender instanceof Player) {
 					Player p = (Player) sender;
 					if (cooldown.containsKey(p.getPlayer())) {
 						int cooldownTime = getConfig().getInt("General.Cooldowns.Feelings.Seconds");
-						long secondsLeft = ((cooldown.get(p.getPlayer()) / 1000) + cooldownTime)
-								- (System.currentTimeMillis() / 1000);
+						long secondsLeft = ((cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
 						if (secondsLeft > 0) {
 							Msgs.sendPrefix(sender, msg.getString("Cooldown-Active").replace("%time%",
 									Long.toString(secondsLeft) + "s"));

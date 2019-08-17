@@ -31,6 +31,10 @@ public class Updater {
     }
 
     public void checkForUpdate() {
+    	if(Main.isPreRelease) {
+    		return;
+    	}
+    	
     	try {
         new BukkitRunnable() {
             @Override

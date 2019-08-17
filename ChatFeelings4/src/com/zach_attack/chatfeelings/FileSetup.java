@@ -36,6 +36,24 @@ public class FileSetup {
 		}
 	}
 	
+	public static void forceMsgs(String configpath, String msg) {
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  
+		  File msgsfile = new File(folder, File.separator + "messages.yml");
+		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
+		  if(!msgsfile.exists()) {
+			  try {
+			  msgs.save(msgsfile);
+		    	plugin.getLogger().info("Created new messages.yml file on the fly...");
+			  } catch(Exception err) {}
+		  }
+		  
+			msgs.set(configpath, msg);
+	    	try { 
+	    	msgs.save(msgsfile);
+	    	} catch(Exception err) {}
+	}
+	
 	public static void setMsgsVersion(int vers) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
@@ -186,12 +204,13 @@ public class FileSetup {
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    }
 	    
-		  if(msgs.getInt("Version") == 2) { // Need to change eventually with next update
-				plugin.getLogger().info("Updating your messages.yml with new additional messages from v4.2.");  
-			  }
+		  if(msgs.getInt("Version") != 5) { // Need to change eventually with next update
+				plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
+				forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
+			 }
 		  
-	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");
-	    	setMsgs("Reload", "&2&l✓ &aConfiguration Reloaded.");
+	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
+	    	setMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%"); // updated in version 5
 	    	setMsgs("Console-Name", "The Server");
 	    	setMsgs("No-Permission", "&cSorry. &fYou don't have permission for that.");
 	    	setMsgs("Feelings-Help", "&a&lFeelings:");
