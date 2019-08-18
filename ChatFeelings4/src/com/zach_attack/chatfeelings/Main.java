@@ -36,7 +36,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	// FOR GITHUB PRE-RELEASES -----------------
 	
-	public static boolean isPreRelease = false;
+	public static boolean isPreRelease = true;
 	
 	// ----------------------------------
 	
@@ -210,7 +210,7 @@ public class Main extends JavaPlugin implements Listener {
 	} // End Metrics
 
 	public boolean useSounds() {
-		if(getConfig().getBoolean("General.Sounds")) {
+		if(getConfig().getBoolean("General.Sounds") && (Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14"))) {
 			return true;
 		}
 		return false;
@@ -223,11 +223,7 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
-			if (!Bukkit.getBukkitVersion().contains("1.8")) {
 				p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 2.0f, 2.0f);
-			} else {
-				p.playSound(p.getLocation(), Sound.valueOf((String) "CHICKEN_EGG_POP"), 2.0f, 2.0f);
-			}
 		}
 	}
 
@@ -238,11 +234,7 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
-			if (!Bukkit.getBukkitVersion().contains("1.8")) {
 				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0f, 1.3f);
-			} else {
-				p.playSound(p.getLocation(), Sound.valueOf((String) "NOTE_BASS"), 2.0f, 1.3f);
-			}
 		}
 	}
 
@@ -253,15 +245,11 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if (sender instanceof Player) {
 			Player p = (Player) sender;
-			if (!Bukkit.getBukkitVersion().contains("1.8")) {
 				p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0f, 2.0f);
-			} else {
-				p.playSound(p.getLocation(), Sound.valueOf((String) "LEVEL_UP"), 2.0f, 2.0f);
-			}
 		}
 	}
 	
-	public void configChecks() {
+	public void configChecks() {		
 		if(getConfig().getBoolean("General.Radius.Enabled")) {
 		if(getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
 			getLogger().warning("Feeling radius cannot be 0, disabling the radius.");

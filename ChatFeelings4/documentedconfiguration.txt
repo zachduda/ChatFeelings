@@ -4,6 +4,7 @@ General:
     Broadcast-To-Console: true        # If Global-Feelings are on, should the CONSOLE see the messages too?
   Prevent-Self-Feelings: true        # Can players use feelings on themselves? (EX: A player named Notch doing: /hug Notch)
   Violent-Command-Harm: true        # Should violent commands shake the players screen?
+  No-Violent-Cmds-When-Sleeping: true   # Violent commands can kick players out of bed when dmg is enabled. It's recommended to leave this true.
   Cooldowns:
     Feelings:
       Enabled: false        # Enable feeling cooldowns?
@@ -11,7 +12,11 @@ General:
     Ignoring:
       Enabled: true        # Use cooldowns for Ignoring?
       Seconds: 5        # How many seconds until someone can ignore another player?
+  Radius:
+    Enabled: false      # Should we block feelings unless a player is near their target?
+    Radius-In-Blocks: 35     # How many blocks should a player be minimum to use feelings if the radius is on.
   Particles: true        # Show the target particles for feelings
+  Sounds: true        # Should we use sounds for emotions? If using below 1.13 this MUST be false unless you are going to change them in the emotes.yml
   Extra-Help: true        # Show additional command recommendations if a player does a command w/o Permission.
   Disabled-Sending-Worlds: []      # Which worlds can players not send feelings?
   Disabled-Receiving-Worlds:        # Which worlds can players not receive /feelings?
@@ -20,12 +25,13 @@ General:
 Other:
   Bypass-Version-Block: false        # If using 1.12 or below, setting this to true forces ChatFeelings to run.
   Vanished-Players:
-  Check: true        # Should we tell people that vanished players are offline if players try feelings on them?
-  Use-Legacy: false        # Leave on False unless you are having issues with vanish checks not working.Player-Files:
-   Cleanup: true        # Should we erase ChatFeelings data for players who haven't joined in a while?
-   Cleanup-After-Days: 185        # How many days from the time the player last joined until we can erase their ChatFeeling's data?
+    Check: true        # Should we tell people that vanished players are offline if players try feelings on them?
+    Use-Legacy: false        # Leave on False unless you are having issues with vanish checks not working.
+  Player-Files:
+    Cleanup: true        # Should we erase ChatFeelings data for players who haven't joined in a while?
+    Cleanup-After-Days: 185        # How many days from the time the player last joined until we can erase their ChatFeeling's data?
   Updates:
     Check: true        # Recommend to set to true. This checks for updates to ChatFeelings
   Metrics: true        # Recommended to set to true. This helps to improve ChatFeelings by sending stats about your server.
   Debug: false        # When true, shows additional console messages & errors.
-Version: 1        # Do not touch. This helps keep your config up to date.
+Version: 4        # Do not touch. This helps keep your config up to date.
