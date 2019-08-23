@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -40,11 +39,17 @@ public class Main extends JavaPlugin implements Listener {
 	
 	// ----------------------------------
 	
-	private static boolean useessnick = false;
+	private static boolean hasess = false;
+	private static boolean haslitebans = false;
+	private static boolean hasadvancedban = false;
+
 	private static boolean usevanishcheck = false;
 	
 	public static boolean outdatedplugin = false;
 	public static String outdatedpluginversion = "0";
+	
+	public static boolean debug = false;
+	public static boolean sounds = false;
 	
 	private long lastreload = 0; 
 
@@ -76,7 +81,6 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void purgeOldFiles() {
-		boolean debug = getConfig().getBoolean("Other.Debug");
 		boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
 		
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
@@ -160,9 +164,34 @@ public class Main extends JavaPlugin implements Listener {
 		}); // End of Async;
 	}
 
-	public void addMetric() {
-		if(isPreRelease) {
-				getLogger().info("Skipping Metrics due to using a PRE-RELEASE.");
+	public void updateConfig() {
+		boolean confdebug = getConfig().getBoolean("Other.Debug");
+		String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
+		
+		if(getConfig().getBoolean("General.Sounds")) {
+			if(!version.contains("1.13") && !version.contains("1.14")) {
+				getLogger().info("Sounds were disabled as you are using " + version + " and not 1.13.2 or higher.");
+				sounds = false;
+			} else {
+				if(debug) {
+					getLogger().info("[Debug] Using support MC version for sounds: " + version);
+				}
+				sounds = true;
+			}
+		}
+		
+		if(confdebug) {
+			debug = true;
+		} else {
+			debug = false;
+		}
+	}
+	
+	public void addMetrics() {
+		if (!getConfig().getBoolean("Other.Metrics")) {
+			if(debug) {
+				getLogger().info("[Debug] Metrics was disabled. Guess we won't support the developer today!");
+			}
 			return;
 		}
 		
@@ -173,8 +202,7 @@ public class Main extends JavaPlugin implements Listener {
 			getLogger().info("TIP: Use version v2.0.1 or below for legacy Java support.");
 			return;
 		}
-
-		if (getConfig().getBoolean("Other.Metrics")) {
+		
 			Metrics metrics = new Metrics(this);
 			metrics.addCustomChart(new Metrics.SimplePie("server_version", () -> {
 				try {
@@ -205,19 +233,10 @@ public class Main extends JavaPlugin implements Listener {
 					return "No";
 				}
 			}));
-
-		}
 	} // End Metrics
-
-	public boolean useSounds() {
-		if(getConfig().getBoolean("General.Sounds") && (Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14"))) {
-			return true;
-		}
-		return false;
-	}
 	
 	public void pop(CommandSender sender) {
-		if(!useSounds()) {
+		if(!sounds) {
 			return;
 		}
 		
@@ -228,7 +247,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void bass(CommandSender sender) {
-		if(!useSounds()) {
+		if(!sounds) {
 			return;
 		}
 		
@@ -239,7 +258,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public void levelup(CommandSender sender) {
-		if(!useSounds()) {
+		if(!sounds) {
 			return;
 		}
 		
@@ -258,10 +277,21 @@ public class Main extends JavaPlugin implements Listener {
 			saveConfig();
 			reloadConfig();
 		}}
+		
+		if(getConfig().contains("Version")) {
+			if(getConfig().getInt("Version") < 4) {
+				getLogger().info("Updating your config to the latest v4.2 version...");
+				getConfig().set("General.Extra-Help", true);
+				getConfig().set("General.Radius.Enabled", false);
+				getConfig().set("General.Radius.Radius-In-Blocks", 35);
+				getConfig().set("General.No-Violent-Cmds-When-Sleeping", true);
+				getConfig().set("Version", 4);
+				saveConfig();
+				reloadConfig();
+			}}
 	}
 
 	public void updateLastOn(Player p) {
-		
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 			File cache = new File(this.getDataFolder(), File.separator + "Data");
 			File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
@@ -290,22 +320,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			setcache.set("IP", IPAdd);
-			setcache.set("Username", p.getName().toString());
-			
-			
-			
-			if(useessnick) {
-			try {
-			if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
-					&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
-				Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-			setcache.set("Nickname", ChatColor.stripColor(ess.getUser(UUID).getNickname().toString()));
-			}
-			} catch (Exception esserr) {
-				getLogger().warning("Couldn't update " + p.getName() + "'s Essentials nickname in our files. Disabling this check until the next restart!");
-				useessnick = false;
-			}}
-			
+			setcache.set("Username", p.getName().toString());			
 			setcache.set("Last-On", System.currentTimeMillis());
 			try {
 				setcache.save(f);
@@ -369,11 +384,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	@Override
-	public void onEnable() {
-		if(isPreRelease) {
-			getLogger().info("Thank you for testing this PRE-RELEASE, please report any bugs you find.");
-		}
-		
+	public void onEnable() {		
 		if (!Bukkit.getBukkitVersion().contains("1.14") && !Bukkit.getBukkitVersion().contains("1.13")) {
 			if (!getConfig().getBoolean("Other.Bypass-Version-Block")) {
 				getConfig().options().copyDefaults(true);
@@ -429,8 +440,6 @@ public class Main extends JavaPlugin implements Listener {
 		outdatedplugin = false;
 		outdatedpluginversion = "0";
 		
-	    addMetric();
-		
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
 		if (debug) {
@@ -439,8 +448,11 @@ public class Main extends JavaPlugin implements Listener {
 		}
 
 		if(isPreRelease) {
-				getLogger().info("Using a PRE-RELEASE, skipped update checking.");
+				getLogger().info("Using a PRE-RELEASE, skipped update checking & metrics.");
 		} else {
+			
+			addMetrics();
+			
 		if (getConfig().getBoolean("Other.Updates.Check")) {
 				try {
 					new Updater(this).checkForUpdate();
@@ -460,32 +472,10 @@ public class Main extends JavaPlugin implements Listener {
 				updateLastOn(online); // Generates files for players who are on during restart that didn't join
 										// normally.
 			}
-			getLogger().info("Reloaded with " + onlinecount + " players online... Skipping purge");
+			getLogger().info("Reloaded with " + onlinecount + " players online... Skipping purge.");
 		} else { 
 			purgeOldFiles();
 		}
-		
-		if(getConfig().contains("Version")) {
-			if(getConfig().getInt("Version") != 4) {
-				getLogger().info("Updating your config to the latest v4.2 version...");
-				getConfig().set("General.Extra-Help", true);
-				getConfig().set("General.Radius.Enabled", false);
-				getConfig().set("General.Radius.Radius-In-Blocks", 35);
-				getConfig().set("General.No-Violent-Cmds-When-Sleeping", true);
-				getConfig().set("Version", 4);
-				saveConfig();
-				reloadConfig();
-			}
-		}
-		
-		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
-				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
-			getLogger().info("Hooking into the LiteBans mute system...");
-		} else if (this.getServer().getPluginManager().isPluginEnabled("Essentials") && this.getServer().getPluginManager().getPlugin("Essentials") != null) {
-			getLogger().info("Hooking into the Essentials mute system...");
-		}
-		
-		useessnick = true; // Reset nickname check. It's only false if an error was thrown.
 		
 		if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
 		usevanishcheck = true;
@@ -501,6 +491,27 @@ public class Main extends JavaPlugin implements Listener {
 				getLogger().info("[Debug] Not showing support discord link. They are using " + Bukkit.getVersion().toString() + " :(");
 			}
 		}
+		
+		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
+				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
+			getLogger().info("Hooking into LiteBans...");
+			haslitebans = true;
+		}
+		
+		if (this.getServer().getPluginManager().isPluginEnabled("AdvancedBan")
+				&& this.getServer().getPluginManager().getPlugin("AdvancedBan") != null) {
+			getLogger().info("Hooking into AdvancedBans...");
+			hasadvancedban = true;
+		}
+		
+		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
+				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+			hasess = true;
+			getLogger().info("Hooking into Essentials...");
+		} 
+		
+		updateConfig();
+	
 	} // [!] End of OnEnable Event
 
 	private int isBanned(UUID uuid, String IPAdd) {
@@ -542,8 +553,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private boolean isEssMuted(UUID uuid) {
 		try {
-		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
-				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+		if (hasess) {
 			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 			if(ess.getUser(uuid)._getMuted()) {
 				return true;
@@ -558,8 +568,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private boolean isLiteBanMuted(UUID uuid, String IPAdd) {
 		try {
-		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
-				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
+		if (haslitebans) {
 			if(Database.get().isPlayerMuted(uuid, IPAdd)) {
 				return true;
 			}
@@ -573,8 +582,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private boolean isABMuted(UUID uuid) {
 		try {
-		if (this.getServer().getPluginManager().isPluginEnabled("AdvancedBan")
-				&& this.getServer().getPluginManager().getPlugin("AdvancedBan") != null) {
+		if (hasadvancedban) {
 			if(PunishmentManager.get().isMuted(uuid.toString())) {
 				return true;
 			}
@@ -596,8 +604,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private boolean isEssBanned(UUID uuid) {
 		try {
-		if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
-				&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+		if (hasess) {
 			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 			if(ess.getUser(uuid).getBase().isBanned()) {
 				return true;
@@ -612,8 +619,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private boolean isLiteBanBanned(UUID uuid, String IPAdd) {
 		try {
-		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
-				&& this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
+		if (haslitebans) {
 			if(Database.get().isPlayerBanned(uuid, IPAdd)) {
 				return true;
 			}
@@ -627,8 +633,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private boolean isABBanned(UUID uuid) {
 		try {
-		if (this.getServer().getPluginManager().isPluginEnabled("AdvancedBan")
-				&& this.getServer().getPluginManager().getPlugin("AdvancedBan") != null) {
+		if (hasadvancedban) {
 			if(PunishmentManager.get().isBanned(uuid.toString())) {
 				return true;
 			}
@@ -644,8 +649,7 @@ public class Main extends JavaPlugin implements Listener {
 		if (usevanishcheck) {
 			try {
 				
-				if (this.getServer().getPluginManager().isPluginEnabled("Essentials")
-						&& this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+				if (hasess) {
 					Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 					if (ess.getVanishedPlayers().contains(player.getName())) {
 						return true;
@@ -730,8 +734,6 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(sender, "");
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
 			
-			boolean debug = getConfig().getBoolean("Other.Debug");
-			
 			try {
 				reloadConfig();
 
@@ -763,8 +765,6 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
-			debug = getConfig().getBoolean("Other.Debug");
-			
 			int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
 			if(onlinecount ==  0) {
 				if(debug) {
@@ -781,8 +781,15 @@ public class Main extends JavaPlugin implements Listener {
 			
 			try {
 				long reloadtime = System.currentTimeMillis()-starttime;
-				Msgs.send(sender, msg.getString("Reload").replace("%time%", Long.toString(reloadtime) + "ms"));
-				getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
+				if(reloadtime >= 1000) {
+					double reloadsec = reloadtime/1000;
+					// Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
+					Msgs.send(sender, msg.getString("Reload").replace("%time%", Double.toString(reloadsec) + "s"));
+					getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s");
+				} else {
+				    Msgs.send(sender, msg.getString("Reload").replace("%time%", Long.toString(reloadtime) + "ms"));
+				    getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
+				}
 			} catch (Exception err) {
 				Msgs.send(sender, "&8&l> &a&l✓  &7Configuration Reloaded. &c(1 file was regenerated)");
 			}
@@ -1347,8 +1354,6 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.sendPrefix(sender, msg.getString("Receiving-World-Disabled"));
 				return true;
 			}
-
-			boolean debug = getConfig().getBoolean("Other.Debug");
 			
 			// Radius & Sleeping Check ---------------------------
 			if(sender instanceof Player) {
@@ -1566,7 +1571,7 @@ public class Main extends JavaPlugin implements Listener {
 			// -----------------------------------------------------
 
 			// Sound Handler ----------------------------------------
-			if(useSounds()) {
+			if(sounds) {
 			try {
 				if (!emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name").equalsIgnoreCase("none")
 						&& !emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name").equalsIgnoreCase("off")

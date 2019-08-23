@@ -202,12 +202,11 @@ public class FileSetup {
 	    	plugin.getLogger().info("Created new messages.yml file...");
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
-	    }
-	    
-		  if(msgs.getInt("Version") != 5) { // Need to change eventually with next update
-				plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
-				forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
-			 }
+	    	
+	    } else if(msgs.getInt("Version") != 5) {
+			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
+			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
+		}
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
 	    	setMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%"); // updated in version 5
