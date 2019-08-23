@@ -19,6 +19,7 @@ Copyright 2019 :: zachrocks22
        - You may NOT use revenue links when sharing this resource.
        - You MAY edit for personal or private use.
        - You MAY edit for free public use (with credit).
+       - You agree this software has NO WARRANTY 
        - You MAY provide infinite hugs to Zach. <3
  
  All source code is readily available on our GitHub, if you have any questions or conerns! 
