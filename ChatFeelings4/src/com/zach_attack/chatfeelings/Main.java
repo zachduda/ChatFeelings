@@ -166,6 +166,13 @@ public class Main extends JavaPlugin implements Listener {
 
 	public void updateConfig() {
 		boolean confdebug = getConfig().getBoolean("Other.Debug");
+		
+		if(confdebug) {
+			debug = true;
+		} else {
+			debug = false;
+		}
+		
 		String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
 		
 		if(getConfig().getBoolean("General.Sounds")) {
@@ -185,12 +192,6 @@ public class Main extends JavaPlugin implements Listener {
 			} else {
 				usevanishcheck = false;
 			}
-		
-		if(confdebug) {
-			debug = true;
-		} else {
-			debug = false;
-		}
 	}
 	
 	public void addMetrics() {
