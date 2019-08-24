@@ -203,10 +203,10 @@ public class FileSetup {
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    	
-	    } else if(msgs.getInt("Version") != 5) {
+	    } else if(msgs.getInt("Version") < 5) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
 			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
-		}
+		} 
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
 	    	setMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%"); // updated in version 5
@@ -231,6 +231,8 @@ public class FileSetup {
 	    	setMsgs("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");
 	    	setMsgs("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings."); // added in version 3
 	    	setMsgs("Folder-Not-Found", "&cHmm. &fThere is no data to display here."); // added in version 4
+	    	setMsgs("Stats-Header-Own", "&e&lYour Statistics:"); // added in version 6
+	    	setMsgs("Stats-Header-Other", "&e&l%player%'s Statistics:"); // added in version 6
 	    	setMsgs("Mute-List-Header", "&e&lMuted Players:"); // added in version 4
 	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
 	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
@@ -255,7 +257,7 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgsVersion(5);
+	    	setMsgsVersion(6);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {

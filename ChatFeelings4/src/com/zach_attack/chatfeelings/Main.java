@@ -35,7 +35,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	// FOR GITHUB PRE-RELEASES -----------------
 	
-	public static boolean isPreRelease = false;
+	public static boolean isPreRelease = true;
 	
 	// ----------------------------------
 	
@@ -289,8 +289,10 @@ public class Main extends JavaPlugin implements Listener {
 
 	public void updateLastOn(Player p) {
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			String UUID = p.getUniqueId().toString();
+			
 			File cache = new File(this.getDataFolder(), File.separator + "Data");
-			File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
+			File f = new File(cache, File.separator + "" + UUID + ".yml");
 			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
 			if (!f.exists()) {
@@ -300,7 +302,6 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			}
 
-			String UUID = p.getUniqueId().toString();
 			String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
 			int fileversion = setcache.getInt("Version");
 			int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
@@ -320,11 +321,55 @@ public class Main extends JavaPlugin implements Listener {
 			setcache.set("Last-On", System.currentTimeMillis());
 			try {
 				setcache.save(f);
-			} catch (Exception err) {
-			};
+			} catch (Exception err) {}
 		});
 	}
 
+	public void statsAdd(Player p, String emotion) {
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+			
+			// Global Stats -------------------------------------
+			File folder = new File(this.getDataFolder(), File.separator + "Data");
+			File fstats = new File(folder, File.separator + "global.yml");
+			FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
+			
+			if(!fstats.exists()) {
+				if(debug) {
+				getLogger().info("Global stats file didn't exist, creating one now!");
+				}
+				try {
+					setstats.save(fstats);
+				} catch (Exception err) {}
+			}
+			
+			setstats.set("Feelings.Sent." + emotion, setstats.getInt("Feelings.Sent." + emotion)+1);
+			try {
+				setstats.save(fstats);
+			} catch (Exception err) {}
+			
+			// Global Stats ----------------------------------
+			
+			String UUID = p.getUniqueId().toString();
+			
+			File f = new File(folder, File.separator + "" + UUID + ".yml");
+			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+
+			if (!f.exists()) {
+				return;
+			}
+			
+			int ftotal = setcache.getInt("Stats.Sent." + emotion);
+			int total = setcache.getInt("Stats.Sent.Total");
+			
+			setcache.set("Stats.Sent." + emotion, ftotal+1);
+			setcache.set("Stats.Sent.Total", total+1);
+			
+			try {
+				setcache.save(f);
+			} catch (Exception err) {}
+		});
+	}
+	
 	public String hasPlayedNameGetUUID(String inputsearch) {
 		File folder = new File(this.getDataFolder(), File.separator + "Data");
 
@@ -660,6 +705,47 @@ public class Main extends JavaPlugin implements Listener {
 			return false;
 		}
 	}
+	
+	private void getStats(CommandSender p, String name, boolean isown) {
+		String your = "";
+		
+		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		File msgsfile = new File(folder, File.separator + "messages.yml");
+		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
+		
+		File cache = new File(this.getDataFolder(), File.separator + "Data");
+		File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(name) + ".yml");
+		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+		
+		if(isown) {
+			Msgs.send(p, msg.getString("Stats-Header-Own").replace("%player%", name));
+			your = "&7Your ";
+		} else {
+			Msgs.send(p, msg.getString("Stats-Header-Other").replace("%player%", name));
+			your = "&7";
+		}
+		Msgs.send(p, "&f   &8&l> " + your + "Hugs: &f&l" + setcache.getInt("Stats.Sent.Hug"));
+		Msgs.send(p, "&f   &8&l> " + your + "Slaps: &f&l" + setcache.getInt("Stats.Sent.Slap"));
+		Msgs.send(p, "&f   &8&l> " + your + "Pokes: &f&l" + setcache.getInt("Stats.Sent.Poke"));
+		Msgs.send(p, "&f   &8&l> " + your + "Highfives: &f&l" + setcache.getInt("Stats.Sent.Highfive"));
+		Msgs.send(p, "&f   &8&l> " + your + "Facepalms: &f&l" + setcache.getInt("Stats.Sent.Facepalm"));
+		Msgs.send(p, "&f   &8&l> " + your + "Yells: &f&l" + setcache.getInt("Stats.Sent.Yell"));
+		Msgs.send(p, "&f   &8&l> " + your + "Bites: &f&l" + setcache.getInt("Stats.Sent.Bite"));
+		Msgs.send(p, "&f   &8&l> " + your + "Snuggles: &f&l" + setcache.getInt("Stats.Sent.Snuggle"));
+		Msgs.send(p, "&f   &8&l> " + your + "Shakes: &f&l" + setcache.getInt("Stats.Sent.Shake"));
+		Msgs.send(p, "&f   &8&l> " + your + "Stabs: &f&l" + setcache.getInt("Stats.Sent.Stab"));
+		Msgs.send(p, "&f   &8&l> " + your + "Kisses: &f&l" + setcache.getInt("Stats.Sent.Kiss"));
+		Msgs.send(p, "&f   &8&l> " + your + "Punches: &f&l" + setcache.getInt("Stats.Sent.Punch"));
+		Msgs.send(p, "&f   &8&l> " + your + "Murders: &f&l" + setcache.getInt("Stats.Sent.Murder"));
+		Msgs.send(p, "&f   &8&l> " + your + "Boi: &f&l" + setcache.getInt("Stats.Sent.Boi"));
+		Msgs.send(p, "&f   &8&l> " + your + "Cries: &f&l" + setcache.getInt("Stats.Sent.Cry"));
+		Msgs.send(p, "&f   &8&l> " + your + "Dabs: &f&l" + setcache.getInt("Stats.Sent.Dab"));
+		Msgs.send(p, "&f   &8&l> " + your + "Licks: &f&l" + setcache.getInt("Stats.Sent.Lick"));
+		Msgs.send(p, "&f   &8&l> " + your + "Scorn: &f&l" + setcache.getInt("Stats.Sent.Scorn"));
+		Msgs.send(p, "&f   &8&l> " + your + "Pats: &f&l" + setcache.getInt("Stats.Sent.Pat"));
+		Msgs.send(p, "&f   &8&l> " + your + "Stalks: &f&l" + setcache.getInt("Stats.Sent.Stalk"));
+		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
+	}
 
 	public void noPermission(CommandSender sender) {
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
@@ -691,6 +777,48 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
 			Msgs.send(sender, "&8&l> &7You are currently running &f&lv" + getDescription().getVersion());
 			Msgs.send(sender, "");
+			pop(sender);
+			return true;
+		}
+		
+		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("stats")) {
+			if(!sender.hasPermission("chatfeelings.stats") && !sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
+				noPermission(sender);
+				return true;
+			}
+			
+			if (args.length == 1) {
+				if(!(sender instanceof Player)) {
+					Msgs.sendPrefix(sender, msg.getString("No-Player"));
+					return true;
+				}
+				
+				getStats(sender, sender.getName(), true);
+				pop(sender);
+				return true;
+			}
+			
+			if(!sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
+				noPermission(sender);
+				return true;
+			}
+			
+			String getUUID = hasPlayedNameGetUUID(args[1]);
+			if (getUUID == "0" || getUUID == null) {
+				
+				if (args[1].equalsIgnoreCase("console")) {
+					Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
+					bass(sender);
+					return true;
+				}
+				
+				bass(sender);
+				Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+				return true;
+			}
+			
+			String getName = hasPlayedUUIDGetName(getUUID);
+			getStats(sender, getName, false);
 			pop(sender);
 			return true;
 		}
@@ -928,7 +1056,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 			
 			File cache = new File(this.getDataFolder(), File.separator + "Data");
-			File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(args[1]) + ".yml");
+			File f = new File(cache, File.separator + "" + muteUUID + ".yml");
 			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
 			if (!cache.exists()) {
@@ -1371,6 +1499,10 @@ public class Main extends JavaPlugin implements Listener {
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
 				
+				File cache = new File(this.getDataFolder(), File.separator + "Data");
+				File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
+				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+
 				int muteInt = isMuted(p.getUniqueId(), null);
 				
 				if(muteInt != 0) {
@@ -1390,9 +1522,6 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
 				
-				File cache = new File(this.getDataFolder(), File.separator + "Data");
-				File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
-				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
 				if (f.exists()) {
 					if(setcache.getBoolean("Muted")) {
@@ -1439,6 +1568,8 @@ public class Main extends JavaPlugin implements Listener {
 			}}
 			// ------------------------------------------------
 			
+			// FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
+			
 			// Global Handler for PLAYER messages & Feelings ----------------------------
 			if (getConfig().getBoolean("General.Global-Feelings.Enabled")) {
 				
@@ -1451,7 +1582,7 @@ public class Main extends JavaPlugin implements Listener {
 					
 					if(!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
 						if(debug) {
-							getLogger().info(online.getName() + " is blocking all feelings. Skipping Global Msg!");
+							getLogger().info("[Debug] " + online.getName() + " is blocking all feelings. Skipping Global Msg!");
 						}
 					} else { // else NOT ignoring ALL
 						if(sender instanceof Player) {
@@ -1459,7 +1590,7 @@ public class Main extends JavaPlugin implements Listener {
 						if (isTargetIgnoringSender(target, p)) {
 							// Player is Ignoring from sender but is not target. (GlobaL)
 							if(debug) {
-								getLogger().info(online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
+								getLogger().info("[Debug] " + online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
 							}
 						}}
 				// End of Global ignoring Checks -------------------
@@ -1596,6 +1727,12 @@ public class Main extends JavaPlugin implements Listener {
 			} // end of config sound check
 			// ---------- End of Sounds
 
+			// Add Stats
+			if(sender instanceof Player) {
+				Player p = (Player)sender;
+				statsAdd(p, cmdconfig);
+			}
+			// End Stats
 			return true;
 		}
 			
