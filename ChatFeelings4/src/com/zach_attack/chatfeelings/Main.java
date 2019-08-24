@@ -761,10 +761,14 @@ public class Main extends JavaPlugin implements Listener {
 					double reloadsec = reloadtime/1000;
 					// Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
 					Msgs.send(sender, msg.getString("Reload").replace("%time%", Double.toString(reloadsec) + "s"));
-					getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s");
+					if(sender instanceof Player) {
+						getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s");
+					}
 				} else {
 				    Msgs.send(sender, msg.getString("Reload").replace("%time%", Long.toString(reloadtime) + "ms"));
-				    getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
+				    if(sender instanceof Player) {
+				    	getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
+				    }
 				}
 			} catch (Exception err) {
 				Msgs.send(sender, "&8&l> &a&l✓  &7Configuration Reloaded. &c(1 file was regenerated)");
