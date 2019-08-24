@@ -180,6 +180,12 @@ public class Main extends JavaPlugin implements Listener {
 			}
 		}
 		
+		if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
+			usevanishcheck = true;
+			} else {
+				usevanishcheck = false;
+			}
+		
 		if(confdebug) {
 			debug = true;
 		} else {
@@ -223,14 +229,6 @@ public class Main extends JavaPlugin implements Listener {
 					return "Enabled";
 				} else {
 					return "Disabled";
-				}
-			}));
-
-			metrics.addCustomChart(new Metrics.SimplePie("bypass_version", () -> {
-				if (getConfig().getBoolean("Other.Bypass-Version-Block")) {
-					return "Yes";
-				} else {
-					return "No";
 				}
 			}));
 	} // End Metrics
@@ -465,14 +463,8 @@ public class Main extends JavaPlugin implements Listener {
 			purgeOldFiles();
 		}
 		
-		if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
-		usevanishcheck = true;
-		} else {
-			usevanishcheck = false;
-		}
-		
 		configChecks();
-		if (!getConfig().getBoolean("Other.Bypass-Version-Block") && (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
+		if ((Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
 		getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 		} else {
 			if(debug) {
@@ -733,12 +725,6 @@ public class Main extends JavaPlugin implements Listener {
 				FileSetup.enableFiles();
 				configChecks();
 				
-				if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
-					usevanishcheck = true;
-					} else {
-						usevanishcheck = false;
-					}
-				
 			} catch (Exception err2) {
 				if(debug) {
 				getLogger().info("Error occured when trying to reload your config: ----------");
@@ -752,6 +738,8 @@ public class Main extends JavaPlugin implements Listener {
 				usevanishcheck = true;
 				return true;
 			}
+			
+			updateConfig();
 			
 			int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
 			if(onlinecount ==  0) {
