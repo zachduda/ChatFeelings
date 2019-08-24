@@ -23,7 +23,6 @@ General:
   Disabled-Receiving-Worlds:
   - world_the_end
 Other:
-  Bypass-Version-Block: false
   Vanished-Players:
     Check: true
     Use-Legacy: false
@@ -35,4 +34,4 @@ Other:
     Check: true
   Metrics: true
   Debug: false
-Version: 4
+Version: 5

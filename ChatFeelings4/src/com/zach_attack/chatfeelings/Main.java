@@ -35,7 +35,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	// FOR GITHUB PRE-RELEASES -----------------
 	
-	public static boolean isPreRelease = true;
+	public static boolean isPreRelease = false;
 	
 	// ----------------------------------
 	
@@ -174,7 +174,7 @@ public class Main extends JavaPlugin implements Listener {
 				sounds = false;
 			} else {
 				if(debug) {
-					getLogger().info("[Debug] Using support MC version for sounds: " + version);
+					getLogger().info("[Debug] Using supported MC version for sounds: " + version);
 				}
 				sounds = true;
 			}
@@ -279,16 +279,14 @@ public class Main extends JavaPlugin implements Listener {
 		}}
 		
 		if(getConfig().contains("Version")) {
-			if(getConfig().getInt("Version") < 4) {
-				getLogger().info("Updating your config to the latest v4.2 version...");
-				getConfig().set("General.Extra-Help", true);
-				getConfig().set("General.Radius.Enabled", false);
-				getConfig().set("General.Radius.Radius-In-Blocks", 35);
-				getConfig().set("General.No-Violent-Cmds-When-Sleeping", true);
-				getConfig().set("Version", 4);
+			if(getConfig().getInt("Version") != 5) {
+				getLogger().info("Updating your config to the latest v4.4 version...");
+				getConfig().set("Other.Bypass-Version-Block", null);
+				getConfig().set("Version", 5);
 				saveConfig();
 				reloadConfig();
-			}}
+			}
+		}
 	}
 
 	public void updateLastOn(Player p) {
@@ -385,35 +383,25 @@ public class Main extends JavaPlugin implements Listener {
 
 	@Override
 	public void onEnable() {		
-		if (!Bukkit.getBukkitVersion().contains("1.14") && !Bukkit.getBukkitVersion().contains("1.13")) {
-			if (!getConfig().getBoolean("Other.Bypass-Version-Block")) {
-				getConfig().options().copyDefaults(true);
-				saveConfig();
-
+		String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
+		
+		if (!version.contains("1.14") && !version.contains("1.13")) {
 				getLogger().info("---------------------------------------------------");
 				getLogger().info("This version of ChatFeelings is only compatible with: 1.14 & 1.13");
-				getLogger().info("Use a different version of ChatFeelings to add support for this version.");
+				getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
 				getLogger().info(" ");
-				getLogger().info("If you are willing to manually update your emotes.yml sound variables and wish to");
-				getLogger().info("continue using " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", "")
-						+ " with this version of ChatFeelings, you may set");
-				getLogger().info("'Bypass-Version-Block' in your config to 'true' & restart your server.");
+				getLogger().info("If you continue, you understand that you will get no support, and");
+				getLogger().info("that some features, such as sounds, may disable to continue working.");
 				getLogger().info("");
-				getLogger().info("By setting this config variable to true, you agree & understand you");
-				getLogger().info("will recieve NO SUPPORT for this version in this environment.");
-				getLogger().warning("IF YOU BYPASS THIS MESSAGE, AND GET BUGS/ERRORS, DO NOT REPORT THEM.");
+				getLogger().warning("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
 				getLogger().info("---------------------------------------------------");
-				this.getPluginLoader().disablePlugin(this);
-				return;
-			}
-			getLogger().info("---------------------------------------------------");
-			getLogger().info("WARNING: While ChatFeelings may work for "
-					+ Bukkit.getBukkitVersion().replace("-SNAPSHOT", "") + ", you may encouter various issues.");
-			getLogger().info(
-					"         It's important to make sure you have properly configured your emotes.yml variables!");
-			getLogger().info("         If your emotes.yml sound variables are incorrect, errors may be thrown.");
-			getLogger().info("---------------------------------------------------");
 		}
+		
+		if(version.contains("1.8") || version.contains("1.7") || version.contains("1.6") || version.contains("1.5") || version.contains("1.4")) {
+			getLogger().warning("1.8 or below may have severe issues with this version of ChatFeelings, please use this version:");
+			getLogger().warning("https://www.spigotmc.org/resources/chatfeelings.12987/download?version=208840");
+		}
+		
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 		boolean debug = getConfig().getBoolean("Options.Debug");
