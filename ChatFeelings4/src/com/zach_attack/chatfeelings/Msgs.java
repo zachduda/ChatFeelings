@@ -8,14 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import com.zach_attack.chatfeelings.Main;
-
 public class Msgs {
-	static Main plugin = Main.getPlugin(Main.class);
-	
-	  static File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
-	  static File msgsfile = new File(folder, File.separator + "messages.yml");
-	  static FileConfiguration messages = YamlConfiguration.loadConfiguration(msgsfile);
+	private static File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+	private static File msgsfile = new File(folder, File.separator + "messages.yml");
+	private static FileConfiguration messages = YamlConfiguration.loadConfiguration(msgsfile);
 	
 	public static void sendPrefix(CommandSender sender, String msg) {
 	    String prefix = ChatColor.translateAlternateColorCodes('&', messages.getString("Prefix"));

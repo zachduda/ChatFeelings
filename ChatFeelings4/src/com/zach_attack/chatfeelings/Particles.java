@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 
 public class Particles {
 	
-	static Main plugin = (Main)Main.getPlugin(Main.class);
+	private static Main plugin = (Main)Main.getPlugin(Main.class);
 
-		public static void show(Player p, String label)
+		static void show(Player p, String label)
 		{
 			if(label.equalsIgnoreCase("hug")) {
 				hugParticle(p);
@@ -58,18 +58,18 @@ public class Particles {
 			}
 		}
 
-public static void hugParticle(Player p)
+	private static void hugParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.HEART, p.getLocation().add(0, 1, 0), 9, 1.0D, 0.5D, 1.0D);
 }
 
-	public static void biteParticle(Player p) {
+	private static void biteParticle(Player p) {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.CRIT, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 30, 0.4D, 0.4D, 0.4D);
 	}
 
-	public static void slapParticle(final Player p) {
+	private static void slapParticle(final Player p) {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
       
@@ -103,7 +103,7 @@ public static void hugParticle(Player p)
         }, 8L);
 	}
 	
-	public static void punchParticle(final Player p) {
+	private static void punchParticle(final Player p) {
         World world = p.getLocation().getWorld();
         
         world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
@@ -166,7 +166,7 @@ public static void hugParticle(Player p)
         }, 16L);
 	}
 
-	public static void murderParticle(final Player p) {
+	private static void murderParticle(final Player p) {
         World world = p.getLocation().getWorld();
         
         if(Bukkit.getBukkitVersion().contains("1.12") || Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15"))  {
@@ -184,51 +184,51 @@ public static void hugParticle(Player p)
         }, 5L);
 	}
 
-public static void boiParticle(Player p)
+	private static void boiParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 40, 0.0D, 0.0D, 0.0D);
 }
 
-public static void dabParticle(Player p)
+	private static void dabParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 20, 0.4D, 0.4D, 0.4D);
 }
 
-public static void cryParticle(Player p)
+	private static void cryParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.WATER_SPLASH, p.getLocation().add(0, 1.5D, 0), 100, 0.4D, 0.4D, 0.4D);
 }
 
-public static void facepalmParticle(Player p)
+	private static void facepalmParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.CLOUD, p.getLocation().add(0, 1, 0), 3, 0.4D, 0.4D, 0.4D, 0.0001D);
 }
 
-public static void highfiveParticle(Player p)
+	private static void highfiveParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.CRIT_MAGIC, p.getLocation().add(0, 1, 0), 30, 0.4D, 0.4D, 0.4D);
 }
 
-public static void pokeParticle(Player p)
+	private static void pokeParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().add(0, 1, 0), 15, 0.4D, 0.4D, 0.4D);
 }
 
 
-public static void lickParticle(Player p)
+	private static void lickParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.DRIP_WATER, p.getLocation().add(0, 2, 0), 10, 0.2D, 0.5D, 0.2D);
         world.spawnParticle(Particle.WATER_DROP, p.getLocation().add(0, 1, 0), 24, 1.0D, 0.5D, 1.0D);
     }
 
-public static void yellParticle(Player p)
+	private static void yellParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.EXPLOSION_HUGE, p.getLocation().add(0, 1, 0), 1, 0.2D, 0.5D, 0.2D);

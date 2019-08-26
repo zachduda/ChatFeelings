@@ -5,8 +5,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.zach_attack.chatfeelings.Main;
-
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +18,9 @@ public class Updater {
 
     private final JavaPlugin javaPlugin;
     private final String localPluginVersion;
-    private String spigotPluginVersion;
+    
+    private static String outdatedversion;
+	private static boolean outdated = false;
 
     private static final int ID = 12987;
     private static final long CHECK_INTERVAL = 1_728_000; //In ticks.
@@ -31,10 +31,6 @@ public class Updater {
     }
 
     public void checkForUpdate() {
-    	if(Main.isPreRelease) {
-    		return;
-    	}
-    	
     	try {
         new BukkitRunnable() {
             @Override
@@ -43,20 +39,19 @@ public class Updater {
                     try {
                         final HttpsURLConnection connection = (HttpsURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=" + ID).openConnection();
                         connection.setRequestMethod("GET");
-                        spigotPluginVersion = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
+                        outdatedversion = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
                     } catch (final IOException e) {
                         Bukkit.getServer().getConsoleSender().sendMessage("[ChatFeelings] Unable to check for updates. Is your server online?");
                         cancel();
                         return;
                     }
 
-                    if (("v" + localPluginVersion).equalsIgnoreCase(spigotPluginVersion)) {
+                    if (("v" + localPluginVersion).equalsIgnoreCase(outdatedversion)) {
                     	return;
                     }
                     
-                    Main.outdatedplugin = true;
-                    Main.outdatedpluginversion = spigotPluginVersion;
-                    Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&lUpdate Available: &rYou're running &7v" + localPluginVersion + "&r, while the latest is &a" + spigotPluginVersion));
+                    outdated = true;
+                    Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&lUpdate Available: &rYou're running &7v" + localPluginVersion + "&r, while the latest is &a" + outdatedversion));
                     cancel(); //Cancel the runnable as an update has been found.
                 });
             }
@@ -65,4 +60,12 @@ public class Updater {
     		javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
     	}
     }
+
+	public static boolean isOutdated() {
+		return outdated;
+	}
+	
+	public static String getOutdatedVersion() {
+		return Updater.getOutdatedVersion();
+	}
 }

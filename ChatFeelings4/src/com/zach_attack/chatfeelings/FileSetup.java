@@ -8,9 +8,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 
 public class FileSetup {
-	static Main plugin = Main.getPlugin(Main.class);
+	private static Main plugin = Main.getPlugin(Main.class);
 	
-	public static void setMsgs(String configpath, String msg) {
+	private static void setMsgs(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
@@ -36,7 +36,7 @@ public class FileSetup {
 		}
 	}
 	
-	public static void forceMsgs(String configpath, String msg) {
+    private static void forceMsgs(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
@@ -54,7 +54,7 @@ public class FileSetup {
 	    	} catch(Exception err) {}
 	}
 	
-	public static void setMsgsVersion(int vers) {
+    private static void setMsgsVersion(int vers) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
@@ -67,7 +67,7 @@ public class FileSetup {
 	    	} catch(Exception err) {}}
 	}
 	
-	public static void setEmotes(String configpath, String msg) {
+	private static void setEmotes(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -96,7 +96,7 @@ public class FileSetup {
 		}
 	}
 	
-	public static void setEmotesVersion(int vers) {
+	private static void setEmotesVersion(int vers) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -109,7 +109,7 @@ public class FileSetup {
 	    	} catch(Exception err) {}}
 	}
 	
-	public static void setEmotesDouble(String configpath, Double dubdub) {
+	private static void setEmotesDouble(String configpath, Double dubdub) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -128,7 +128,7 @@ public class FileSetup {
     	} catch(Exception err) {}
 	}}
 	
-	public static void setEmotesBoolean(String configpath, boolean siono) {
+	private static void setEmotesBoolean(String configpath, boolean siono) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -147,7 +147,7 @@ public class FileSetup {
   	} catch(Exception err) {}
 	}}
 	
-	public static void enableFiles() {
+	static void enableFiles() {
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);

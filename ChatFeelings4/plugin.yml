@@ -2,9 +2,9 @@ name: ChatFeelings
 main: com.zach_attack.chatfeelings.Main
 website: https://www.spigotmc.org/resources/chatfeelings.12987/
 author: zach_attack
-version: 4.5-PRE1
+version: 4.5-PRE2
 api-version: 1.13
-soft-depend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan]
+soft-depend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceHolderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
 commands:
   hug:
@@ -122,3 +122,6 @@ permissions:
    chatfeelings.admin:
      description: Allows players to see available feelings.
      default: op
+   chatfeelings.bypasscooldowns:
+     description: Players with this node can bypass cooldowns on CF commands.
+     default: false
