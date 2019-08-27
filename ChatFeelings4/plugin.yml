@@ -59,6 +59,9 @@ permissions:
      children:
        chatfeelings.help: true
        chatfeelings.admin: true
+       chatfeelings.ignore: true
+       chatfeelings.stats: true
+       chatfeelings.bypasscooldowns: true
        chatfeelings.hug: true
        chatfeelings.slap: true
        chatfeelings.poke: true
@@ -77,11 +80,10 @@ permissions:
        chatfeelings.dab: true
        chatfeelings.cry: true
        chatfeelings.lick: true
+       chatfeelings.highfive: true
        chatfeelings.stalk: true
        chatfeelings.pat: true
        chatfeelings.scorn: true
-       chatfeelings.highfive: true
-       chatfeelings.ignore: true
    chatfeelings.all:
      description: Allows all feeling commands.
      default: true
@@ -108,8 +110,6 @@ permissions:
        chatfeelings.stalk: true
        chatfeelings.pat: true
        chatfeelings.scorn: true
-       chatfeelings.ignore: false
-       chatfeelings.mute: false
    chatfeelings.ignore:
      description: Players with this permission will ignore feelings etc.
      default: true
@@ -121,6 +121,12 @@ permissions:
      default: true
    chatfeelings.admin:
      description: Allows players to see available feelings.
+     default: op
+   chatfeelings.stats:
+     description: Allows players to see their statistics.
+     default: true
+   chatfeelings.stats.others:
+     description: Allows players to see others statistics.
      default: op
    chatfeelings.bypasscooldowns:
      description: Players with this node can bypass cooldowns on CF commands.
