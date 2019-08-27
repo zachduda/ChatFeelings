@@ -981,6 +981,13 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7Ignore/Unignore feelings from players.");
 				Msgs.send(sender, "&8&l> &e&l/cf ignore all &7Toggles everyone being able to use feelings.");
 			}
+			if(sender.hasPermission("chatfeelings.stats") || sender.isOp()) {
+				if(!sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
+					Msgs.send(sender, "&8&l> &e&l/cf stats &7Shows your feeling statistics.");
+				} else {
+					Msgs.send(sender, "&8&l> &e&l/cf stats (player) &7Shows your a players statistics.");
+				}
+			}
 			if (sender.hasPermission("chatfeelings.mute") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7Prevents a player from using feelings.");
 				Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7Unmutes a muted player.");
