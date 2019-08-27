@@ -1847,8 +1847,15 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void onleave(PlayerQuitEvent e) {
+		if(!Cooldowns.justjoined.containsKey(e.getPlayer())) {
+			updateLastOn(e.getPlayer());
+		} else {
+			if(debug) {
+				getLogger().info("[Debug] Skipped updating the player file, they joined less than 60s ago.");
+			}
+		}
+		
 		removeAll(e.getPlayer());
-		updateLastOn(e.getPlayer());
 	}
 
 	@EventHandler
