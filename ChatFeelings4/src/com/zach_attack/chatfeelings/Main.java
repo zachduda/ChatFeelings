@@ -1454,6 +1454,16 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.send(sender, "&8&l> &f&l/lick (player) &7Lick someone like an ice-cream sundae!");
 				Msgs.send(sender, "&8&l> &f&l/pat (player) &7Pat a players head for being good.");
 				Msgs.send(sender, "&8&l> &f&l/stalk (player) &7Stalk a player carefully... carefully.");
+				
+		 	    Date now = new Date();
+			    SimpleDateFormat format = new SimpleDateFormat("MM");
+			    
+			 	if(format.format(now).equals("10") || format.format(now).equals("09")) {
+			 		Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+			 	} else {
+			 		Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+			 	}
+			 	
 				pop(sender);
 				Msgs.send(sender, "");
 			} else {
