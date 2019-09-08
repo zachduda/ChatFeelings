@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zach_attack.chatfeelings.Main
 website: https://www.spigotmc.org/resources/chatfeelings.12987/
 author: zach_attack
-version: 4.5-PRE2
+version: 4.5-PRE3
 api-version: 1.13
 soft-depend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceHolderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
@@ -53,6 +53,8 @@ commands:
     description: Pat a players head for being good.
   stalk:
     description: Stalk a player carefully... carefully.
+  spook:
+    description: Give your friend some festive fright!
 permissions:
    chatfeelings.*:
      description: Allows all chatfeelings commands & admin commands.
@@ -84,6 +86,7 @@ permissions:
        chatfeelings.stalk: true
        chatfeelings.pat: true
        chatfeelings.scorn: true
+       chatfeelings.spook: true
    chatfeelings.all:
      description: Allows all feeling commands.
      default: true
@@ -110,6 +113,7 @@ permissions:
        chatfeelings.stalk: true
        chatfeelings.pat: true
        chatfeelings.scorn: true
+       chatfeelings.spook: true
    chatfeelings.ignore:
      description: Players with this permission will ignore feelings etc.
      default: true

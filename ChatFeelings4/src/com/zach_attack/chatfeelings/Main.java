@@ -1,12 +1,15 @@
 package com.zach_attack.chatfeelings;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -15,8 +18,10 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
@@ -50,10 +55,12 @@ public class Main extends JavaPlugin implements Listener {
 
 	private boolean usevanishcheck = false;
 	
-	public boolean debug = false;
-	public boolean sounds = false;
+	static boolean particles = true;
 	
-	private long lastreload = 0; 
+	static boolean debug = false;
+	static boolean sounds = false;
+	
+	private long lastreload = 0;
 
 	private ArrayList<String> disabledsendingworlds = (ArrayList<String>) getConfig()
 			.getStringList("General.Disable-Sending-Worlds");
@@ -196,7 +203,7 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if(getConfig().getBoolean("General.Sounds")) {
 			if(!version.contains("1.13") && !version.contains("1.14")) {
-				getLogger().info("Sounds were disabled as you are using " + version + " and not 1.13.2 or higher.");
+				getLogger().warning("Sounds were disabled as you are using " + version + " and not 1.13.X or higher.");
 				sounds = false;
 			} else {
 				if(debug) {
@@ -204,6 +211,22 @@ public class Main extends JavaPlugin implements Listener {
 				}
 				sounds = true;
 			}
+		} else {
+			sounds = false;
+		}
+		
+		if(getConfig().getBoolean("General.Particles")) {
+			if(!version.contains("1.14") && !version.contains("1.13") && !version.contains("1.12")) {
+				getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
+				particles = false;
+			} else {
+				if(debug) {
+					getLogger().info("[Debug] Using supported MC version for sounds: " + version);
+				}
+				particles = true;
+			}
+		} else {
+			particles = false;
 		}
 		
 		if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
@@ -745,8 +768,6 @@ public class Main extends JavaPlugin implements Listener {
 					if (ess.getVanishedPlayers().contains(player.getName())) {
 						return true;
 					}
-
-					return false;
 				}
 
 				for (MetadataValue meta : player.getMetadata("vanished")) {
@@ -763,6 +784,7 @@ public class Main extends JavaPlugin implements Listener {
 				if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
 					return true;
 				}
+				
 				return false;
 			}
 
@@ -1448,7 +1470,7 @@ public class Main extends JavaPlugin implements Listener {
 				|| cmd.getName().equalsIgnoreCase("boi") || cmd.getName().equalsIgnoreCase("cry")
 				|| cmd.getName().equalsIgnoreCase("dab") || cmd.getName().equalsIgnoreCase("lick")
 				|| cmd.getName().equalsIgnoreCase("scorn") || cmd.getName().equalsIgnoreCase("pat")
-				|| cmd.getName().equalsIgnoreCase("stalk")) {
+				|| cmd.getName().equalsIgnoreCase("stalk") || cmd.getName().equalsIgnoreCase("spook")) {
 
 			if(sender instanceof Player && getConfig().getBoolean("General.Use-Feeling-Permissions")) {
 			if(!sender.hasPermission("chatfeelings. " + cmd.getName() + "") && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
@@ -1638,6 +1660,31 @@ public class Main extends JavaPlugin implements Listener {
 			
 			// FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
 			
+			if(cmd.getName().equalsIgnoreCase("spook")) {
+		 	    Date now = new Date();
+			    SimpleDateFormat format = new SimpleDateFormat("MM");
+			    
+			 	if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
+			 		Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
+			 		bass(sender);
+			 		return true;
+			 	}
+			 	
+			 	if(Cooldowns.spook.containsKey(target.getName())) {
+			 		Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
+			 		bass(sender);
+			 		return true;
+			 	}
+			 	
+			 	if(!(target.getInventory().getHelmet() == (new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
+			 		Msgs.sendPrefix(sender, "&c&lSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
+			 		bass(sender);
+			 		return true;
+			 	}
+			 	
+			 	Cooldowns.spookHash(target);
+			}
+			
 			// API Events ----------------------------
 			FeelingSendEvent fse = new FeelingSendEvent(sender, target, cmdconfig);
 			Bukkit.getPluginManager().callEvent(fse);
@@ -1673,8 +1720,7 @@ public class Main extends JavaPlugin implements Listener {
 						if (isTargetIgnoringSender(target, p)) {
 							// Player is Ignoring from sender but is not target. (GlobaL)
 							
-							// I really need to test this, it looks like somethings
-							// wrong here. Anyone can test this, that'd be great.
+							// This works but is unused. Need to remove later.
 							
 							if(debug) {
 								getLogger().info("[Debug] " + online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
@@ -1766,12 +1812,11 @@ public class Main extends JavaPlugin implements Listener {
 			// -----------------------------------------------------
 
 			// Particle Handler -------------------------------------
-			if (getConfig().getBoolean("General.Particles")) {
+			if (particles) {
 				try {
 					Particles.show(target, cmd.getName().toLowerCase());
 				} catch (Exception parterr) {
-					getLogger().warning("Couldn't display '" + cmd.getName().toUpperCase() + "' particles to "
-							+ target.getName() + ". Make sure you use 1.13.2/1.14.3+");
+					getLogger().warning("Couldn't display '" + cmd.getName().toUpperCase() + "' particles to " + target.getName() + ". Make sure you use 1.12 or higher.");
 				}
 			}
 			// -----------------------------------------------------
@@ -1779,39 +1824,46 @@ public class Main extends JavaPlugin implements Listener {
 			// Sound Handler ----------------------------------------
 			if(sounds) {
 			try {
-				if (!emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name").equalsIgnoreCase("none")
-						&& !emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name").equalsIgnoreCase("off")
-						&& emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name") != null
-						&& emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name") != null) {
+				String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
+				if (!sound1.equalsIgnoreCase("none")
+						&& !sound1.equalsIgnoreCase("off")
+						&& sound1 != null
+						&& sound1 != "null") {
 					target.playSound(target.getPlayer().getLocation(),
-							Sound.valueOf(emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name")),
+							Sound.valueOf(sound1),
 							(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
 							(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
 					if (sender instanceof Player) {
 						Player p = (Player) sender;
 						p.playSound(p.getLocation(),
-								Sound.valueOf(emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name")),
+								Sound.valueOf(sound1),
 								(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
 								(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
 					}
 				}
-
-				if (!emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name").equalsIgnoreCase("none")
-						&& !emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name").equalsIgnoreCase("off")
-						&& emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name") != null
-						&& emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name") != null) {
+				
+				String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
+				if (!sound2.equalsIgnoreCase("none")
+						&& !sound2.equalsIgnoreCase("off")
+						&& sound2 != null
+						&& sound2 != "null") {
 					target.playSound(target.getPlayer().getLocation(),
-							Sound.valueOf(emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name")),
-							(float) emotes.getDouble(cmdconfig + ".Sounds.Sound2.Volume"),
+							Sound.valueOf(sound2),
+							(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
 							(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 					if (sender instanceof Player) {
+						if(sound2.contains("DISC")) {
+							if(debug) {
+								getLogger().info("[Debug] Skipping DISC sound for sender, because we're cool like that (Spooks).");
+							}
+						} else {
 						Player p = (Player) sender;
-						p.playSound(p.getPlayer().getLocation(),
-								Sound.valueOf(emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name")),
+						p.playSound(p.getLocation(),
+								Sound.valueOf(sound2),
 								(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
 								(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
-					}
-				}
+					}}
+		        }
 
 			} catch (Exception sounderr) { // err test for sounds
 				getLogger().info("One or more of your sounds for /" + cmdconfig + " is incorrect. See below:");
@@ -1824,9 +1876,10 @@ public class Main extends JavaPlugin implements Listener {
 
 			// Add Stats
 			if(sender instanceof Player) {
+				if(!cmd.getName().equalsIgnoreCase("Spook")) {
 				Player p = (Player)sender;
 				statsAdd(p, cmdconfig);
-			}
+			}}
 			// End Stats
 			return true;
 		}
@@ -1847,12 +1900,18 @@ public class Main extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void onleave(PlayerQuitEvent e) {
-		if(!Cooldowns.justjoined.containsKey(e.getPlayer())) {
-			updateLastOn(e.getPlayer());
+		Player p = e.getPlayer();
+				
+		if(!Cooldowns.justjoined.containsKey(p)) {
+			updateLastOn(p);
 		} else {
 			if(debug) {
 				getLogger().info("[Debug] Skipped updating the player file, they joined less than 60s ago.");
 			}
+		}
+		
+		if(Cooldowns.spook.containsKey(p.getName())) {
+			Particles.spookStop(e.getPlayer());
 		}
 		
 		removeAll(e.getPlayer());
@@ -1872,6 +1931,15 @@ public class Main extends JavaPlugin implements Listener {
 		if (e.getPlayer().getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
 			Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
 					+ " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
+		}
+	}
+	
+	@EventHandler
+	public void onChestEvent(InventoryClickEvent event) {
+		Player p = (Player)event.getWhoClicked();
+		
+		if(Cooldowns.spook.containsKey(p.getName())) {
+			event.setCancelled(true);
 		}
 	}
 }
