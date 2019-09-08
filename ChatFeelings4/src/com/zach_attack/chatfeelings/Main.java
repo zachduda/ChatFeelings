@@ -18,10 +18,12 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -1954,5 +1956,17 @@ public class Main extends JavaPlugin implements Listener {
 		if(Cooldowns.spook.containsKey(p.getName())) {
 			event.setCancelled(true);
 		}
+	}
+	
+	 @EventHandler(priority = EventPriority.HIGHEST)
+	public void onTP(PlayerTeleportEvent e) {
+		 Player p = (Player)e.getPlayer();
+		 
+		 if(Cooldowns.spook.containsKey(p.getName())) {
+			 e.setCancelled(true);
+			 bass(p);
+			 Msgs.sendPrefix(p, "&c&lSorry. &fYou can't teleport while being spooked.");
+			 Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
+		 }
 	}
 }
