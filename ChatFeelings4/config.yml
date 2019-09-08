@@ -22,6 +22,7 @@ General:
   Disabled-Sending-Worlds: []
   Disabled-Receiving-Worlds:
   - world_the_end
+  Multi-Version-Support: false
 Other:
   Vanished-Players:
     Check: true

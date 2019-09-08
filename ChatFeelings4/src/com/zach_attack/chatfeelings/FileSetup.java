@@ -8,9 +8,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 
 public class FileSetup {
-	static Main plugin = Main.getPlugin(Main.class);
+	private static Main plugin = Main.getPlugin(Main.class);
 	
-	public static void setMsgs(String configpath, String msg) {
+	private static void setMsgs(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
@@ -36,7 +36,7 @@ public class FileSetup {
 		}
 	}
 	
-	public static void forceMsgs(String configpath, String msg) {
+    private static void forceMsgs(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
@@ -54,7 +54,7 @@ public class FileSetup {
 	    	} catch(Exception err) {}
 	}
 	
-	public static void setMsgsVersion(int vers) {
+    private static void setMsgsVersion(int vers) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
@@ -67,7 +67,7 @@ public class FileSetup {
 	    	} catch(Exception err) {}}
 	}
 	
-	public static void setEmotes(String configpath, String msg) {
+	private static void setEmotes(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -96,7 +96,7 @@ public class FileSetup {
 		}
 	}
 	
-	public static void setEmotesVersion(int vers) {
+	private static void setEmotesVersion(int vers) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -109,7 +109,7 @@ public class FileSetup {
 	    	} catch(Exception err) {}}
 	}
 	
-	public static void setEmotesDouble(String configpath, Double dubdub) {
+	private static void setEmotesDouble(String configpath, Double dubdub) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -128,7 +128,7 @@ public class FileSetup {
     	} catch(Exception err) {}
 	}}
 	
-	public static void setEmotesBoolean(String configpath, boolean siono) {
+	private static void setEmotesBoolean(String configpath, boolean siono) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
@@ -147,7 +147,7 @@ public class FileSetup {
   	} catch(Exception err) {}
 	}}
 	
-	public static void enableFiles() {
+	static void enableFiles() {
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
@@ -203,10 +203,10 @@ public class FileSetup {
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    	
-	    } else if(msgs.getInt("Version") != 5) {
+	    } else if(msgs.getInt("Version") < 5) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
 			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
-		}
+		} 
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
 	    	setMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%"); // updated in version 5
@@ -231,6 +231,8 @@ public class FileSetup {
 	    	setMsgs("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");
 	    	setMsgs("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings."); // added in version 3
 	    	setMsgs("Folder-Not-Found", "&cHmm. &fThere is no data to display here."); // added in version 4
+	    	setMsgs("Stats-Header-Own", "&e&lYour Statistics:"); // added in version 6
+	    	setMsgs("Stats-Header-Other", "&e&l%player%'s Statistics:"); // added in version 6
 	    	setMsgs("Mute-List-Header", "&e&lMuted Players:"); // added in version 4
 	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
 	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
@@ -255,7 +257,7 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgsVersion(5);
+	    	setMsgsVersion(6);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {
@@ -492,7 +494,18 @@ public class FileSetup {
 	setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
+	
+	setEmotesBoolean("Feelings.Spook.Enable", true);
+	setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
+	setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
+	setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
+	setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY_WITCH_AMBIENT");
+	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
+	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
+	setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC_13");
+	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
+	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
 
-	setEmotesVersion(1);
+	setEmotesVersion(2);
 	}
 }

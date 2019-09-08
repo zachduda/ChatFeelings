@@ -1,18 +1,27 @@
 package com.zach_attack.chatfeelings;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class Particles {
 	
-	static Main plugin = (Main)Main.getPlugin(Main.class);
+	private static Main plugin = (Main)Main.getPlugin(Main.class);
 
-		public static void show(Player p, String label)
+		static void show(Player p, String label)
 		{
+			if(!Main.particles) {
+				return;
+			}
+			
 			if(label.equalsIgnoreCase("hug")) {
 				hugParticle(p);
 			} else if(label.equalsIgnoreCase("slap")) {
@@ -47,6 +56,9 @@ public class Particles {
 				dabParticle(p);
 			} else if(label.equalsIgnoreCase("lick")) {
 				lickParticle(p);
+			} else if(label.equalsIgnoreCase("spook")) {
+				spookEffects(p);
+				spookDripParticle(p);
 			} else if(label.equalsIgnoreCase("scorn")) {
 				//scornParticle(p);
 			} else if(label.equalsIgnoreCase("pat")) {
@@ -58,18 +70,18 @@ public class Particles {
 			}
 		}
 
-public static void hugParticle(Player p)
+	private static void hugParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.HEART, p.getLocation().add(0, 1, 0), 9, 1.0D, 0.5D, 1.0D);
 }
 
-	public static void biteParticle(Player p) {
+	private static void biteParticle(Player p) {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.CRIT, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 30, 0.4D, 0.4D, 0.4D);
 	}
 
-	public static void slapParticle(final Player p) {
+	private static void slapParticle(final Player p) {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
       
@@ -103,7 +115,7 @@ public static void hugParticle(Player p)
         }, 8L);
 	}
 	
-	public static void punchParticle(final Player p) {
+	private static void punchParticle(final Player p) {
         World world = p.getLocation().getWorld();
         
         world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
@@ -166,7 +178,7 @@ public static void hugParticle(Player p)
         }, 16L);
 	}
 
-	public static void murderParticle(final Player p) {
+	private static void murderParticle(final Player p) {
         World world = p.getLocation().getWorld();
         
         if(Bukkit.getBukkitVersion().contains("1.12") || Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15"))  {
@@ -184,53 +196,115 @@ public static void hugParticle(Player p)
         }, 5L);
 	}
 
-public static void boiParticle(Player p)
+	private static void boiParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 40, 0.0D, 0.0D, 0.0D);
 }
 
-public static void dabParticle(Player p)
+	private static void dabParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 20, 0.4D, 0.4D, 0.4D);
 }
 
-public static void cryParticle(Player p)
+	private static void cryParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.WATER_SPLASH, p.getLocation().add(0, 1.5D, 0), 100, 0.4D, 0.4D, 0.4D);
 }
 
-public static void facepalmParticle(Player p)
+	private static void facepalmParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.CLOUD, p.getLocation().add(0, 1, 0), 3, 0.4D, 0.4D, 0.4D, 0.0001D);
 }
 
-public static void highfiveParticle(Player p)
+	private static void highfiveParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.CRIT_MAGIC, p.getLocation().add(0, 1, 0), 30, 0.4D, 0.4D, 0.4D);
 }
 
-public static void pokeParticle(Player p)
+	private static void pokeParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().add(0, 1, 0), 15, 0.4D, 0.4D, 0.4D);
 }
 
 
-public static void lickParticle(Player p)
+	private static void lickParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.DRIP_WATER, p.getLocation().add(0, 2, 0), 10, 0.2D, 0.5D, 0.2D);
         world.spawnParticle(Particle.WATER_DROP, p.getLocation().add(0, 1, 0), 24, 1.0D, 0.5D, 1.0D);
     }
 
-public static void yellParticle(Player p)
+	private static void yellParticle(Player p)
 {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.EXPLOSION_HUGE, p.getLocation().add(0, 1, 0), 1, 0.2D, 0.5D, 0.2D);
     }
+	
+	
+	private static void spookEffects(Player p)
+	  {
+		  try {
+		        p.removePotionEffect(PotionEffectType.SLOW);
+		        p.removePotionEffect(PotionEffectType.BLINDNESS);
+		        p.removePotionEffect(PotionEffectType.SATURATION);
+		        p.removePotionEffect(PotionEffectType.CONFUSION);
+		        
+            	p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 99999, 2));
+            	p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 99999, 1));
+            	p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 99999, 10));
+            	p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 99999, 1));
+            	
+		      World world = p.getLocation().getWorld();
+
+		      if(Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14")) {
+		        ItemStack pumpkin = new ItemStack(Material.CARVED_PUMPKIN);
+		        ItemMeta pmm = pumpkin.getItemMeta();
+		        pmm.setDisplayName(ChatColor.GOLD + "§lSPOOKY HAT");
+		        pumpkin.setItemMeta(pmm);
+		        p.getInventory().setHelmet(pumpkin);
+		      } else {
+				        ItemStack pumpkin = new ItemStack(Material.valueOf("PUMPKIN"));
+				        ItemMeta pmm = pumpkin.getItemMeta();
+				        pmm.setDisplayName(ChatColor.GOLD + "§lSPOOKY HAT");
+				        pumpkin.setItemMeta(pmm);
+				        p.getInventory().setHelmet(pumpkin);
+		      }
+		        if(Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14")) {
+	  		      world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.ORANGE_WOOL);
+		        } else {
+		            world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.valueOf("WOOL"), (byte) 1);
+		        }
+	     }catch(Exception e) {
+		  plugin.getLogger().info("Error! Couldn't display spooky particles.");
+	     }
+	  }
+
+	static void spookDripParticle(Player p)
+	  {
+		  try {
+		      World world = p.getLocation().getWorld();
+		      world.spawnParticle(Particle.DRIP_LAVA, p.getLocation(), 2, 0.1D, 0.2D, 0.1D);
+	     }catch(Exception e) {
+		  plugin.getLogger().info("Error! Couldn't display spooky particles.");
+	     }
+	  }
+	
+	static void spookStop(Player p) {
+       	p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
+       	
+        if(Cooldowns.spook.containsKey(p.getName())) {
+        p.removePotionEffect(PotionEffectType.SLOW);
+        p.removePotionEffect(PotionEffectType.BLINDNESS);
+        p.removePotionEffect(PotionEffectType.SATURATION);
+        p.removePotionEffect(PotionEffectType.CONFUSION);
+        	Bukkit.getScheduler().cancelTask(Cooldowns.spook.get(p.getName()));
+			Cooldowns.spook.remove(p.getName());
+        }
+	}
 }
