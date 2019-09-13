@@ -1488,7 +1488,7 @@ public class Main extends JavaPlugin implements Listener {
 				|| cmd.getName().equalsIgnoreCase("stalk") || cmd.getName().equalsIgnoreCase("spook")) {
 
 			if(sender instanceof Player && getConfig().getBoolean("General.Use-Feeling-Permissions")) {
-			if(!sender.hasPermission("chatfeelings. " + cmd.getName() + "") && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
+			if(!sender.hasPermission("chatfeelings." + cmd.getName() + "") && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
 				noPermission(sender);
 				return true;
 			}}
