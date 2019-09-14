@@ -3,14 +3,18 @@ package com.zach_attack.chatfeelings;
 import java.util.HashMap;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
 
 public class Cooldowns {
 	private static Main plugin = Main.getPlugin(Main.class);
 	
 	static HashMap<Player, Long> cooldown = new HashMap<Player, Long>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<Player, String>();
+	static HashMap<Player, String> ignorelistcooldown = new HashMap<Player, String>();
 	static HashMap<Player, String> justjoined = new HashMap<Player, String>();
 	
 	static HashMap<String, Integer> spook = new HashMap<String, Integer>();
@@ -18,6 +22,8 @@ public class Cooldowns {
 	static void removeAll(Player p) {
 		cooldown.remove(p);
 		ignorecooldown.remove(p);
+		justjoined.remove(p);
+		spook.remove(p.getName());
 	}
 	
 	static void putCooldown(Player p) {
@@ -25,11 +31,27 @@ public class Cooldowns {
 		cooldown.put(p, System.currentTimeMillis());
 	}
 	
+	static void spookStop(Player p) {
+       	p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
+       	
+        if(Cooldowns.spook.containsKey(p.getName())) {
+        p.removePotionEffect(PotionEffectType.SLOW);
+        p.removePotionEffect(PotionEffectType.BLINDNESS);
+        p.removePotionEffect(PotionEffectType.SATURATION);
+        p.removePotionEffect(PotionEffectType.CONFUSION);
+        Bukkit.getScheduler().cancelTask(Cooldowns.spook.get(p.getName()));
+		Cooldowns.spook.remove(p.getName());
+       }
+	}
+	
 	static int spookTimer(Player p) {
     int timerid = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
         @Override
         public void run() {
         	if(!p.isOnline()) {
+        		if(spook.containsKey(p.getName())) {
+        			spookStop(p);
+        		}
         		return;
         	}
 		    Particles.spookDripParticle(p);
@@ -42,12 +64,12 @@ public class Cooldowns {
 
 		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
-				Particles.spookStop(p);
+				spookStop(p);
 				
 				if(p.isOnline()) {
 					plugin.pop(p);
 					
-					if(!plugin.getConfig().getBoolean("General.Multi-Version-Support")) {
+					if(!Main.multiversion) {
 	    	        	p.stopSound(Sound.MUSIC_DISC_13);	
 	    	        }
 					
@@ -66,6 +88,17 @@ public class Cooldowns {
 				ignorecooldown.remove(p);
 			}
 		}, 20 * plugin.getConfig().getInt("General.Cooldowns.Ignoring.Seconds"));
+	}
+	
+	static void ignoreListCooldown(Player p) {
+		// Cooldown used when player ignores another player or all players. Helps prevent file cache spam.
+		ignorelistcooldown.put(p, p.getName());
+
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			public void run() {
+				ignorelistcooldown.remove(p);
+			}
+		}, 20 * plugin.getConfig().getInt("General.Cooldowns.Ignore-List.Seconds"));
 	}
 	
 	static void justJoined(Player p) {

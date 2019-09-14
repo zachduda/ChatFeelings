@@ -21,6 +21,7 @@ General:
   Disabled-Sending-Worlds: []      # Which worlds can players not send feelings?
   Disabled-Receiving-Worlds:        # Which worlds can players not receive /feelings?
   -  world_the_end
+  Multi-Version-Support: false      # Should we reduce some features to preserve functionality with ViaVersion/ProtocolLib/ViaBackwards etc.?
   
 Other:
   Bypass-Version-Block: false        # If using 1.12 or below, setting this to true forces ChatFeelings to run.

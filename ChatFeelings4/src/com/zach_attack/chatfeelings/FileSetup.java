@@ -203,10 +203,16 @@ public class FileSetup {
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    	
-	    } else if(msgs.getInt("Version") < 5) {
+	    } else if(msgs.getInt("Version") != 7) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
+			
+	    	if(msgs.getInt("Version") < 6 ) {
 			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
-		} 
+	    	}
+	    	
+	    	forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
+	    	forceMsgs("No-Player-Ignore", null); // removed in v7
+		}
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
 	    	setMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%"); // updated in version 5
@@ -218,7 +224,6 @@ public class FileSetup {
 	    	setMsgs("Receiving-World-Disabled", "&cSorry. &fYour target is in a world with feelings disabled.");
 	    	setMsgs("Page-Not-Found", "&cOops. &fThat page doesn't exist, try &7/feelings 1");
 	    	setMsgs("No-Player", "&cOops! &fYou need to provide a player to do that to."); // updated in version 2
-	    	setMsgs("No-Player-Ignore", "&cOops! &fYou must provide a player to ignore.");
 	    	setMsgs("No-Player-Mute", "&cOops! &fYou must provide a player to mute."); // added in version 3
 	    	setMsgs("No-Player-Unmute", "&cOops! &fYou must provide a player to unmute."); // added in version 3
 	    	setMsgs("Player-Offline", "&cPlayer Offline. &fWe couldn't find &7&l%player% &fon the server.");
@@ -227,12 +232,14 @@ public class FileSetup {
 	    	setMsgs("Cooldown-Active", "&cSlow Down. &fWait &7%time% &fbefore doing that again.");
 	    	setMsgs("Ignore-Cooldown", "&cSlow Down. &fPlease wait before ignoring again.");
 	    	setMsgs("Console-Not-Player", "&cGoofball! &fThe &7CONSOLE&f is not a real player.");
-	    	setMsgs("Player-Is-Sleeping", "&cZzz. &fYou can't %command% &7%player% &fwhile they're sleeping."); // added in version 3
 	    	setMsgs("Sender-Is-Target", "&cYou Silly! &fYou can't %command% &fyourself.");
 	    	setMsgs("Is-Muted", "&cYou're Muted. &fYou can no longer use feelings."); // added in version 3
 	    	setMsgs("Folder-Not-Found", "&cHmm. &fThere is no data to display here."); // added in version 4
 	    	setMsgs("Stats-Header-Own", "&e&lYour Statistics:"); // added in version 6
 	    	setMsgs("Stats-Header-Other", "&e&l%player%'s Statistics:"); // added in version 6
+	    	setMsgs("Ignore-List-Header", "&c&lIgnored Players:"); // added in version 7
+	    	setMsgs("Ignore-List-None", "   &8&l> &fYou are currently not ignoring anyone!"); // added in version 7
+	    	setMsgs("Ignore-List-Cooldown", "&cPlease Wait. &fYou must wait before checking who you're ignoring.");
 	    	setMsgs("Mute-List-Header", "&e&lMuted Players:"); // added in version 4
 	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
 	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
@@ -257,7 +264,7 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgsVersion(6);
+	    	setMsgsVersion(7);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {
