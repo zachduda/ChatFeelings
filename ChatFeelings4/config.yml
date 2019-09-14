@@ -4,7 +4,6 @@ General:
     Broadcast-To-Console: true
   Prevent-Self-Feelings: true
   Violent-Command-Harm: true
-  No-Violent-Cmds-When-Sleeping: true
   Cooldowns:
     Feelings:
       Enabled: true
@@ -12,6 +11,9 @@ General:
     Ignoring:
       Enabled: true
       Seconds: 5
+    Ignore-List:
+      Enabled: true
+      Seconds: 10
   Radius:
     Enabled: false
     Radius-In-Blocks: 35    
@@ -35,4 +37,4 @@ Other:
     Check: true
   Metrics: true
   Debug: false
-Version: 5
+Version: 6

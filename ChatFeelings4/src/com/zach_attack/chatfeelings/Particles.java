@@ -294,17 +294,4 @@ public class Particles {
 		  plugin.getLogger().info("Error! Couldn't display spooky particles.");
 	     }
 	  }
-	
-	static void spookStop(Player p) {
-       	p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-       	
-        if(Cooldowns.spook.containsKey(p.getName())) {
-        p.removePotionEffect(PotionEffectType.SLOW);
-        p.removePotionEffect(PotionEffectType.BLINDNESS);
-        p.removePotionEffect(PotionEffectType.SATURATION);
-        p.removePotionEffect(PotionEffectType.CONFUSION);
-        	Bukkit.getScheduler().cancelTask(Cooldowns.spook.get(p.getName()));
-			Cooldowns.spook.remove(p.getName());
-        }
-	}
 }
