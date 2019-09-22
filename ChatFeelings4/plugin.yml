@@ -2,9 +2,9 @@ name: ChatFeelings
 main: com.zach_attack.chatfeelings.Main
 website: https://www.spigotmc.org/resources/chatfeelings.12987/
 author: zach_attack
-version: 4.5.1
+version: 4.6
 api-version: 1.13
-soft-depend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan]
+soft-depend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PUUIDS]
 description: Allow your players to show their love, or hatred, with unique emotes!
 commands:
   hug:

@@ -52,8 +52,4 @@ public class ChatFeelingsAPI {
 	public static int getSentStats(String name, String feeling) {
 		return plugin.APIgetSentStat(name, feeling);
 	}
-	
-	public static int getTotalFeelingsSent(String name) {
-		return plugin.APIgetTotalSent(name);
-	}
 }

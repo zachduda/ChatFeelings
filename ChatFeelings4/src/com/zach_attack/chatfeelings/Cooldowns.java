@@ -15,14 +15,12 @@ public class Cooldowns {
 	static HashMap<Player, Long> cooldown = new HashMap<Player, Long>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<Player, String>();
 	static HashMap<Player, String> ignorelistcooldown = new HashMap<Player, String>();
-	static HashMap<Player, String> justjoined = new HashMap<Player, String>();
 	
 	static HashMap<String, Integer> spook = new HashMap<String, Integer>();
 	
 	static void removeAll(Player p) {
 		cooldown.remove(p);
 		ignorecooldown.remove(p);
-		justjoined.remove(p);
 		spook.remove(p.getName());
 	}
 	
@@ -99,16 +97,5 @@ public class Cooldowns {
 				ignorelistcooldown.remove(p);
 			}
 		}, 20 * plugin.getConfig().getInt("General.Cooldowns.Ignore-List.Seconds"));
-	}
-	
-	static void justJoined(Player p) {
-		// Cooldown used to not update the player file if it's been less than 60 seconds since the join update.
-		justjoined.put(p, p.getName());
-
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				justjoined.remove(p);
-			}
-		}, 1200); // 1 minute
 	}
 }

@@ -4,14 +4,16 @@ General:
     Broadcast-To-Console: true        # If Global-Feelings are on, should the CONSOLE see the messages too?
   Prevent-Self-Feelings: true        # Can players use feelings on themselves? (EX: A player named Notch doing: /hug Notch)
   Violent-Command-Harm: true        # Should violent commands shake the players screen?
-  No-Violent-Cmds-When-Sleeping: true   # Violent commands can kick players out of bed when dmg is enabled. It's recommended to leave this true.
   Cooldowns:
     Feelings:
-      Enabled: false        # Enable feeling cooldowns?
-      Seconds: 10        # How many seconds in between feelings must a player wait?
+      Enabled: false    # Enable feeling cooldowns?
+      Seconds: 10       # How many seconds in between feelings must a player wait?
     Ignoring:
-      Enabled: true        # Use cooldowns for Ignoring?
+      Enabled: true     # Use cooldowns for Ignoring?
       Seconds: 5        # How many seconds until someone can ignore another player?
+    Ignore-List:
+      Enabled: true     # Use cooldowns for checking who you're ignoring?
+      Seconds: 10       # How many seconds until someone can check their ignore list?
   Radius:
     Enabled: false      # Should we block feelings unless a player is near their target?
     Radius-In-Blocks: 35     # How many blocks should a player be minimum to use feelings if the radius is on.
@@ -35,4 +37,4 @@ Other:
     Check: true        # Recommend to set to true. This checks for updates to ChatFeelings
   Metrics: true        # Recommended to set to true. This helps to improve ChatFeelings by sending stats about your server.
   Debug: false        # When true, shows additional console messages & errors.
-Version: 4        # Do not touch. This helps keep your config up to date.
+Version: 6        # Do not touch. This helps keep your config up to date.

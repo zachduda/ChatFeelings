@@ -30,6 +30,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.zach_attack.chatfeelings.other.Metrics;
 import com.zach_attack.chatfeelings.other.Updater;
+import com.zach_attack.puuids.api.OnNewFile;
+import com.zach_attack.puuids.api.PUUIDS;
 import com.zach_attack.chatfeelings.api.ChatFeelingsAPI;
 
 import litebans.api.Database;
@@ -54,6 +56,8 @@ public class Main extends JavaPlugin implements Listener {
 	private static boolean hasess = false;
 	private static boolean haslitebans = false;
 	private static boolean hasadvancedban = false;
+	
+	private static boolean usingpuuids = false;
 
 	private static boolean usevanishcheck = false;
 	
@@ -89,115 +93,6 @@ public class Main extends JavaPlugin implements Listener {
 				removeAll(online.getPlayer());
 			}
 		}
-	}
-
-	public void purgeOldFiles() {
-		boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
-		
-		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-			
-		File folder = new File(this.getDataFolder(), File.separator + "Data");
-		if (!folder.exists()) {
-			return;
-		}
-
-			int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
-
-			for (File cachefile : folder.listFiles()) {
-				File f = new File(cachefile.getPath());
-				
-				if(f.getName().equalsIgnoreCase("global.yml")) {
-				 
-				} else {
-					
-				try {
-				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-				
-				if(!setcache.contains("Last-On") || (!setcache.contains("Username")) || (!setcache.contains("UUID"))) {
-					f.delete();
-					if(debug) {
-					getLogger().warning("[Debug] Deleted file: " + f.getName() + "... It was invalid!");
-					}
-				} else {
-				
-				long daysAgo = Math
-						.abs(((setcache.getLong("Last-On")) / 86400000) - (System.currentTimeMillis() / 86400000));
-
-				String playername = setcache.getString("Username");
-				String uuid = setcache.getString("UUID");
-				String IPAdd = setcache.getString("IP");
-				UUID puuid = UUID.fromString(uuid);
-				
-				int banInt = 0;
-				
-				if(getConfig().getBoolean("Other.Player-Files.Erase-If-Banned")) {
-					banInt = isBanned(puuid, IPAdd);
-				} else {
-					banInt = 0;
-				}
-				
-				
-				if(banInt == 1) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Essentials)");
-					}
-					f.delete();
-				} else if(banInt == 2) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (LiteBans)");
-					}
-					f.delete();
-				} else if(banInt == 3) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (AdvancedBan)");
-					}
-					f.delete();
-				} else if(banInt == 4) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Vanilla)");
-					}
-					f.delete();
-				} else { // Ban int = 0 means not banned.
-				
-				if (daysAgo >= maxDays && useclean) {
-					f.delete();
-					if (debug) {
-						getLogger().info("[Debug] Deleted " + playername + "'s data file because it's " + daysAgo
-								+ "s old. (Max is " + maxDays + " Days)");
-					}} else {
-						
-					if(!setcache.contains("Muted") || !setcache.contains("Version")) {
-						setcache.set("Muted", false);
-						setcache.set("Version", 2);
-						if(debug) {
-						getLogger().info("[Debug] Updated " + playername + "'s data file to work with new mute system.");
-						}
-						try {
-						setcache.save(f);
-						}catch(Exception err) {}
-					}
-					
-					if (debug) {
-						if(useclean) {
-							getLogger().info("[Debug] Keeping " + playername + "'s data file. (" + daysAgo + "/" + maxDays
-								+ " days left)");
-						} else {
-							getLogger().info("[Debug] Found " + playername + "'s data file. (" + daysAgo + " days");	
-						}
-					}
-				} // end of not too old check.
-				} // end of not banned check.
-				} // end of contains variables check.
-				} catch(Exception err) {
-					if(debug) {
-						getLogger().info("[Debug] Error when trying to work with player file: " + f.getName() + ", see below:");
-						err.printStackTrace();
-					}
-				}
-				} // end of if not global check
-			} // end of For loop
-
-		}); // End of Async;
 	}
 
 	public void updateConfig() {
@@ -372,118 +267,24 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	public void updateLastOn(Player p) {
-		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-			String UUID = p.getUniqueId().toString();
-			
-			File cache = new File(this.getDataFolder(), File.separator + "Data");
-			File f = new File(cache, File.separator + "" + UUID + ".yml");
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-			if (!f.exists()) {
-				try {
-					setcache.save(f);
-				} catch (Exception err) {
-				}
-			}
-
-			String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
-			int fileversion = setcache.getInt("Version");
-			int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
-			
-			if (!setcache.contains(UUID)) {
-				setcache.set("UUID", UUID);
-				setcache.set("Allow-Feelings", true);
-				setcache.set("Muted", false);
-			}
-			
-			if(fileversion != currentfileversion || !setcache.contains("Version")) {
-				setcache.set("Version", currentfileversion);
-			}
-
-			setcache.set("IP", IPAdd);
-			setcache.set("Username", p.getName().toString());			
-			setcache.set("Last-On", System.currentTimeMillis());
-			try {
-				setcache.save(f);
-			} catch (Exception err) {}
-		});
-	}
-
 	public void statsAdd(Player p, String emotion) {
-		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-			
-			// Global Stats -------------------------------------
-			File folder = new File(this.getDataFolder(), File.separator + "Data");
-			File fstats = new File(folder, File.separator + "global.yml");
-			FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
-			
-			if(!fstats.exists()) {
-				if(debug) {
-				getLogger().info("Global stats file didn't exist, creating one now!");
-				}
-				try {
-					setstats.save(fstats);
-				} catch (Exception err) {}
-			}
-			
-			setstats.set("Feelings.Sent." + emotion, setstats.getInt("Feelings.Sent." + emotion)+1);
-			try {
-				setstats.save(fstats);
-			} catch (Exception err) {}
-			
-			// Global Stats ----------------------------------
-			
-			String UUID = p.getUniqueId().toString();
-			
-			File f = new File(folder, File.separator + "" + UUID + ".yml");
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-			if (!f.exists()) {
-				return;
-			}
-			
-			int ftotal = setcache.getInt("Stats.Sent." + emotion);
-			int total = setcache.getInt("Stats.Sent.Total");
-			
-			setcache.set("Stats.Sent." + emotion, ftotal+1);
-			setcache.set("Stats.Sent.Total", total+1);
-			
-			try {
-				setcache.save(f);
-			} catch (Exception err) {}
-		});
+		int ftotal = PUUIDS.getInt(this, p, "Stats.Sent." + emotion);
+		int total = PUUIDS.getInt(this, p, "Stats.Sent.Total");
+		PUUIDS.setInt(this, p, "Stats.Sent." + emotion, ftotal+1);
+		PUUIDS.setInt(this, p, "Stats.Sent.Total", total+1);
 	}
 	
 	public String hasPlayedNameGetUUID(String inputsearch) {
-		File folder = new File(this.getDataFolder(), File.separator + "Data");
-
-		for (File AllData : folder.listFiles()) {
-			File f = new File(AllData.getPath());
-			
-			if(!f.getName().equalsIgnoreCase("global.yml")) {
-			
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-			String playername = setcache.getString("Username");
-			String UUID = setcache.getString("UUID");
-
-			if (inputsearch.equalsIgnoreCase(playername)) {
-				return UUID;
-			}}
+		if(usingpuuids) {
+			return PUUIDS.getUUID(inputsearch, false);
 		}
-		// No Match Found
 		return "0";
 	}
 
 	public boolean isTargetIgnoringSender(Player target, Player sender) {
-		File cache = new File(this.getDataFolder(), File.separator + "Data");
-		File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
-		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-		
 		List<String> ignoredplayers = new ArrayList<String>();
 		ignoredplayers.clear();
-		ignoredplayers.addAll(setcache.getStringList("Ignoring"));
+		ignoredplayers.addAll(PUUIDS.getList(this, target, "Ignoring"));
 		
 		if(ignoredplayers.contains(sender.getUniqueId().toString())) {
 			ignoredplayers.clear();
@@ -495,22 +296,9 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public String hasPlayedUUIDGetName(String inputsearch) {
-		File folder = new File(this.getDataFolder(), File.separator + "Data");
-
-		for (File AllData : folder.listFiles()) {
-			File f = new File(AllData.getPath());
-			
-			if(!f.getName().equalsIgnoreCase("global.yml")) {
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-			String playername = setcache.getString("Username");
-			String UUID = setcache.getString("UUID");
-
-			if (inputsearch.equalsIgnoreCase(UUID)) {
-				return playername;
-			}}
+		if(usingpuuids) {
+			return PUUIDS.getName(inputsearch);
 		}
-		// No Match Found
 		return "0";
 	}
 
@@ -538,6 +326,14 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		api = new ChatFeelingsAPI();
+		
+		if (this.getServer().getPluginManager().isPluginEnabled("PUUIDS")
+				&& this.getServer().getPluginManager().getPlugin("PUUIDS") != null) {
+			usingpuuids = true;
+			getLogger().info("Hooking into PUUIDS for optimial performance...");
+			PUUIDS.connect(this);
+		} 
+		
 		
 		getConfig().options().copyDefaults(true);
 		saveConfig();
@@ -586,18 +382,6 @@ public class Main extends JavaPlugin implements Listener {
 		}}
 
 		FileSetup.enableFiles();
-
-		int onlinecount = Bukkit.getOnlinePlayers().size();
-		if (onlinecount >= 1) {
-			for (Player online : Bukkit.getOnlinePlayers()) {
-				removeAll(online);
-				updateLastOn(online); // Generates files for players who are on during restart that didn't join
-										// normally.
-			}
-			getLogger().info("Reloaded with " + onlinecount + " players online... Skipping purge.");
-		} else { 
-			purgeOldFiles();
-		}
 		
 		configChecks();
 		if ((Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
@@ -631,6 +415,7 @@ public class Main extends JavaPlugin implements Listener {
 		if(debug) {
 			getLogger().info("Finished! ChatFeelings was loaded in " + Long.toString(System.currentTimeMillis()-start) + "ms");
 		}
+		
 		start = 0;
 		
 	} // [!] End of OnEnable Event
@@ -690,31 +475,8 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public int APIgetSentStat(String name, String feeling) {
-		String uuid = hasPlayedNameGetUUID(name);
-		
-		if(uuid.equals("0")) {
-			return 0;
-		}
-		
-		File cache = new File(this.getDataFolder(), File.separator + "Data");
-		File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(name) + ".yml");
-		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-		
-		return setcache.getInt("Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
-	}
-	
-	public int APIgetTotalSent(String name) {
-		String uuid = hasPlayedNameGetUUID(name);
-		
-		if(uuid.equals("0")) {
-			return 0;
-		}
-		
-		File cache = new File(this.getDataFolder(), File.separator + "Data");
-		File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(name) + ".yml");
-		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-		
-		return setcache.getInt("Stats.Sent.Total");
+		String uuid = PUUIDS.getUUID(name, false);
+		return PUUIDS.getOfflineInt(this, uuid, "Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
 	}
 	
 	// END OF API CALLS ------------------------------------
@@ -723,7 +485,7 @@ public class Main extends JavaPlugin implements Listener {
 		try {
 		if (hasess) {
 			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-			if(ess.getUser(uuid)._getMuted()) {
+			if(ess.getUser(uuid).isMuted()) {
 				return true;
 			}
 		}
@@ -855,10 +617,6 @@ public class Main extends JavaPlugin implements Listener {
 		File msgsfile = new File(folder, File.separator + "messages.yml");
 		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
 		
-		File cache = new File(this.getDataFolder(), File.separator + "Data");
-		File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(name) + ".yml");
-		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-		
 		if(isown) {
 			Msgs.send(p, msg.getString("Stats-Header-Own").replace("%player%", name));
 			your = "&7Your ";
@@ -866,27 +624,29 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(p, msg.getString("Stats-Header-Other").replace("%player%", name));
 			your = "&7";
 		}
-		Msgs.send(p, "&f   &8&l> " + your + "Hugs: &f&l" + setcache.getInt("Stats.Sent.Hug"));
-		Msgs.send(p, "&f   &8&l> " + your + "Slaps: &f&l" + setcache.getInt("Stats.Sent.Slap"));
-		Msgs.send(p, "&f   &8&l> " + your + "Pokes: &f&l" + setcache.getInt("Stats.Sent.Poke"));
-		Msgs.send(p, "&f   &8&l> " + your + "Highfives: &f&l" + setcache.getInt("Stats.Sent.Highfive"));
-		Msgs.send(p, "&f   &8&l> " + your + "Facepalms: &f&l" + setcache.getInt("Stats.Sent.Facepalm"));
-		Msgs.send(p, "&f   &8&l> " + your + "Yells: &f&l" + setcache.getInt("Stats.Sent.Yell"));
-		Msgs.send(p, "&f   &8&l> " + your + "Bites: &f&l" + setcache.getInt("Stats.Sent.Bite"));
-		Msgs.send(p, "&f   &8&l> " + your + "Snuggles: &f&l" + setcache.getInt("Stats.Sent.Snuggle"));
-		Msgs.send(p, "&f   &8&l> " + your + "Shakes: &f&l" + setcache.getInt("Stats.Sent.Shake"));
-		Msgs.send(p, "&f   &8&l> " + your + "Stabs: &f&l" + setcache.getInt("Stats.Sent.Stab"));
-		Msgs.send(p, "&f   &8&l> " + your + "Kisses: &f&l" + setcache.getInt("Stats.Sent.Kiss"));
-		Msgs.send(p, "&f   &8&l> " + your + "Punches: &f&l" + setcache.getInt("Stats.Sent.Punch"));
-		Msgs.send(p, "&f   &8&l> " + your + "Murders: &f&l" + setcache.getInt("Stats.Sent.Murder"));
-		Msgs.send(p, "&f   &8&l> " + your + "Boi: &f&l" + setcache.getInt("Stats.Sent.Boi"));
-		Msgs.send(p, "&f   &8&l> " + your + "Cries: &f&l" + setcache.getInt("Stats.Sent.Cry"));
-		Msgs.send(p, "&f   &8&l> " + your + "Dabs: &f&l" + setcache.getInt("Stats.Sent.Dab"));
-		Msgs.send(p, "&f   &8&l> " + your + "Licks: &f&l" + setcache.getInt("Stats.Sent.Lick"));
-		Msgs.send(p, "&f   &8&l> " + your + "Scorn: &f&l" + setcache.getInt("Stats.Sent.Scorn"));
-		Msgs.send(p, "&f   &8&l> " + your + "Pats: &f&l" + setcache.getInt("Stats.Sent.Pat"));
-		Msgs.send(p, "&f   &8&l> " + your + "Stalks: &f&l" + setcache.getInt("Stats.Sent.Stalk"));
-		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
+		String uuid = PUUIDS.getUUID(name, false);
+		
+		Msgs.send(p, "&f   &8&l> " + your + "Hugs: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Hug"));
+		Msgs.send(p, "&f   &8&l> " + your + "Slaps: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Slap"));
+		Msgs.send(p, "&f   &8&l> " + your + "Pokes: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Poke"));
+		Msgs.send(p, "&f   &8&l> " + your + "Highfives: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Highfive"));
+		Msgs.send(p, "&f   &8&l> " + your + "Facepalms: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Facepalm"));
+		Msgs.send(p, "&f   &8&l> " + your + "Yells: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Yell"));
+		Msgs.send(p, "&f   &8&l> " + your + "Bites: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Bite"));
+		Msgs.send(p, "&f   &8&l> " + your + "Snuggles: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Snuggle"));
+		Msgs.send(p, "&f   &8&l> " + your + "Shakes: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Shake"));
+		Msgs.send(p, "&f   &8&l> " + your + "Stabs: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Stab"));
+		Msgs.send(p, "&f   &8&l> " + your + "Kisses: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Kiss"));
+		Msgs.send(p, "&f   &8&l> " + your + "Punches: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Punch"));
+		Msgs.send(p, "&f   &8&l> " + your + "Murders: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Murder"));
+		Msgs.send(p, "&f   &8&l> " + your + "Boi: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Boi"));
+		Msgs.send(p, "&f   &8&l> " + your + "Cries: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Cry"));
+		Msgs.send(p, "&f   &8&l> " + your + "Dabs: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Dab"));
+		Msgs.send(p, "&f   &8&l> " + your + "Licks: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Lick"));
+		Msgs.send(p, "&f   &8&l> " + your + "Scorn: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Scorn"));
+		Msgs.send(p, "&f   &8&l> " + your + "Pats: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Pat"));
+		Msgs.send(p, "&f   &8&l> " + your + "Stalks: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Stalk"));
+		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Total"));
 	}
 
 	public void noPermission(CommandSender sender) {
@@ -1010,16 +770,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 			
 			updateConfig();
-			
-			int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
-			if(onlinecount ==  0) {
-				if(debug) {
-				getLogger().info("[Debug] Purging old data files since nobody is currently online...");
-				}
-			purgeOldFiles();
-			}
-			
-			
+						
 			if(debug) {
 				getLogger().info("[Debug] Sending Feelings is disabled in: " + disabledsendingworlds.toString());
 				getLogger().info("[Debug] Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
@@ -1117,59 +868,28 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
-			File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-			
-			if (!datafolder.exists()) {
-				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-				bass(sender);
-				return true;
-			}
-			
 			Msgs.send(sender, "");
 			Msgs.send(sender, msg.getString("Mute-List-Header"));
 			
 			int totalmuted = 0;
-			
-				for (File cachefile : datafolder.listFiles()) {
-					File f = new File(cachefile.getPath());
-					
-					if(!f.getName().equalsIgnoreCase("global.yml")) {
-					FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-					
-					String uuid = setcache.getString("UUID");
-					String IPAdd = setcache.getString("IP");
+			for (String name : PUUIDS.getAllWithBoolean(this, "Muted")) {
+					String uuid = PUUIDS.getUUID(name, false);
+					String IPAdd = PUUIDS.getIP(uuid);
 					UUID puuid = UUID.fromString(uuid);
 					
 					int muteInt = isMuted(puuid, IPAdd);
+						totalmuted++;
 						
-					if(setcache.contains("Muted") && setcache.contains("Username")) {
-						if(setcache.getBoolean("Muted")) {
-							totalmuted++;
-							if(muteInt == 3){
-								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(AdvancedBan & CF)");	
-							}
-							else if(muteInt == 2) {
-								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans & CF)");	
-							} else if(muteInt == 1) {
-								Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials & CF)");	
-							}else {
-							Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")));
-							}
-				} else {
-					if(muteInt == 3) {
-						totalmuted++;
-						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(AdvancedBan)");
-					} else 
-					if(muteInt == 2) {
-						totalmuted++;
-						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(LiteBans)");
-					} else 
-					if(muteInt == 1) {
-						totalmuted++;
-						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String)setcache.get("Username")) + " &c(Essentials)");
+					if(muteInt == 3){
+						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", name) + " &c(AdvancedBan & CF)");	
+					} else if(muteInt == 2) {
+						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", name) + " &c(LiteBans & CF)");	
+					} else if(muteInt == 1) {
+						Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", name) + " &c(Essentials & CF)");	
+					} else {
+					    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", name));
 					}
-				}
-		}}}
+			}
 				
 				if(totalmuted == 1) {
 				Msgs.send(sender, msg.getString("Mute-List-Total-One").replace("%total%", "1"));
@@ -1207,69 +927,28 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
-			
-			File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-			
-			if (!datafolder.exists()) {
-				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-				bass(sender);
-				return true;
-			}
-			
-			File f = new File(datafolder, File.separator + "" + muteUUID + ".yml");
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-			
-			if (!f.exists()) {
-				try {
-					Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
-					bass(sender);
-					return true;
-				} catch (Exception err) {}}
-			
-			if(!setcache.contains("Muted")) {
-				Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
-			}
-			
-			String playername = setcache.getString("Username");
-			String uuid = setcache.getString("UUID");
-			String IPAdd = setcache.getString("IP");
-			UUID puuid = UUID.fromString(uuid);
+			String IPAdd = PUUIDS.getIP(muteUUID);
+			UUID puuid = UUID.fromString(muteUUID);
 			
 			int muteInt = isMuted(puuid, IPAdd);
 			
-			if(setcache.getBoolean("Muted")) {
-					setcache.set("Muted", false);
-					
-					try {
-						setcache.save(f);
-					} catch (Exception err) {
-						getLogger().warning("Unable to save " + playername + "'s data file:");
-						err.printStackTrace();
-						getLogger().warning("-----------------------------------------------------");
-						getLogger().warning("Please message us on discord or spigot about this error.");
-					}
-					
-					Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", playername));
-					pop(sender);
-			} else if(!setcache.getBoolean("Muted")) {
-				bass(sender);
-				if(muteInt == 3) {
-					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-AdvancedBan"));	
-				} else
-				if(muteInt == 2) {
-					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-LiteBans"));	
-				} else 
-				if(muteInt == 1) {
-					Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-Essentials"));		
-				} else {
-					Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));	
-				}
+			if(PUUIDS.getOfflineBoolean(this, muteUUID, "Muted")) {
+				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", args[1]));
+				pop(sender);
+				PUUIDS.setOfflineBoolean(this, muteUUID, "Muted", false);
 			} else {
 				bass(sender);
-			Msgs.sendPrefix(sender, "&cError. &fWe couldn't find mute status in your data files.");
-			getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.");
-			}
-			
+		    if(muteInt == 3) {
+			   Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-AdvancedBan"));	
+			} else
+			if(muteInt == 2) {
+			    Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-LiteBans"));	
+			} else 
+			if(muteInt == 1) {
+				Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-Essentials"));		
+			} else {
+				Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));	
+			}}
 			return true;
 		}
 		
@@ -1297,31 +976,8 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
-			File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-			
-			if (!datafolder.exists()) {
-				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-				bass(sender);
-				return true;
-			}
-			
-			File f = new File(datafolder, File.separator + "" + hasPlayedNameGetUUID(args[1]).toString() + ".yml");
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-			
-			if (!f.exists()) {
-					Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
-					bass(sender);
-					return true;
-			}
-			
-			if(!setcache.contains("Muted")) {
-				Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
-			}
-			
-			String playername = setcache.getString("Username");
-			String uuid = setcache.getString("UUID");
-			String IPAdd = setcache.getString("IP");
-			UUID puuid = UUID.fromString(uuid);
+			String IPAdd = PUUIDS.getIP(muteUUID);
+			UUID puuid = UUID.fromString(muteUUID);
 			
 			int muteInt = isMuted(puuid, IPAdd);
 			
@@ -1331,32 +987,21 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
 				
-				if(!setcache.getBoolean("Muted")) {
-				setcache.set("Muted", true);
-				try {
-					setcache.save(f);
-				} catch (Exception err) {
-					getLogger().warning("Unable to save " + playername + "'s data file:");
-					err.printStackTrace();
-					getLogger().warning("-----------------------------------------------------");
-					getLogger().warning("Please message us on discord or spigot about this error.");
-				}
-				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", playername));
+				if(!PUUIDS.getOfflineBoolean(this, muteUUID, "Muted")) {
+				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", args[1]));
 				if(muteInt != 0) {
-					Msgs.sendPrefix(sender, msg.getString("Extra-Mute-Present").replace("%player%", playername));	
+					Msgs.sendPrefix(sender, msg.getString("Extra-Mute-Present").replace("%player%", args[1]));	
 				}
 				pop(sender);
-				} else if(setcache.getBoolean("Muted")){
+				PUUIDS.setOfflineBoolean(this, muteUUID, "Muted", true);
+				
+				} else {
 					bass(sender);
-				Msgs.sendPrefix(sender, msg.getString("Player-Already-Muted"));	
+					Msgs.sendPrefix(sender, msg.getString("Player-Already-Muted"));	
 				if(getConfig().contains("General.Extra-Help") && msg.contains("Already-Mute-Unmute-Suggestion")) {
 				if(getConfig().getBoolean("General.Extra-Help")) {
-				Msgs.sendPrefix(sender, msg.getString("Already-Mute-Unmute-Suggestion"));
-				}}} else {
-					bass(sender);
-				Msgs.sendPrefix(sender, "&cError. &fWe couldn't find your mute status in your data file.");
-				getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s mute status in the player file.");
-			}
+					Msgs.sendPrefix(sender, msg.getString("Already-Mute-Unmute-Suggestion"));
+				}}}
 			
 			return true;
 		}
@@ -1382,21 +1027,8 @@ public class Main extends JavaPlugin implements Listener {
 				}
 
 				Cooldowns.ignoreListCooldown(p);
-				
-				File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-				
-				if (!datafolder.exists()) {
-					Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-					bass(sender);
-					return true;
-				}
-				
-				File f = new File(datafolder, File.separator + "" + p.getUniqueId().toString() + ".yml");
-				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-				
-				List<String> ignoredplayers = new ArrayList<String>();
-				ignoredplayers.addAll(setcache.getStringList("Ignoring"));
-				
+
+				List<String> ignoredplayers = PUUIDS.getList(this, p, "Ignoring");
 				Msgs.send(sender, " ");
 				Msgs.send(sender, msg.getString("Ignore-List-Header"));
 				if(ignoredplayers.size() == 0) {
@@ -1431,45 +1063,22 @@ public class Main extends JavaPlugin implements Listener {
 				Cooldowns.ignoreCooldown(p);
 			}
 
-			File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-			
-			if (!datafolder.exists()) {
-				Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-				bass(sender);
-				return true;
-			}
-			
-			File f = new File(datafolder, File.separator + "" + p.getUniqueId().toString() + ".yml");
-			FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-			if (!f.exists()) {
-				try {
-					Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find your player file.");
-					bass(sender);
-					return true;
-				} catch (Exception err) {}}
-
 			if (args[1].equalsIgnoreCase("all")) {
-				if (setcache.getBoolean("Allow-Feelings")) {
-					setcache.set("Allow-Feelings", false);
+				if (PUUIDS.getBoolean(this, p, "Allow-Feelings")) {
+					PUUIDS.setBoolean(this, p, "Allow-Feelings", false);
 					Msgs.sendPrefix(sender, msg.getString("Ingoring-On-All"));
 				} else {
-					setcache.set("Allow-Feelings", true);
+					PUUIDS.setBoolean(this, p, "Allow-Feelings", true);
 					Msgs.sendPrefix(sender, msg.getString("Ingoring-Off-All"));
 				}
 
 				pop(sender);
-
-				try {
-					setcache.save(f);
-				} catch (Exception err) {
-				}
 				return true;
 			}
 
 			List<String> ignoredplayers = new ArrayList<String>();
 			ignoredplayers.clear();
-			ignoredplayers.addAll(setcache.getStringList("Ignoring"));
+			ignoredplayers.addAll(PUUIDS.getList(this, p, "Ignoring"));
 
 			String ignoreUUID = hasPlayedNameGetUUID(args[1]);
 			if (ignoreUUID == "0" || ignoreUUID == null) {
@@ -1490,11 +1099,7 @@ public class Main extends JavaPlugin implements Listener {
 					Msgs.sendPrefix(sender, msg.getString("Ingoring-Off-Player").replace("%player%", args[1]));
 
 					ignoredplayers.remove(ignoreUUID);
-					setcache.set("Ignoring", ignoredplayers);
-					try {
-						setcache.save(f);
-					} catch (Exception err) {
-					}
+					PUUIDS.setStringList(this, p, "Ignoring", ignoredplayers);
 
 					pop(sender);
 					ignoredplayers.clear();
@@ -1505,11 +1110,8 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			ignoredplayers.add(ignoreUUID);
-			setcache.set("Ignoring", ignoredplayers);
-			try {
-				setcache.save(f);
-			} catch (Exception err) {
-			}
+			PUUIDS.setStringList(this, p, "Ignoring", ignoredplayers);
+			
 			Msgs.sendPrefix(sender, msg.getString("Ingoring-On-Player").replace("%player%", args[1]));
 			pop(sender);
 			ignoredplayers.clear();
@@ -1681,10 +1283,6 @@ public class Main extends JavaPlugin implements Listener {
 			// Ignoring & Mute Check ----------------
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
-				
-				File cache = new File(this.getDataFolder(), File.separator + "Data");
-				File f = new File(cache, File.separator + "" + p.getUniqueId().toString() + ".yml");
-				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
 				int muteInt = isMuted(p.getUniqueId(), null);
 				
@@ -1705,9 +1303,7 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
 				
-
-				if (f.exists()) {
-					if(setcache.getBoolean("Muted")) {
+					if(PUUIDS.getBoolean(this, p, "Muted")) {
 						if(debug) {
 							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
 						}
@@ -1716,7 +1312,7 @@ public class Main extends JavaPlugin implements Listener {
 						return true;
 					}	
 					
-					if (!setcache.getBoolean("Allow-Feelings")) {
+					if(!PUUIDS.getBoolean(this, target, "Allow-Feelings")) {
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
 						if(debug) {
@@ -1734,21 +1330,15 @@ public class Main extends JavaPlugin implements Listener {
 							}
 						return true;
 					}
-				}
 			} else {
-				File cache = new File(this.getDataFolder(), File.separator + "Data");
-				File f = new File(cache, File.separator + "" + target.getUniqueId().toString() + ".yml");
-				FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-				if (f.exists()) {
-					if (!setcache.getBoolean("Allow-Feelings")) {
-						Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-						if(debug) {
-							getLogger().info("[Debug] Blocking CONSOLE from sending feeling because " + target.getName() + " is blocking ALL.");
-						}
-						return true;
-					} // Sender is Console however the player is still blocking ALL feelings.
-			}}
+				if (PUUIDS.getBoolean(this, target, "Allow-Feelings")) {
+					Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
+					if(debug) {
+						getLogger().info("[Debug] Blocking CONSOLE from sending feeling because " + target.getName() + " is blocking ALL.");
+					}
+					return true;
+				} // Sender is Console however the player is still blocking ALL feelings.
+			}
 			// ------------------------------------------------
 			
 			// FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
@@ -1799,11 +1389,7 @@ public class Main extends JavaPlugin implements Listener {
 				for (final Player online : Bukkit.getServer().getOnlinePlayers()) {
 					
 					// Global Ignoring Checks -----------------
-					File cache = new File(this.getDataFolder(), File.separator + "Data");
-					File f = new File(cache, File.separator + "" + online.getUniqueId().toString() + ".yml");
-					FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-					
-					if(!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
+					if(PUUIDS.getBoolean(this, online, "Allow-Feelings") && (online.getName() != sender.getName())) {
 						if(debug) {
 							getLogger().info("[Debug] " + online.getName() + " is blocking all feelings. Skipping Global Msg!");
 						}
@@ -1833,7 +1419,7 @@ public class Main extends JavaPlugin implements Listener {
 						// Global for PLAYER below
 						if(sender instanceof Player) {
 							Player p = (Player)sender;
-							if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
+							if (!PUUIDS.getList(this, online, "Ignoring").contains(p.getUniqueId().toString())) {
 					
 								FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
 								Bukkit.getPluginManager().callEvent(fgne);
@@ -1945,7 +1531,7 @@ public class Main extends JavaPlugin implements Listener {
 						&& sound2 != null
 						&& sound2 != "null") {
 					
-					if(sound2.contains("DISC") && !multiversion) {
+					if(sound2.contains("DISC") && multiversion) {
 						// Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
 						target.playSound(target.getPlayer().getLocation(),
 								Sound.AMBIENT_CAVE,
@@ -2008,14 +1594,6 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
-				
-		if(!Cooldowns.justjoined.containsKey(p)) {
-			updateLastOn(p);
-		} else {
-			if(debug) {
-				getLogger().info("[Debug] Skipped updating the player file, they joined less than 60s ago.");
-			}
-		}
 		
 		if(Cooldowns.spook.containsKey(p.getName())) {
 			Cooldowns.spookStop(e.getPlayer());
@@ -2024,21 +1602,31 @@ public class Main extends JavaPlugin implements Listener {
 		removeAll(e.getPlayer());
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onJoin(PlayerJoinEvent e) {
+		Player p = e.getPlayer();
+		
 		if(getConfig().getBoolean("Other.Updates.Check")) {
-		if(e.getPlayer().hasPermission("chatfeelings.admin") || e.getPlayer().isOp()) {
+		if(p.hasPermission("chatfeelings.admin") || p.isOp()) {
 		if (Updater.isOutdated()) {
 			Msgs.sendPrefix(e.getPlayer(), "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
 					+ " while the latest is &f&l" + Updater.getOutdatedVersion());
 		}}}
-
-		updateLastOn(e.getPlayer());
 		
-		if (e.getPlayer().getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
+		if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
 			Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
 					+ " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
 		}
+	}
+	
+	@EventHandler
+	public void newFile(OnNewFile event) {
+		Player p = event.getPlayer();
+		
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+		PUUIDS.setBoolean(this, p, "Allow-Feelings", true);
+		PUUIDS.setBoolean(this, p, "Muted", false);
+		});
 	}
 	
 	@EventHandler

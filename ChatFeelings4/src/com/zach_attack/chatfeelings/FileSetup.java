@@ -2,7 +2,6 @@ package com.zach_attack.chatfeelings;
 
 import java.io.File;
 
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -11,8 +10,7 @@ public class FileSetup {
 	private static Main plugin = Main.getPlugin(Main.class);
 	
 	private static void setMsgs(String configpath, String msg) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
-		  
+		  File folder = plugin.getDataFolder();
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 		  if(!msgsfile.exists()) {
@@ -37,7 +35,7 @@ public class FileSetup {
 	}
 	
     private static void forceMsgs(String configpath, String msg) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  File folder = plugin.getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
@@ -55,7 +53,7 @@ public class FileSetup {
 	}
 	
     private static void setMsgsVersion(int vers) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  File folder = plugin.getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
@@ -68,7 +66,7 @@ public class FileSetup {
 	}
 	
 	private static void setEmotes(String configpath, String msg) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  File folder = plugin.getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -97,7 +95,7 @@ public class FileSetup {
 	}
 	
 	private static void setEmotesVersion(int vers) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  File folder = plugin.getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -110,7 +108,7 @@ public class FileSetup {
 	}
 	
 	private static void setEmotesDouble(String configpath, Double dubdub) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  File folder = plugin.getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -129,7 +127,7 @@ public class FileSetup {
 	}}
 	
 	private static void setEmotesBoolean(String configpath, boolean siono) {
-		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  File folder = plugin.getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -148,7 +146,7 @@ public class FileSetup {
 	}}
 	
 	static void enableFiles() {
-		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		File folder = plugin.getDataFolder();
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 		  
@@ -244,7 +242,7 @@ public class FileSetup {
 	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
 	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
 	    	setMsgs("Mute-List-Total-Many", "&r  &7There are &f&l%total% &7muted players."); // added in version 4
-	    	setMsgs("Mute-List-Total-Zero", "&r  &8&l> &a&lYay! &7No players are currently muted."); // added in version 4
+	    	setMsgs("Mute-List-Total-Zero", "&r  &8&l> &a&lYay! &fNo players are currently muted."); // added in version 4
 	    	setMsgs("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings."); // added in version 3
 	    	setMsgs("Player-Muted-Via-Essentials", "&cOops! &7%player&f is muted via Essentials, use /unmute!"); // added in version 5
 	    	setMsgs("Player-Muted-Via-LiteBans", "&cOops! &7%player&f is muted via LiteBans, use /unmute!"); // added in version 5
