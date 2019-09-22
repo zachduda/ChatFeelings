@@ -723,7 +723,7 @@ public class Main extends JavaPlugin implements Listener {
 		try {
 		if (hasess) {
 			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-			if(ess.getUser(uuid)._getMuted()) {
+			if(ess.getUser(uuid).isMuted()) {
 				return true;
 			}
 		}
