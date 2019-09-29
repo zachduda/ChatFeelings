@@ -2020,35 +2020,41 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
+		String name = p.getName();
 				
-		if(!Cooldowns.justjoined.containsKey(p)) {
+		if(!Cooldowns.playerFileUpdate.contains(name)) {
 			updateLastOn(p);
+			Cooldowns.justJoined(name);
 		} else {
 			if(debug) {
-				getLogger().info("[Debug] Skipped updating the player file, they joined less than 60s ago.");
+				getLogger().info("[Debug] Skipped updating " + name + "'s file, they joined less than 60s ago.");
 			}
 		}
 		
-		if(Cooldowns.spook.containsKey(p.getName())) {
-			Cooldowns.spookStop(e.getPlayer());
+		if(Cooldowns.spook.containsKey(name)) {
+			Cooldowns.spookStop(p);
 		}
 		
-		removeAll(e.getPlayer());
+		removeAll(p);
 	}
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onJoin(PlayerJoinEvent e) {
 		Player p = e.getPlayer();
+		String name = p.getName();
 		
 		try {
 		if(getConfig().getBoolean("Other.Updates.Check")) {
-		if(e.getPlayer().hasPermission("chatfeelings.admin") || p.isOp()) {
+		if(p.hasPermission("chatfeelings.admin") || p.isOp()) {
 		if (Updater.isOutdated()) {
 			Msgs.sendPrefix(p, "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
 					+ " while the latest is &f&l" + Updater.getOutdatedVersion());
 		}}}} catch (Exception err) {}
 
-		updateLastOn(e.getPlayer());
+		if(!Cooldowns.playerFileUpdate.contains(name)) {
+			updateLastOn(p);
+			Cooldowns.justJoined(name);
+		}
 		
 		if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
 			Msgs.send(p, "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
