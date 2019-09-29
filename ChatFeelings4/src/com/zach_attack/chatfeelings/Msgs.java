@@ -13,12 +13,12 @@ public class Msgs {
 	private static File msgsfile = new File(folder, File.separator + "messages.yml");
 	private static FileConfiguration messages = YamlConfiguration.loadConfiguration(msgsfile);
 	
-	public static void sendPrefix(CommandSender sender, String msg) {
+	static void sendPrefix(CommandSender sender, String msg) {
 	    String prefix = ChatColor.translateAlternateColorCodes('&', messages.getString("Prefix"));
 	    sender.sendMessage(prefix + " " + (ChatColor.translateAlternateColorCodes('&', msg)));	
 	}
 	
-	public static void send(CommandSender sender, String msg) {
+	static void send(CommandSender sender, String msg) {
 	    sender.sendMessage((ChatColor.translateAlternateColorCodes('&', msg)));	
 	}
 	
