@@ -350,7 +350,7 @@ public class Main extends JavaPlugin implements Listener {
 		if(getConfig().contains("Version")) {
 			int ver = getConfig().getInt("Version");
 			
-			if(ver != 6) {
+			if(ver != 7) {
 				
 				if(ver <= 4)
 				if(getConfig().contains("Other.Bypass-Version-Block")) {
@@ -360,12 +360,20 @@ public class Main extends JavaPlugin implements Listener {
 				getConfig().set("General.Use-Feeling-Permissions", true);
 				getConfig().set("General.Multi-Version-Support", false);
 				
-				getConfig().set("Cooldowns.Ignore-List.Enabled", true);
-				getConfig().set("Cooldowns.Ignore-List.Seconds", 10);
-				
+				if(ver < 6) {
 				getConfig().set("General.No-Violent-Cmds-When-Sleeping", null);
+				getConfig().set("General.Use-Feeling-Permissions", true);
+				getConfig().set("General.Multi-Version-Support", false);
+				getConfig().set("General.Cooldowns.Ignore-List.Enabled", true);
+				getConfig().set("General.Cooldowns.Ignore-List.Seconds", 10);
+				}
 				
-				getConfig().set("Version", 6);
+				if(ver < 7) {
+					getConfig().set("Cooldowns.Ignore-List.Enabled", null);
+					getConfig().set("Cooldowns.Ignore-List.Seconds", null);
+				}
+				
+				getConfig().set("Version", 7);
 				saveConfig();
 				reloadConfig();
 			}
@@ -1400,7 +1408,11 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.send(sender, " ");
 				Msgs.send(sender, msg.getString("Ignore-List-Header"));
 				if(ignoredplayers.size() == 0) {
-					Msgs.send(sender, msg.getString("Ignore-List-None"));
+					if(setcache.getBoolean("Allow-Feelings")) {
+						Msgs.send(sender, msg.getString("Ignore-List-None"));
+					} else {
+						Msgs.send(sender, msg.getString("Ignore-List-All"));
+					}
 				} else {
 					for (String ignoredUUID : ignoredplayers) {
 						String name = hasPlayedUUIDGetName(ignoredUUID);
@@ -2005,7 +2017,7 @@ public class Main extends JavaPlugin implements Listener {
 		return true;
 	}
 	
-	@EventHandler
+	@EventHandler(priority=EventPriority.MONITOR)
 	public void onQuit(PlayerQuitEvent e) {
 		Player p = e.getPlayer();
 				
@@ -2024,19 +2036,22 @@ public class Main extends JavaPlugin implements Listener {
 		removeAll(e.getPlayer());
 	}
 
-	@EventHandler
+	@EventHandler(priority=EventPriority.MONITOR)
 	public void onJoin(PlayerJoinEvent e) {
+		Player p = e.getPlayer();
+		
+		try {
 		if(getConfig().getBoolean("Other.Updates.Check")) {
-		if(e.getPlayer().hasPermission("chatfeelings.admin") || e.getPlayer().isOp()) {
+		if(e.getPlayer().hasPermission("chatfeelings.admin") || p.isOp()) {
 		if (Updater.isOutdated()) {
-			Msgs.sendPrefix(e.getPlayer(), "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
+			Msgs.sendPrefix(p, "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
 					+ " while the latest is &f&l" + Updater.getOutdatedVersion());
-		}}}
+		}}}} catch (Exception err) {}
 
 		updateLastOn(e.getPlayer());
 		
-		if (e.getPlayer().getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
-			Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
+		if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
+			Msgs.send(p, "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
 					+ " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
 		}
 	}
