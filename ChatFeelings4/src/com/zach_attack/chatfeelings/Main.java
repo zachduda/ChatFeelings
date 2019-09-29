@@ -51,18 +51,18 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public ChatFeelingsAPI api;
 	
-	private static boolean hasess = false;
-	private static boolean haslitebans = false;
-	private static boolean hasadvancedban = false;
+	private boolean hasess = false;
+	private boolean haslitebans = false;
+	private boolean hasadvancedban = false;
 
-	private static boolean usevanishcheck = false;
+	private boolean usevanishcheck = false;
 	
-	static boolean particles = true;
+	protected static boolean particles = true;
 	
-	private static boolean useperms = false;
+	private boolean useperms = false;
 	
-	static boolean multiversion = false;
-    static boolean debug = false;
+	protected static boolean multiversion = false;
+    protected static boolean debug = false;
 	
 	private static boolean sounds = false;
 	
@@ -91,7 +91,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	public void purgeOldFiles() {
+	private void purgeOldFiles() {
 		boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
 		
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
@@ -200,7 +200,7 @@ public class Main extends JavaPlugin implements Listener {
 		}); // End of Async;
 	}
 
-	public void updateConfig() {
+	private void updateConfig() {
 		boolean confdebug = getConfig().getBoolean("Other.Debug");
 		
 		if(confdebug) {
@@ -264,7 +264,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 	
-	public void addMetrics() {
+	private void addMetrics() {
 		if (!getConfig().getBoolean("Other.Metrics")) {
 			if(debug) {
 				getLogger().info("[Debug] Metrics was disabled. Guess we won't support the developer today!");
@@ -304,7 +304,7 @@ public class Main extends JavaPlugin implements Listener {
 			}));
 	} // End Metrics
 	
-	public void pop(CommandSender sender) {
+	protected void pop(CommandSender sender) {
 		if(!sounds) {
 			return;
 		}
@@ -315,7 +315,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	public void bass(CommandSender sender) {
+	private void bass(CommandSender sender) {
 		if(!sounds) {
 			return;
 		}
@@ -326,7 +326,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	public void levelup(CommandSender sender) {
+	private void levelup(CommandSender sender) {
 		if(!sounds) {
 			return;
 		}
@@ -372,7 +372,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	public void updateLastOn(Player p) {
+	private void updateLastOn(Player p) {
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 			String UUID = p.getUniqueId().toString();
 			
@@ -410,7 +410,7 @@ public class Main extends JavaPlugin implements Listener {
 		});
 	}
 
-	public void statsAdd(Player p, String emotion) {
+	private void statsAdd(Player p, String emotion) {
 		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 			
 			// Global Stats -------------------------------------
@@ -476,7 +476,7 @@ public class Main extends JavaPlugin implements Listener {
 		return "0";
 	}
 
-	public boolean isTargetIgnoringSender(Player target, Player sender) {
+	private boolean isTargetIgnoringSender(Player target, Player sender) {
 		File cache = new File(this.getDataFolder(), File.separator + "Data");
 		File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
 		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
@@ -719,7 +719,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	// END OF API CALLS ------------------------------------
 	
-	private static boolean isEssMuted(UUID uuid) {
+	private boolean isEssMuted(UUID uuid) {
 		try {
 		if (hasess) {
 			Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
@@ -889,7 +889,7 @@ public class Main extends JavaPlugin implements Listener {
 		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
 	}
 
-	public void noPermission(CommandSender sender) {
+	private void noPermission(CommandSender sender) {
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		File msgsfile = new File(folder, File.separator + "messages.yml");
 		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
