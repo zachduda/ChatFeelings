@@ -267,11 +267,11 @@ public class Main extends JavaPlugin implements Listener {
 		}
 	}
 
-	public void statsAdd(Player p, String emotion) {
-		int ftotal = PUUIDS.getInt(this, p, "Stats.Sent." + emotion);
-		int total = PUUIDS.getInt(this, p, "Stats.Sent.Total");
-		PUUIDS.setInt(this, p, "Stats.Sent." + emotion, ftotal+1);
-		PUUIDS.setInt(this, p, "Stats.Sent.Total", total+1);
+	public void statsAdd(String uuid, String emotion) {
+		int ftotal = PUUIDS.getInt(this, uuid, "Stats.Sent." + emotion);
+		int total = PUUIDS.getInt(this, uuid, "Stats.Sent.Total");
+		PUUIDS.set(this, uuid, "Stats.Sent." + emotion, ftotal+1);
+		PUUIDS.set(this, uuid, "Stats.Sent.Total", total+1);
 	}
 	
 	public String hasPlayedNameGetUUID(String inputsearch) {
@@ -284,7 +284,7 @@ public class Main extends JavaPlugin implements Listener {
 	public boolean isTargetIgnoringSender(Player target, Player sender) {
 		List<String> ignoredplayers = new ArrayList<String>();
 		ignoredplayers.clear();
-		ignoredplayers.addAll(PUUIDS.getList(this, target, "Ignoring"));
+		ignoredplayers.addAll(PUUIDS.getStringList(this, target.getUniqueId().toString(), "Ignoring"));
 		
 		if(ignoredplayers.contains(sender.getUniqueId().toString())) {
 			ignoredplayers.clear();
@@ -476,7 +476,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	public int APIgetSentStat(String name, String feeling) {
 		String uuid = PUUIDS.getUUID(name, false);
-		return PUUIDS.getOfflineInt(this, uuid, "Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
+		return PUUIDS.getInt(this, uuid, "Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
 	}
 	
 	// END OF API CALLS ------------------------------------
@@ -626,27 +626,27 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		String uuid = PUUIDS.getUUID(name, false);
 		
-		Msgs.send(p, "&f   &8&l> " + your + "Hugs: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Hug"));
-		Msgs.send(p, "&f   &8&l> " + your + "Slaps: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Slap"));
-		Msgs.send(p, "&f   &8&l> " + your + "Pokes: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Poke"));
-		Msgs.send(p, "&f   &8&l> " + your + "Highfives: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Highfive"));
-		Msgs.send(p, "&f   &8&l> " + your + "Facepalms: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Facepalm"));
-		Msgs.send(p, "&f   &8&l> " + your + "Yells: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Yell"));
-		Msgs.send(p, "&f   &8&l> " + your + "Bites: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Bite"));
-		Msgs.send(p, "&f   &8&l> " + your + "Snuggles: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Snuggle"));
-		Msgs.send(p, "&f   &8&l> " + your + "Shakes: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Shake"));
-		Msgs.send(p, "&f   &8&l> " + your + "Stabs: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Stab"));
-		Msgs.send(p, "&f   &8&l> " + your + "Kisses: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Kiss"));
-		Msgs.send(p, "&f   &8&l> " + your + "Punches: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Punch"));
-		Msgs.send(p, "&f   &8&l> " + your + "Murders: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Murder"));
-		Msgs.send(p, "&f   &8&l> " + your + "Boi: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Boi"));
-		Msgs.send(p, "&f   &8&l> " + your + "Cries: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Cry"));
-		Msgs.send(p, "&f   &8&l> " + your + "Dabs: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Dab"));
-		Msgs.send(p, "&f   &8&l> " + your + "Licks: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Lick"));
-		Msgs.send(p, "&f   &8&l> " + your + "Scorn: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Scorn"));
-		Msgs.send(p, "&f   &8&l> " + your + "Pats: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Pat"));
-		Msgs.send(p, "&f   &8&l> " + your + "Stalks: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Stalk"));
-		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + PUUIDS.getOfflineInt(this, uuid, "Stats.Sent.Total"));
+		Msgs.send(p, "&f   &8&l> " + your + "Hugs: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Hug"));
+		Msgs.send(p, "&f   &8&l> " + your + "Slaps: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Slap"));
+		Msgs.send(p, "&f   &8&l> " + your + "Pokes: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Poke"));
+		Msgs.send(p, "&f   &8&l> " + your + "Highfives: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Highfive"));
+		Msgs.send(p, "&f   &8&l> " + your + "Facepalms: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Facepalm"));
+		Msgs.send(p, "&f   &8&l> " + your + "Yells: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Yell"));
+		Msgs.send(p, "&f   &8&l> " + your + "Bites: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Bite"));
+		Msgs.send(p, "&f   &8&l> " + your + "Snuggles: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Snuggle"));
+		Msgs.send(p, "&f   &8&l> " + your + "Shakes: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Shake"));
+		Msgs.send(p, "&f   &8&l> " + your + "Stabs: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Stab"));
+		Msgs.send(p, "&f   &8&l> " + your + "Kisses: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Kiss"));
+		Msgs.send(p, "&f   &8&l> " + your + "Punches: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Punch"));
+		Msgs.send(p, "&f   &8&l> " + your + "Murders: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Murder"));
+		Msgs.send(p, "&f   &8&l> " + your + "Boi: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Boi"));
+		Msgs.send(p, "&f   &8&l> " + your + "Cries: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Cry"));
+		Msgs.send(p, "&f   &8&l> " + your + "Dabs: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Dab"));
+		Msgs.send(p, "&f   &8&l> " + your + "Licks: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Lick"));
+		Msgs.send(p, "&f   &8&l> " + your + "Scorn: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Scorn"));
+		Msgs.send(p, "&f   &8&l> " + your + "Pats: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Pat"));
+		Msgs.send(p, "&f   &8&l> " + your + "Stalks: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Stalk"));
+		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Total"));
 	}
 
 	public void noPermission(CommandSender sender) {
@@ -872,7 +872,7 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(sender, msg.getString("Mute-List-Header"));
 			
 			int totalmuted = 0;
-			for (String name : PUUIDS.getAllWithBoolean(this, "Muted")) {
+			for (String name : PUUIDS.getAllWithBoolean(this, "Muted", true)) {
 					String uuid = PUUIDS.getUUID(name, false);
 					String IPAdd = PUUIDS.getIP(uuid);
 					UUID puuid = UUID.fromString(uuid);
@@ -932,10 +932,10 @@ public class Main extends JavaPlugin implements Listener {
 			
 			int muteInt = isMuted(puuid, IPAdd);
 			
-			if(PUUIDS.getOfflineBoolean(this, muteUUID, "Muted")) {
+			if(PUUIDS.getBoolean(this, muteUUID, "Muted")) {
 				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", args[1]));
 				pop(sender);
-				PUUIDS.setOfflineBoolean(this, muteUUID, "Muted", false);
+				PUUIDS.set(this, muteUUID, "Muted", false);
 			} else {
 				bass(sender);
 		    if(muteInt == 3) {
@@ -987,13 +987,13 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
 				
-				if(!PUUIDS.getOfflineBoolean(this, muteUUID, "Muted")) {
+				if(!PUUIDS.getBoolean(this, muteUUID, "Muted")) {
 				Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", args[1]));
 				if(muteInt != 0) {
 					Msgs.sendPrefix(sender, msg.getString("Extra-Mute-Present").replace("%player%", args[1]));	
 				}
 				pop(sender);
-				PUUIDS.setOfflineBoolean(this, muteUUID, "Muted", true);
+				PUUIDS.set(this, muteUUID, "Muted", true);
 				
 				} else {
 					bass(sender);
@@ -1018,6 +1018,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			Player p = (Player) sender;
+			String uuid = p.getUniqueId().toString();
 			
 			if (args.length == 1) {
 				if(Cooldowns.ignorelistcooldown.containsKey(p)) {
@@ -1028,7 +1029,7 @@ public class Main extends JavaPlugin implements Listener {
 
 				Cooldowns.ignoreListCooldown(p);
 
-				List<String> ignoredplayers = PUUIDS.getList(this, p, "Ignoring");
+				List<String> ignoredplayers = PUUIDS.getStringList(this, uuid, "Ignoring");
 				Msgs.send(sender, " ");
 				Msgs.send(sender, msg.getString("Ignore-List-Header"));
 				if(ignoredplayers.size() == 0) {
@@ -1064,11 +1065,11 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			if (args[1].equalsIgnoreCase("all")) {
-				if (PUUIDS.getBoolean(this, p, "Allow-Feelings")) {
-					PUUIDS.setBoolean(this, p, "Allow-Feelings", false);
+				if (PUUIDS.getBoolean(this, uuid, "Allow-Feelings")) {
+					PUUIDS.set(this, uuid, "Allow-Feelings", false);
 					Msgs.sendPrefix(sender, msg.getString("Ingoring-On-All"));
 				} else {
-					PUUIDS.setBoolean(this, p, "Allow-Feelings", true);
+					PUUIDS.set(this, uuid, "Allow-Feelings", true);
 					Msgs.sendPrefix(sender, msg.getString("Ingoring-Off-All"));
 				}
 
@@ -1078,7 +1079,7 @@ public class Main extends JavaPlugin implements Listener {
 
 			List<String> ignoredplayers = new ArrayList<String>();
 			ignoredplayers.clear();
-			ignoredplayers.addAll(PUUIDS.getList(this, p, "Ignoring"));
+			ignoredplayers.addAll(PUUIDS.getStringList(this, uuid, "Ignoring"));
 
 			String ignoreUUID = hasPlayedNameGetUUID(args[1]);
 			if (ignoreUUID == "0" || ignoreUUID == null) {
@@ -1099,7 +1100,7 @@ public class Main extends JavaPlugin implements Listener {
 					Msgs.sendPrefix(sender, msg.getString("Ingoring-Off-Player").replace("%player%", args[1]));
 
 					ignoredplayers.remove(ignoreUUID);
-					PUUIDS.setStringList(this, p, "Ignoring", ignoredplayers);
+					PUUIDS.set(this, uuid, "Ignoring", ignoredplayers);
 
 					pop(sender);
 					ignoredplayers.clear();
@@ -1110,7 +1111,7 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			ignoredplayers.add(ignoreUUID);
-			PUUIDS.setStringList(this, p, "Ignoring", ignoredplayers);
+			PUUIDS.set(this, uuid, "Ignoring", ignoredplayers);
 			
 			Msgs.sendPrefix(sender, msg.getString("Ingoring-On-Player").replace("%player%", args[1]));
 			pop(sender);
@@ -1303,7 +1304,7 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
 				
-					if(PUUIDS.getBoolean(this, p, "Muted")) {
+					if(PUUIDS.getBoolean(this, p.getUniqueId().toString(), "Muted")) {
 						if(debug) {
 							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
 						}
@@ -1312,7 +1313,7 @@ public class Main extends JavaPlugin implements Listener {
 						return true;
 					}	
 					
-					if(!PUUIDS.getBoolean(this, target, "Allow-Feelings")) {
+					if(!PUUIDS.getBoolean(this, target.getUniqueId().toString(), "Allow-Feelings")) {
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
 						if(debug) {
@@ -1331,7 +1332,7 @@ public class Main extends JavaPlugin implements Listener {
 						return true;
 					}
 			} else {
-				if (PUUIDS.getBoolean(this, target, "Allow-Feelings")) {
+				if (PUUIDS.getBoolean(this, target.getUniqueId().toString(), "Allow-Feelings")) {
 					Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
 					if(debug) {
 						getLogger().info("[Debug] Blocking CONSOLE from sending feeling because " + target.getName() + " is blocking ALL.");
@@ -1389,7 +1390,7 @@ public class Main extends JavaPlugin implements Listener {
 				for (final Player online : Bukkit.getServer().getOnlinePlayers()) {
 					
 					// Global Ignoring Checks -----------------
-					if(PUUIDS.getBoolean(this, online, "Allow-Feelings") && (online.getName() != sender.getName())) {
+					if(PUUIDS.getBoolean(this, online.getUniqueId().toString(), "Allow-Feelings") && (online.getName() != sender.getName())) {
 						if(debug) {
 							getLogger().info("[Debug] " + online.getName() + " is blocking all feelings. Skipping Global Msg!");
 						}
@@ -1419,7 +1420,7 @@ public class Main extends JavaPlugin implements Listener {
 						// Global for PLAYER below
 						if(sender instanceof Player) {
 							Player p = (Player)sender;
-							if (!PUUIDS.getList(this, online, "Ignoring").contains(p.getUniqueId().toString())) {
+							if(PUUIDS.getStringList(this, online.getUniqueId().toString(), "Ignoring").contains(p.getUniqueId().toString())) {
 					
 								FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
 								Bukkit.getPluginManager().callEvent(fgne);
@@ -1571,7 +1572,7 @@ public class Main extends JavaPlugin implements Listener {
 			if(sender instanceof Player) {
 				if(!cmd.getName().equalsIgnoreCase("Spook")) {
 				Player p = (Player)sender;
-				statsAdd(p, cmdconfig);
+				statsAdd(p.getUniqueId().toString(), cmdconfig);
 			}}
 			// End Stats
 			return true;
@@ -1622,11 +1623,10 @@ public class Main extends JavaPlugin implements Listener {
 	@EventHandler
 	public void newFile(OnNewFile event) {
 		Player p = event.getPlayer();
+		String uuid = p.getUniqueId().toString();
 		
-		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
-		PUUIDS.setBoolean(this, p, "Allow-Feelings", true);
-		PUUIDS.setBoolean(this, p, "Muted", false);
-		});
+		PUUIDS.set(this, uuid, "Allow-Feelings", true);
+		PUUIDS.set(this, uuid, "Muted", false);
 	}
 	
 	@EventHandler
