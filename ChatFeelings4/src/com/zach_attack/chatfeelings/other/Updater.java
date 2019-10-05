@@ -19,8 +19,8 @@ public class Updater {
     private final JavaPlugin javaPlugin;
     private final String localPluginVersion;
     
-    private static String outdatedversion = "ERROR";
-	private static boolean outdated = false;
+    static String outdatedversion = "???";
+    static boolean outdated = false;
 
     private static final int ID = 12987;
     private static final long CHECK_INTERVAL = 1_728_000; //In ticks.
