@@ -649,7 +649,7 @@ public class Main extends JavaPlugin implements Listener {
 		Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + PUUIDS.getInt(this, uuid, "Stats.Sent.Total"));
 	}
 
-	public void noPermission(CommandSender sender) {
+	private void noPermission(CommandSender sender) {
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		File msgsfile = new File(folder, File.separator + "messages.yml");
 		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
@@ -1611,7 +1611,7 @@ public class Main extends JavaPlugin implements Listener {
 		if(p.hasPermission("chatfeelings.admin") || p.isOp()) {
 		if (Updater.isOutdated()) {
 			Msgs.sendPrefix(e.getPlayer(), "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion()
-					+ " while the latest is &f&l" + Updater.getOutdatedVersion());
+					+ " while the latest is &f&l" + Updater.OutdatedVersion());
 		}}}
 		
 		if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {

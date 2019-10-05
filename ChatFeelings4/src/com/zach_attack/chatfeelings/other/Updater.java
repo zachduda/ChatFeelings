@@ -19,7 +19,7 @@ public class Updater {
     private final JavaPlugin javaPlugin;
     private final String localPluginVersion;
     
-    private static String outdatedversion;
+    private static String outdatedversion = "???";
 	private static boolean outdated = false;
 
     private static final int ID = 12987;
@@ -60,12 +60,12 @@ public class Updater {
     		javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
     	}
     }
-
-	public static boolean isOutdated() {
-		return outdated;
-	}
-	
-	public static String getOutdatedVersion() {
-		return Updater.getOutdatedVersion();
-	}
-}
+    
+    public static boolean isOutdated() {
+    	return outdated;
+    }
+    
+    public static String OutdatedVersion() {
+    	return outdatedversion;
+    }
+ }
