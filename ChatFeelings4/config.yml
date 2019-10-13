@@ -29,10 +29,6 @@ Other:
   Vanished-Players:
     Check: true
     Use-Legacy: false
-  Player-Files:
-    Cleanup: true
-    Cleanup-After-Days: 185
-    Erase-If-Banned: true
   Hook-With-PUUIDs: true
   Updates:
     Check: true

@@ -106,7 +106,7 @@ public class Main extends JavaPlugin implements Listener {
 		
 		String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
 		
-		if(getConfig().getBoolean("General.Sounds")) {
+		if(getConfig().getBoolean("General.Sounds", true)) {
 			if(!version.contains("1.13") && !version.contains("1.14")) {
 				getLogger().warning("Sounds were disabled as you are using " + version + " and not 1.13.X or higher.");
 				sounds = false;
@@ -120,7 +120,7 @@ public class Main extends JavaPlugin implements Listener {
 			sounds = false;
 		}
 		
-		if(getConfig().getBoolean("General.Particles")) {
+		if(getConfig().getBoolean("General.Particles", true)) {
 			if(!version.contains("1.14") && !version.contains("1.13") && !version.contains("1.12")) {
 				getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
 				particles = false;
@@ -134,13 +134,13 @@ public class Main extends JavaPlugin implements Listener {
 			particles = false;
 		}
 		
-		if(getConfig().getBoolean("Other.Vanished-Players.Check")) {
+		if(getConfig().getBoolean("Other.Vanished-Players.Check", true)) {
 			usevanishcheck = true;
 			} else {
 				usevanishcheck = false;
 			}
 		
-		if(getConfig().contains("General.Use-Feeling-Permissions")) {
+		if(getConfig().contains("General.Use-Feeling-Permissions", true)) {
 		if(getConfig().getBoolean("General.Use-Feeling-Permissions")) {
 			useperms = true;
 		} else {
@@ -149,7 +149,7 @@ public class Main extends JavaPlugin implements Listener {
 			useperms = false;
 		}
 		
-		if(getConfig().contains("General.Multi-Version-Support")) {
+		if(getConfig().contains("General.Multi-Version-Support", false)) {
 		if(getConfig().getBoolean("General.Multi-Version-Support")) {
 			multiversion = true;
 		} else {
@@ -160,9 +160,9 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void addMetrics() {
-		if (!getConfig().getBoolean("Other.Metrics")) {
+		if (!getConfig().getBoolean("Other.Metrics", true)) {
 			if(debug) {
-				getLogger().info("[Debug] Metrics was disabled. Guess we won't support the developer today!");
+				getLogger().info("[Debug] Metrics were disabled. Guess we won't support the developer today!");
 			}
 			return;
 		}
@@ -351,13 +351,19 @@ public class Main extends JavaPlugin implements Listener {
 		
 		if (this.getServer().getPluginManager().isPluginEnabled("PUUIDS")
 				&& this.getServer().getPluginManager().getPlugin("PUUIDS") != null) {
+			if(getConfig().getBoolean("Other.Hook-With-PUUIDs", true)) {
 			usingpuuids = true;
 			getLogger().info("Hooking into PUUIDS for Mute/Ignore database management...");
 			PUUIDS.connect(this);
 			Bukkit.getServer().getPluginManager().registerEvents(new PUUIDs(), this);
 			PUUIDS.addToAllWithout(this, "Allow-Feelings", true);
 			PUUIDS.addToAllWithout(this, "Muted", false);
-		} 
+			}
+		} else {
+			if(getConfig().getBoolean("Other.Hook-With-PUUIDs", true)) {
+				getLogger().info("Disabling built-in stats, muting, & ignoring. Missing Optional Depedency: PUUIDs");
+			}
+		}
 		
 		
 		getConfig().options().copyDefaults(true);
@@ -843,6 +849,8 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(sender, "");
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
 			Msgs.send(sender, "&8&l> &e&l/cf help &7Shows you this page.");
+			
+			if(usingpuuids) {
 			if (sender.hasPermission("chatfeelings.ignore") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7Ignore/Unignore feelings from players.");
 				Msgs.send(sender, "&8&l> &e&l/cf ignore all &7Toggles everyone being able to use feelings.");
@@ -858,7 +866,8 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7Prevents a player from using feelings.");
 				Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7Unmutes a muted player.");
 				Msgs.send(sender, "&8&l> &e&l/cf mutelist &7Shows who's currently muted.");
-			}
+			}}
+			
 			if (sender.hasPermission("chatfeelings.admin") || sender.isOp()) {
 				Msgs.send(sender, "&8&l> &e&l/cf version &7Shows you the plugin version.");
 				Msgs.send(sender, "&8&l> &e&l/cf reload &7Reloads the plugin.");
