@@ -5,7 +5,6 @@ import java.io.File;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-
 public class FileSetup {
 	private static Main plugin = Main.getPlugin(Main.class);
 	
@@ -153,47 +152,6 @@ public class FileSetup {
 	  File emotesfile = new File(folder, File.separator + "emotes.yml");
 	  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
 	  
-	  
-	  /// ---------------------------------- LEGACY NO TOUCHY OR IT BREAKY ---------------------------------------	  
-	  File soundsfile = new File(folder, File.separator + "sounds.yml");
-	  FileConfiguration sounds = YamlConfiguration.loadConfiguration(soundsfile);  // Sounds.yml moved to emotes.yml,  this is here for Legacy reasons.
-		  
-	  if(msgsfile.exists() && !msgs.contains("Version")) {
-		  File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
-		  File legacymsgsfile = new File(legacyfolder, File.separator + "legacy_messages.yml");
-		  
-		  plugin.getLogger().warning("Legacy messages.yml from v3.X detected. Renaming to 'legacy_messages.yml' & starting anew.");
-		  try {
-			msgs.save(legacymsgsfile);
-			msgsfile.delete();
-		} catch (Exception noerr) {}
-	  }
-	  
-	  if(emotesfile.exists() && !emotes.contains("Version")) {
-		  File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
-		  File legacyemotesfile = new File(legacyfolder, File.separator + "legacy_emotes.yml");
-
-		  plugin.getLogger().warning("Legacy emotes.yml from v3.X detected. Renaming to 'legacy_emotes.yml' & starting anew.");
-		  try {
-			emotes.save(legacyemotesfile);
-			emotesfile.delete();
-		} catch (Exception noerr) {}
-	  }
-	  
-	  if(soundsfile.exists()) {
-		  File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
-		  File legacysoundsfile = new File(legacyfolder, File.separator + "legacy_sounds.yml");
-		  
-		  plugin.getLogger().warning("Legacy sounds.yml from v3.X detected. Renaming to 'legacy_sounds.yml' & starting anew.");
-		  
-		  try {
-			sounds.save(legacysoundsfile);
-			soundsfile.delete();
-		} catch (Exception noerr) {}
-	  }
-	//------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
-	  
-	  
 	    if (!msgsfile.exists() || !msgs.contains("Version")) {
 	    	try {
 	    	msgs.save(msgsfile);
@@ -201,15 +159,18 @@ public class FileSetup {
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    	
-	    } else if(msgs.getInt("Version") != 7) {
+	    } else if(msgs.getInt("Version") != 9) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
 			
-	    	if(msgs.getInt("Version") < 6 ) {
-			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
+	    	if(msgs.getInt("Version") <= 6 ) {
+	    		forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
 	    	}
 	    	
-	    	forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
-	    	forceMsgs("No-Player-Ignore", null); // removed in v7
+	    	if(msgs.getInt("Version") < 9) {
+	    		forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7, re-removed v9
+	    		forceMsgs("No-Player-Ignore", null); // removed in v7, re-removed in v9
+	    	}
+	    	
 		}
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
@@ -238,6 +199,7 @@ public class FileSetup {
 	    	setMsgs("Ignore-List-Header", "&c&lIgnored Players:"); // added in version 7
 	    	setMsgs("Ignore-List-None", "   &8&l> &fYou are currently not ignoring anyone!"); // added in version 7
 	    	setMsgs("Ignore-List-Cooldown", "&cPlease Wait. &fYou must wait before checking who you're ignoring.");
+	    	setMsgs("Ignore-List-All", "   &8&l> &fYou are ignoring all feelings."); // added in version 8
 	    	setMsgs("Mute-List-Header", "&e&lMuted Players:"); // added in version 4
 	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
 	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
@@ -262,7 +224,8 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgsVersion(7);
+	    	setMsgs("Feature-Disabled", "&cBummer! &fThis feature requires a missing dependecy or is disabled in the config."); // added in version 9
+	    	setMsgsVersion(9);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {

@@ -15,7 +15,6 @@ public class Cooldowns {
 	static HashMap<Player, Long> cooldown = new HashMap<Player, Long>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<Player, String>();
 	static HashMap<Player, String> ignorelistcooldown = new HashMap<Player, String>();
-	
 	static HashMap<String, Integer> spook = new HashMap<String, Integer>();
 	
 	static void removeAll(Player p) {

@@ -30,7 +30,6 @@ import org.bukkit.potion.PotionEffectType;
 
 import com.zach_attack.chatfeelings.other.Metrics;
 import com.zach_attack.chatfeelings.other.Updater;
-import com.zach_attack.puuids.api.OnNewFile;
 import com.zach_attack.puuids.api.PUUIDS;
 import com.zach_attack.chatfeelings.api.ChatFeelingsAPI;
 
@@ -93,6 +92,7 @@ public class Main extends JavaPlugin implements Listener {
 				removeAll(online.getPlayer());
 			}
 		}
+		
 	}
 
 	public void updateConfig() {
@@ -233,6 +233,36 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public void configChecks() {		
+		
+		if(getConfig().contains("Version")) {
+			int ver = getConfig().getInt("Version");
+			
+			if(ver != 7) {
+				
+				if(ver <= 4 || getConfig().contains("Other.Bypass-Version-Block")) {
+				getConfig().set("Other.Bypass-Version-Block", null);
+				}
+				
+				if(ver <= 5) {
+				getConfig().set("General.Use-Feeling-Permissions", true);
+				getConfig().set("General.Multi-Version-Support", false);
+				
+				getConfig().set("Cooldowns.Ignore-List.Enabled", true);
+				getConfig().set("Cooldowns.Ignore-List.Seconds", 10);
+				
+				getConfig().set("General.No-Violent-Cmds-When-Sleeping", null);
+				}
+				
+				if(ver <= 6) {
+					getConfig().set("Other.Player-Files", null);
+				}
+				
+				getConfig().set("Version", 7);
+				saveConfig();
+				reloadConfig();
+			}
+		}
+		
 		if(getConfig().getBoolean("General.Radius.Enabled")) {
 		if(getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
 			getLogger().warning("Feeling radius cannot be 0, disabling the radius.");
@@ -242,32 +272,20 @@ public class Main extends JavaPlugin implements Listener {
 			reloadConfig();
 		}}
 		
-		if(getConfig().contains("Version")) {
-			int ver = getConfig().getInt("Version");
-			
-			if(ver != 6) {
-				
-				if(ver <= 4)
-				if(getConfig().contains("Other.Bypass-Version-Block")) {
-				getConfig().set("Other.Bypass-Version-Block", null);
-				}
-				
-				getConfig().set("General.Use-Feeling-Permissions", true);
-				getConfig().set("General.Multi-Version-Support", false);
-				
-				getConfig().set("Cooldowns.Ignore-List.Enabled", true);
-				getConfig().set("Cooldowns.Ignore-List.Seconds", 10);
-				
-				getConfig().set("General.No-Violent-Cmds-When-Sleeping", null);
-				
-				getConfig().set("Version", 6);
-				saveConfig();
-				reloadConfig();
+		if(usingpuuids) {
+			if(!getConfig().getBoolean("Other.Hook-With-PUUIDs")) {
+				usingpuuids = false;
 			}
+		} else {			
+			usingpuuids = false;
 		}
 	}
 
 	public void statsAdd(String uuid, String emotion) {
+		if(!usingpuuids) {
+			return;
+		}
+		
 		int ftotal = PUUIDS.getInt(this, uuid, "Stats.Sent." + emotion);
 		int total = PUUIDS.getInt(this, uuid, "Stats.Sent.Total");
 		PUUIDS.set(this, uuid, "Stats.Sent." + emotion, ftotal+1);
@@ -282,6 +300,10 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	public boolean isTargetIgnoringSender(Player target, Player sender) {
+		if(!usingpuuids) {
+			return false;
+		}
+		
 		List<String> ignoredplayers = new ArrayList<String>();
 		ignoredplayers.clear();
 		ignoredplayers.addAll(PUUIDS.getStringList(this, target.getUniqueId().toString(), "Ignoring"));
@@ -330,8 +352,11 @@ public class Main extends JavaPlugin implements Listener {
 		if (this.getServer().getPluginManager().isPluginEnabled("PUUIDS")
 				&& this.getServer().getPluginManager().getPlugin("PUUIDS") != null) {
 			usingpuuids = true;
-			getLogger().info("Hooking into PUUIDS for optimial performance...");
+			getLogger().info("Hooking into PUUIDS for Mute/Ignore database management...");
 			PUUIDS.connect(this);
+			Bukkit.getServer().getPluginManager().registerEvents(new PUUIDs(), this);
+			PUUIDS.addToAllWithout(this, "Allow-Feelings", true);
+			PUUIDS.addToAllWithout(this, "Muted", false);
 		} 
 		
 		
@@ -475,6 +500,10 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	public int APIgetSentStat(String name, String feeling) {
+		if(!usingpuuids) {
+			return 0;
+		}
+		
 		String uuid = PUUIDS.getUUID(name, false);
 		return PUUIDS.getInt(this, uuid, "Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
 	}
@@ -576,6 +605,7 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	private boolean isVanished(Player player) {
+		PUUIDS.set(null, null, null, null);
 		if (usevanishcheck) {
 			try {
 				
@@ -611,11 +641,17 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	private void getStats(CommandSender p, String name, boolean isown) {
-		String your = "";
-		
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		File msgsfile = new File(folder, File.separator + "messages.yml");
 		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
+		
+		if(!usingpuuids) {
+			Msgs.sendPrefix(p, msg.getString("Feature-Disabled"));
+			bass(p);
+			return;
+		}
+		
+		String your = "";
 		
 		if(isown) {
 			Msgs.send(p, msg.getString("Stats-Header-Own").replace("%player%", name));
@@ -868,6 +904,12 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
+			if(!usingpuuids) {
+				Msgs.sendPrefix(sender, msg.getString("Feature-Disabled"));
+				bass(sender);
+				return true;
+			}
+			
 			Msgs.send(sender, "");
 			Msgs.send(sender, msg.getString("Mute-List-Header"));
 			
@@ -913,6 +955,12 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 
+			if(!usingpuuids) {
+				Msgs.sendPrefix(sender, msg.getString("Feature-Disabled"));
+				bass(sender);
+				return true;
+			}
+			
 			if (args.length == 1) {
 				Msgs.sendPrefix(sender, msg.getString("No-Player-Unmute"));
 				bass(sender);
@@ -962,6 +1010,12 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 
+			if(!usingpuuids) {
+				Msgs.sendPrefix(sender, msg.getString("Feature-Disabled"));
+				bass(sender);
+				return true;
+			}
+			
 			if (args.length == 1) {
 				Msgs.sendPrefix(sender, msg.getString("No-Player-Mute"));
 				bass(sender);
@@ -1009,6 +1063,12 @@ public class Main extends JavaPlugin implements Listener {
 		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("ignore")) {
 			if (!sender.hasPermission("chatfeelings.ignore") && !sender.isOp()) {
 				noPermission(sender);
+				return true;
+			}
+			
+			if(!usingpuuids) {
+				Msgs.sendPrefix(sender, msg.getString("Feature-Disabled"));
+				bass(sender);
 				return true;
 			}
 			
@@ -1304,6 +1364,7 @@ public class Main extends JavaPlugin implements Listener {
 					return true;
 				}
 				
+				if(usingpuuids) {
 					if(PUUIDS.getBoolean(this, p.getUniqueId().toString(), "Muted")) {
 						if(debug) {
 							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
@@ -1311,7 +1372,7 @@ public class Main extends JavaPlugin implements Listener {
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
 						return true;
-					}	
+					}
 					
 					if(!PUUIDS.getBoolean(this, target.getUniqueId().toString(), "Allow-Feelings")) {
 						bass(sender);
@@ -1339,6 +1400,10 @@ public class Main extends JavaPlugin implements Listener {
 					}
 					return true;
 				} // Sender is Console however the player is still blocking ALL feelings.
+			}} else {
+				if(debug) {
+					getLogger().info("[Debug] Not using PUUIDs user system, skipping allow-feelings, built-in mute and built-in ignoring checks.");
+				}
 			}
 			// ------------------------------------------------
 			
@@ -1348,7 +1413,7 @@ public class Main extends JavaPlugin implements Listener {
 		 	    Date now = new Date();
 			    SimpleDateFormat format = new SimpleDateFormat("MM");
 			    
-			 	if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
+			 	if(!format.format(now).equals("10")) {
 			 		Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
 			 		bass(sender);
 			 		return true;
@@ -1390,25 +1455,12 @@ public class Main extends JavaPlugin implements Listener {
 				for (final Player online : Bukkit.getServer().getOnlinePlayers()) {
 					
 					// Global Ignoring Checks -----------------
-					if(PUUIDS.getBoolean(this, online.getUniqueId().toString(), "Allow-Feelings") && (online.getName() != sender.getName())) {
+					if(usingpuuids && PUUIDS.getBoolean(this, online.getUniqueId().toString(), "Allow-Feelings") && (online.getName() != sender.getName())) {
 						if(debug) {
 							getLogger().info("[Debug] " + online.getName() + " is blocking all feelings. Skipping Global Msg!");
 						}
-					} else { // else NOT ignoring ALL
-						if(sender instanceof Player) {
-							Player p = (Player)sender;
-						if (isTargetIgnoringSender(target, p)) {
-							// Player is Ignoring from sender but is not target. (GlobaL)
-							
-							// This works but is unused. Need to remove later.
-							
-							if(debug) {
-								getLogger().info("[Debug] " + online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
-							}
-						}}
+					} else {
 				// End of Global ignoring Checks -------------------
-					
-
 						
 					if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player)) {
 						// ONLY for CONSOLE Global notify here.
@@ -1569,7 +1621,7 @@ public class Main extends JavaPlugin implements Listener {
 			// ---------- End of Sounds
 
 			// Add Stats
-			if(sender instanceof Player) {
+			if(sender instanceof Player && usingpuuids) {
 				if(!cmd.getName().equalsIgnoreCase("Spook")) {
 				Player p = (Player)sender;
 				statsAdd(p.getUniqueId().toString(), cmdconfig);
@@ -1618,15 +1670,6 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(e.getPlayer(), "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
 					+ " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
 		}
-	}
-	
-	@EventHandler
-	public void newFile(OnNewFile event) {
-		Player p = event.getPlayer();
-		String uuid = p.getUniqueId().toString();
-		
-		PUUIDS.set(this, uuid, "Allow-Feelings", true);
-		PUUIDS.set(this, uuid, "Muted", false);
 	}
 	
 	@EventHandler
