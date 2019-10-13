@@ -605,7 +605,6 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	private boolean isVanished(Player player) {
-		PUUIDS.set(null, null, null, null);
 		if (usevanishcheck) {
 			try {
 				
@@ -641,15 +640,13 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	
 	private void getStats(CommandSender p, String name, boolean isown) {
+		if(!usingpuuids) {
+			return;
+		}
+		
 		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		File msgsfile = new File(folder, File.separator + "messages.yml");
 		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
-		
-		if(!usingpuuids) {
-			Msgs.sendPrefix(p, msg.getString("Feature-Disabled"));
-			bass(p);
-			return;
-		}
 		
 		String your = "";
 		
@@ -722,6 +719,12 @@ public class Main extends JavaPlugin implements Listener {
 		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("stats")) {
 			if(!sender.hasPermission("chatfeelings.stats") && !sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
 				noPermission(sender);
+				return true;
+			}
+			
+			if(!usingpuuids) {
+				Msgs.sendPrefix(sender, msg.getString("Feature-Disabled"));
+				bass(sender);
 				return true;
 			}
 			
