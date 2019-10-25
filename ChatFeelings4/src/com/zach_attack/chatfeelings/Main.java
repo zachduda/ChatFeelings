@@ -353,8 +353,12 @@ public class Main extends JavaPlugin implements Listener {
 				&& this.getServer().getPluginManager().getPlugin("PUUIDS") != null) {
 			if(getConfig().getBoolean("Other.Hook-With-PUUIDs", true)) {
 			usingpuuids = true;
-			getLogger().info("Hooking into PUUIDS for Mute/Ignore database management...");
-			PUUIDS.connect(this);
+
+			if(PUUIDS.connect(this)) { 
+				getLogger().info("Hooking into PUUIDS. Built-in ignoring & muting system has been enabled...");
+			} else {
+				getLogger().warning("UNABLE TO HOOK INTO PUUIDS. Make sure you aren't using /rl or /restart.");
+			}
 			Bukkit.getServer().getPluginManager().registerEvents(new PUUIDs(), this);
 			PUUIDS.addToAllWithout(this, "Allow-Feelings", true);
 			PUUIDS.addToAllWithout(this, "Muted", false);
@@ -622,8 +626,9 @@ public class Main extends JavaPlugin implements Listener {
 				}
 
 				for (MetadataValue meta : player.getMetadata("vanished")) {
-					if (meta.asBoolean())
+					if (meta.asBoolean()) {
 						return true;
+					}
 				}
 
 			} catch (Exception err) {
@@ -633,14 +638,15 @@ public class Main extends JavaPlugin implements Listener {
 
 			if (getConfig().getBoolean("Other.Vanished-Players.Use-Legacy")) {
 				if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
+					getLogger().info("Player was legacy vanished.");
 					return true;
 				}
-				
 				return false;
 			}
 
 			return false;
 		} else { // Vanish Check is Off
+			getLogger().info("Vanished Checking is off.");
 			return false;
 		}
 	}
@@ -1283,16 +1289,6 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			String cmdconfig = (StringUtils.capitalize(cmd.getName().toString()));
-			
-			if (sender instanceof Player) {
-				if (args[0].equalsIgnoreCase(sender.getName().toString())) {
-					if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
-						bass(sender);
-						Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
-						return true;
-					}
-				}
-			}
 
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
@@ -1322,6 +1318,16 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			Player target = Bukkit.getServer().getPlayer(args[0]);
+			
+			if (sender instanceof Player) {
+				if (target == sender) {
+					if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
+						bass(sender);
+						Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
+						return true;
+					}
+				}
+			}
 			
 			if (target == null || isVanished(target)) {
 				bass(sender);
@@ -1390,7 +1396,7 @@ public class Main extends JavaPlugin implements Listener {
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
 						if(debug) {
-							getLogger().info(sender.getName() + " couldn't send feeling to " + target.getName() + " because they are ignoring ALL.");
+							getLogger().info("[Debug] " + sender.getName() + " couldn't send feeling to " + target.getName() + " because they are ignoring ALL.");
 						}
 						return true;
 					}
@@ -1405,6 +1411,10 @@ public class Main extends JavaPlugin implements Listener {
 						return true;
 					}
 			} else {
+				if(debug) {
+					getLogger().info("[Debug] Not using PUUIDs user system, skipping allow-feelings, built-in mute and built-in ignoring checks.");
+				}
+			}} else if(usingpuuids){
 				if (PUUIDS.getBoolean(this, target.getUniqueId().toString(), "Allow-Feelings")) {
 					Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
 					if(debug) {
@@ -1412,10 +1422,6 @@ public class Main extends JavaPlugin implements Listener {
 					}
 					return true;
 				} // Sender is Console however the player is still blocking ALL feelings.
-			}} else {
-				if(debug) {
-					getLogger().info("[Debug] Not using PUUIDs user system, skipping allow-feelings, built-in mute and built-in ignoring checks.");
-				}
 			}
 			// ------------------------------------------------
 			
