@@ -66,6 +66,25 @@ public class FileSetup {
 	    	msgs.save(msgsfile);
 	    	} catch(Exception err) {}}
 	}
+    
+	private static void forceEmotes(String configpath, String msg) {
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  
+		  File emotesfile = new File(folder, File.separator + "emotes.yml");
+		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+		  
+		  if(!emotesfile.exists()) {
+			  try {
+			  emotes.save(emotesfile);
+		    	plugin.getLogger().info("Created new emotes.yml file on the fly...");
+			  } catch(Exception err) {}
+		  }
+		  
+			emotes.set(configpath, msg);
+	    	try { 
+	    	emotes.save(emotesfile);
+	    	} catch(Exception err) {}
+	}
 	
 	private static void setEmotes(String configpath, String msg) {
 		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
@@ -275,7 +294,14 @@ public class FileSetup {
 		    	emotes.save(emotesfile);
 		    	plugin.getLogger().info("Created new emotes.yml file...");
 			    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new emotes.yml file."); }
-		    }
+		    } else if(emotes.getInt("Version") != 3) {
+				plugin.getLogger().info("Updating your emotes.yml for the latest update...");  
+		    	if(emotes.getInt("Version") <= 2) {
+		    		forceEmotes("Feelings.Spook", null);
+		    	}
+		    	
+	    		setEmotesVersion(3);
+			}
 		    
     setEmotesBoolean("Feelings.Hug.Enable", true);	  
 	setEmotes("Feelings.Hug.Msgs.Sender", "&7You give &a&l%player% &r&7a warm hug. &cAwww &4❤");
@@ -504,18 +530,7 @@ public class FileSetup {
 	setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
-	
-	setEmotesBoolean("Feelings.Spook.Enable", true);
-	setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
-	setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
-	setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
-	setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY_WITCH_AMBIENT");
-	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
-	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
-	setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC_13");
-	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
-	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
 
-	setEmotesVersion(2);
+	setEmotesVersion(3);
 	}
 }
