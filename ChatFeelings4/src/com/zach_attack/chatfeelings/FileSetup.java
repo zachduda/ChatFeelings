@@ -2,14 +2,17 @@ package com.zach_attack.chatfeelings;
 
 import java.io.File;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+
 
 public class FileSetup {
 	private static Main plugin = Main.getPlugin(Main.class);
 	
 	private static void setMsgs(String configpath, String msg) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 		  if(!msgsfile.exists()) {
@@ -34,7 +37,7 @@ public class FileSetup {
 	}
 	
     private static void forceMsgs(String configpath, String msg) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
@@ -52,7 +55,7 @@ public class FileSetup {
 	}
 	
     private static void setMsgsVersion(int vers) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
@@ -63,9 +66,28 @@ public class FileSetup {
 	    	msgs.save(msgsfile);
 	    	} catch(Exception err) {}}
 	}
+    
+	private static void forceEmotes(String configpath, String msg) {
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		  
+		  File emotesfile = new File(folder, File.separator + "emotes.yml");
+		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+		  
+		  if(!emotesfile.exists()) {
+			  try {
+			  emotes.save(emotesfile);
+		    	plugin.getLogger().info("Created new emotes.yml file on the fly...");
+			  } catch(Exception err) {}
+		  }
+		  
+			emotes.set(configpath, msg);
+	    	try { 
+	    	emotes.save(emotesfile);
+	    	} catch(Exception err) {}
+	}
 	
 	private static void setEmotes(String configpath, String msg) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -94,7 +116,7 @@ public class FileSetup {
 	}
 	
 	private static void setEmotesVersion(int vers) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -107,7 +129,7 @@ public class FileSetup {
 	}
 	
 	private static void setEmotesDouble(String configpath, Double dubdub) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -126,7 +148,7 @@ public class FileSetup {
 	}}
 	
 	private static void setEmotesBoolean(String configpath, boolean siono) {
-		  File folder = plugin.getDataFolder();
+		  File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  
 		  File emotesfile = new File(folder, File.separator + "emotes.yml");
 		  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
@@ -145,12 +167,53 @@ public class FileSetup {
 	}}
 	
 	static void enableFiles() {
-		File folder = plugin.getDataFolder();
+		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
 		  File msgsfile = new File(folder, File.separator + "messages.yml");
 		  FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 		  
 	  File emotesfile = new File(folder, File.separator + "emotes.yml");
 	  FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+	  
+	  
+	  /// ---------------------------------- LEGACY NO TOUCHY OR IT BREAKY ---------------------------------------	  
+	  File soundsfile = new File(folder, File.separator + "sounds.yml");
+	  FileConfiguration sounds = YamlConfiguration.loadConfiguration(soundsfile);  // Sounds.yml moved to emotes.yml,  this is here for Legacy reasons.
+		  
+	  if(msgsfile.exists() && !msgs.contains("Version")) {
+		  File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
+		  File legacymsgsfile = new File(legacyfolder, File.separator + "legacy_messages.yml");
+		  
+		  plugin.getLogger().warning("Legacy messages.yml from v3.X detected. Renaming to 'legacy_messages.yml' & starting anew.");
+		  try {
+			msgs.save(legacymsgsfile);
+			msgsfile.delete();
+		} catch (Exception noerr) {}
+	  }
+	  
+	  if(emotesfile.exists() && !emotes.contains("Version")) {
+		  File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
+		  File legacyemotesfile = new File(legacyfolder, File.separator + "legacy_emotes.yml");
+
+		  plugin.getLogger().warning("Legacy emotes.yml from v3.X detected. Renaming to 'legacy_emotes.yml' & starting anew.");
+		  try {
+			emotes.save(legacyemotesfile);
+			emotesfile.delete();
+		} catch (Exception noerr) {}
+	  }
+	  
+	  if(soundsfile.exists()) {
+		  File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
+		  File legacysoundsfile = new File(legacyfolder, File.separator + "legacy_sounds.yml");
+		  
+		  plugin.getLogger().warning("Legacy sounds.yml from v3.X detected. Renaming to 'legacy_sounds.yml' & starting anew.");
+		  
+		  try {
+			sounds.save(legacysoundsfile);
+			soundsfile.delete();
+		} catch (Exception noerr) {}
+	  }
+	//------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
+	  
 	  
 	    if (!msgsfile.exists() || !msgs.contains("Version")) {
 	    	try {
@@ -159,18 +222,17 @@ public class FileSetup {
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    	
-	    } else if(msgs.getInt("Version") != 9) {
+	    } else if(msgs.getInt("Version") != 8) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
 			
-	    	if(msgs.getInt("Version") <= 6 ) {
-	    		forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
+	    	if(msgs.getInt("Version") < 6 ) {
+			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
 	    	}
 	    	
-	    	if(msgs.getInt("Version") < 9) {
-	    		forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7, re-removed v9
-	    		forceMsgs("No-Player-Ignore", null); // removed in v7, re-removed in v9
+	    	if(msgs.getInt("Version") < 7) {
+	    	forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
+	    	forceMsgs("No-Player-Ignore", null); // removed in v7
 	    	}
-	    	
 		}
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
@@ -198,13 +260,13 @@ public class FileSetup {
 	    	setMsgs("Stats-Header-Other", "&e&l%player%'s Statistics:"); // added in version 6
 	    	setMsgs("Ignore-List-Header", "&c&lIgnored Players:"); // added in version 7
 	    	setMsgs("Ignore-List-None", "   &8&l> &fYou are currently not ignoring anyone!"); // added in version 7
-	    	setMsgs("Ignore-List-Cooldown", "&cPlease Wait. &fYou must wait before checking who you're ignoring.");
 	    	setMsgs("Ignore-List-All", "   &8&l> &fYou are ignoring all feelings."); // added in version 8
+	    	setMsgs("Ignore-List-Cooldown", "&cPlease Wait. &fYou must wait before checking who you're ignoring.");
 	    	setMsgs("Mute-List-Header", "&e&lMuted Players:"); // added in version 4
 	    	setMsgs("Mute-List-Player", "&r  &8&l> &f%player%"); // added in version 4
 	    	setMsgs("Mute-List-Total-One", "&r  &7There is &f&l%total% &7muted player."); // added in version 4
 	    	setMsgs("Mute-List-Total-Many", "&r  &7There are &f&l%total% &7muted players."); // added in version 4
-	    	setMsgs("Mute-List-Total-Zero", "&r  &8&l> &a&lYay! &fNo players are currently muted."); // added in version 4
+	    	setMsgs("Mute-List-Total-Zero", "&r  &8&l> &a&lYay! &7No players are currently muted."); // added in version 4
 	    	setMsgs("Player-Has-Been-Muted", "&cUser Muted. &7%player% &fcan no longer use feelings."); // added in version 3
 	    	setMsgs("Player-Muted-Via-Essentials", "&cOops! &7%player&f is muted via Essentials, use /unmute!"); // added in version 5
 	    	setMsgs("Player-Muted-Via-LiteBans", "&cOops! &7%player&f is muted via LiteBans, use /unmute!"); // added in version 5
@@ -224,8 +286,7 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgs("Feature-Disabled", "&cBummer! &fThis feature requires a missing dependecy or is disabled in the config."); // added in version 9
-	    	setMsgsVersion(9);
+	    	setMsgsVersion(8);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {
@@ -233,7 +294,14 @@ public class FileSetup {
 		    	emotes.save(emotesfile);
 		    	plugin.getLogger().info("Created new emotes.yml file...");
 			    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new emotes.yml file."); }
-		    }
+		    } else if(emotes.getInt("Version") != 3) {
+				plugin.getLogger().info("Updating your emotes.yml for the latest update...");  
+		    	if(emotes.getInt("Version") <= 2) {
+		    		forceEmotes("Feelings.Spook", null);
+		    	}
+		    	
+	    		setEmotesVersion(3);
+			}
 		    
     setEmotesBoolean("Feelings.Hug.Enable", true);	  
 	setEmotes("Feelings.Hug.Msgs.Sender", "&7You give &a&l%player% &r&7a warm hug. &cAwww &4❤");
@@ -462,18 +530,7 @@ public class FileSetup {
 	setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
-	
-	setEmotesBoolean("Feelings.Spook.Enable", true);
-	setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
-	setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
-	setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
-	setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY_WITCH_AMBIENT");
-	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
-	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
-	setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC_13");
-	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
-	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
 
-	setEmotesVersion(2);
+	setEmotesVersion(3);
 	}
 }
