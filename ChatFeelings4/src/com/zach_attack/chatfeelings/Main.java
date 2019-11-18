@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -70,6 +71,14 @@ public class Main extends JavaPlugin implements Listener {
 	private void removeAll(Player p) {
 		Cooldowns.removeAll(p);
 	}
+	
+	static Logger log = Bukkit.getLogger();
+	
+	static void debug(String msg) {
+		if(debug) {
+			log.info("[ChatFeelings] [Debug] " + msg);
+		}
+	}
 
 	public void onDisable() {
 		disabledsendingworlds.clear();
@@ -132,59 +141,48 @@ public class Main extends JavaPlugin implements Listener {
 				
 				
 				if(banInt == 1) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Essentials)");
-					}
+					debug("Deleted " + playername + "'s data file. They were banned! (Essentials)");
 					f.delete();
 				} else if(banInt == 2) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (LiteBans)");
-					}
+					debug("Deleted " + playername + "'s data file. They were banned! (LiteBans)");
 					f.delete();
 				} else if(banInt == 3) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (AdvancedBan)");
-					}
+					debug("Deleted " + playername + "'s data file. They were banned! (AdvancedBan)");
 					f.delete();
 				} else if(banInt == 4) {
-					if(debug) {
-					getLogger().info("[Debug] Deleted " + playername + "'s data file. They were banned! (Vanilla)");
-					}
+					debug("Deleted " + playername + "'s data file. They were banned! (Vanilla)");
 					f.delete();
 				} else { // Ban int = 0 means not banned.
 				
 				if (daysAgo >= maxDays && useclean) {
 					f.delete();
-					if (debug) {
-						getLogger().info("[Debug] Deleted " + playername + "'s data file because it's " + daysAgo
+						debug("Deleted " + playername + "'s data file because it's " + daysAgo
 								+ "s old. (Max is " + maxDays + " Days)");
-					}} else {
+					} else {
 						
 					if(!setcache.contains("Muted") || !setcache.contains("Version")) {
 						setcache.set("Muted", false);
 						setcache.set("Version", 2);
-						if(debug) {
-						getLogger().info("[Debug] Updated " + playername + "'s data file to work with new mute system.");
-						}
+						debug("Updated " + playername + "'s data file to work with new mute system.");
+						
 						try {
 						setcache.save(f);
 						}catch(Exception err) {}
 					}
 					
-					if (debug) {
-						if(useclean) {
-							getLogger().info("[Debug] Keeping " + playername + "'s data file. (" + daysAgo + "/" + maxDays
-								+ " days left)");
-						} else {
-							getLogger().info("[Debug] Found " + playername + "'s data file. (" + daysAgo + " days");	
-						}
+					if(useclean) {
+						debug("Keeping " + playername + "'s data file. (" + daysAgo + "/" + maxDays
+							+ " days left)");
+					} else {
+						debug("Found " + playername + "'s data file. (" + daysAgo + " days");	
 					}
+					
 				} // end of not too old check.
 				} // end of not banned check.
 				} // end of contains variables check.
 				} catch(Exception err) {
 					if(debug) {
-						getLogger().info("[Debug] Error when trying to work with player file: " + f.getName() + ", see below:");
+						debug("Error when trying to work with player file: " + f.getName() + ", see below:");
 						err.printStackTrace();
 					}
 				}
@@ -210,9 +208,7 @@ public class Main extends JavaPlugin implements Listener {
 				getLogger().warning("Sounds were disabled as you are using " + version + " and not 1.13.X or higher.");
 				sounds = false;
 			} else {
-				if(debug) {
-					getLogger().info("[Debug] Using supported MC version for sounds: " + version);
-				}
+				debug("Using supported MC version for sounds: " + version);
 				sounds = true;
 			}
 		} else {
@@ -224,9 +220,7 @@ public class Main extends JavaPlugin implements Listener {
 				getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
 				particles = false;
 			} else {
-				if(debug) {
-					getLogger().info("[Debug] Using 1.12+, Particles have been enabled.");
-				}
+				debug("Using 1.12+, Particles have been enabled.");
 				particles = true;
 			}
 		} else {
@@ -260,9 +254,7 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private void addMetrics() {
 		if (!getConfig().getBoolean("Other.Metrics")) {
-			if(debug) {
-				getLogger().info("[Debug] Metrics was disabled. Guess we won't support the developer today!");
-			}
+			debug("Metrics was disabled. Guess we won't support the developer today!");
 			return;
 		}
 		
@@ -548,11 +540,11 @@ public class Main extends JavaPlugin implements Listener {
 		getConfig().options().header(
 				"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nHaving trouble? Join our support discord: https://discord.gg/6ugXPfX");
 		if(debug) {	
-		getLogger().info("[Debug] Setting 'supported' header in the config. Using 1.13+");
+		debug("Setting 'supported' header in the config. Using 1.13+");
 		}
 		} else {
 			if(debug) {
-				getLogger().info("[Debug] Setting 'unsupported' header in the config. Using below 1.13.");
+				debug("Setting 'unsupported' header in the config. Using below 1.13.");
 			}
 			getConfig().options().header(
 					"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nDO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.");	
@@ -566,10 +558,8 @@ public class Main extends JavaPlugin implements Listener {
 		
 		Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
-		if (debug) {
-			getLogger().info("[Debug] Disabled Sending Worlds: " + disabledsendingworlds.toString());
-			getLogger().info("[Debug] Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
-		}
+		debug("Disabled Sending Worlds: " + disabledsendingworlds.toString());
+		debug("Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
 
 		if(isPreRelease) {
 				getLogger().info("Using a PRE-RELEASE, skipped update checking & metrics.");
@@ -605,9 +595,7 @@ public class Main extends JavaPlugin implements Listener {
 		if ((Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
 		getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 		} else {
-			if(debug) {
-				getLogger().info("[Debug] Not showing support discord link. They are using " + Bukkit.getVersion().toString() + " :(");
-			}
+			debug("Not showing support discord link. They are using " + Bukkit.getVersion().toString() + " :(");
 		}
 		
 		if (this.getServer().getPluginManager().isPluginEnabled("LiteBans")
@@ -1015,18 +1003,13 @@ public class Main extends JavaPlugin implements Listener {
 			
 			int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
 			if(onlinecount ==  0) {
-				if(debug) {
-				getLogger().info("[Debug] Purging old data files since nobody is currently online...");
-				}
-			purgeOldFiles();
+				debug("Purging old data files since nobody is currently online...");
+				purgeOldFiles();
 			}
-			
-			
-			if(debug) {
-				getLogger().info("[Debug] Sending Feelings is disabled in: " + disabledsendingworlds.toString());
-				getLogger().info("[Debug] Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
-			}
-			
+				
+			debug("Sending Feelings is disabled in: " + disabledsendingworlds.toString());
+			debug("Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
+				
 			try {
 				long reloadtime = System.currentTimeMillis()-starttime;
 				if(reloadtime >= 1000) {
@@ -1576,10 +1559,12 @@ public class Main extends JavaPlugin implements Listener {
 				|| cmd.getName().equalsIgnoreCase("stalk")) {
 
 			if(sender instanceof Player && useperms) {
-			if(!sender.hasPermission("chatfeelings." + cmd.getName()) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
+			if(!sender.hasPermission("chatfeelings." + cmd.getName().toLowerCase()) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
 				noPermission(sender);
 				return true;
 			}}
+			
+			debug("Use Permissions is set to " + useperms);
 			
  			if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !sender.isOp() && !sender.hasPermission("chatfeelings.bypasscooldowns")) {
 				if (sender instanceof Player) {
@@ -1685,16 +1670,14 @@ public class Main extends JavaPlugin implements Listener {
 				int muteInt = isMuted(p.getUniqueId(), null);
 				
 				if(muteInt != 0) {
-					if(debug) {
 						if(muteInt == 3) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by AdvancedBan.");
+						debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by AdvancedBan.");
 					}
 						if(muteInt == 2) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by LiteBans.");
+						debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by LiteBans.");
 					}
 						if(muteInt == 1) {
-						getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by Essentials.");
-					}
+						debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by Essentials.");
 					}
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
@@ -1704,9 +1687,7 @@ public class Main extends JavaPlugin implements Listener {
 
 				if (f.exists()) {
 					if(setcache.getBoolean("Muted")) {
-						if(debug) {
-							getLogger().info("[Debug] " + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
-						}
+						debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
 						return true;
@@ -1724,10 +1705,9 @@ public class Main extends JavaPlugin implements Listener {
 					if (isTargetIgnoringSender(target, p)) {
 						bass(sender);
 						Msgs.sendPrefix(sender,
-								msg.getString("Target-Is-Ignoring").replace("%player%", target.getName()));
-							if(debug) {
-								getLogger().info("[Debug] Not sending feeling to " + target.getName() + " because they are ignoring " + p.getName());
-							}
+						msg.getString("Target-Is-Ignoring").replace("%player%", target.getName()));
+						
+						debug("Not sending feeling to " + target.getName() + " because they are ignoring " + p.getName());
 						return true;
 					}
 				}
@@ -1739,9 +1719,7 @@ public class Main extends JavaPlugin implements Listener {
 				if (f.exists()) {
 					if (!setcache.getBoolean("Allow-Feelings")) {
 						Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-						if(debug) {
-							getLogger().info("[Debug] Blocking CONSOLE from sending feeling because " + target.getName() + " is blocking ALL.");
-						}
+						debug("Blocking CONSOLE from sending feeling because " + target.getName() + " is blocking ALL.");
 						return true;
 					} // Sender is Console however the player is still blocking ALL feelings.
 			}}
@@ -1776,9 +1754,7 @@ public class Main extends JavaPlugin implements Listener {
 					FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 					
 					if(!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
-						if(debug) {
-							getLogger().info("[Debug] " + online.getName() + " is blocking all feelings. Skipping Global Msg!");
-						}
+						debug("" + online.getName() + " is blocking all feelings. Skipping Global Msg!");
 					} else { // else NOT ignoring ALL
 						if(sender instanceof Player) {
 							Player p = (Player)sender;
@@ -1786,10 +1762,7 @@ public class Main extends JavaPlugin implements Listener {
 							// Player is Ignoring from sender but is not target. (GlobaL)
 							
 							// This works but is unused. Need to remove later.
-							
-							if(debug) {
-								getLogger().info("[Debug] " + online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
-							}
+							debug("" + online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
 						}}
 				// End of Global ignoring Checks -------------------
 					
@@ -1922,7 +1895,6 @@ public class Main extends JavaPlugin implements Listener {
 							Sound.valueOf(sound2),
 							(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
 							(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
-					}
 					
 					if (sender instanceof Player) {
 						Player p = (Player) sender;
@@ -1931,6 +1903,7 @@ public class Main extends JavaPlugin implements Listener {
 								(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
 								(float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 					}
+				}
 
 			} catch (Exception sounderr) { // err test for sounds
 				getLogger().info("One or more of your sounds for /" + cmdconfig + " is incorrect. See below:");
@@ -1973,9 +1946,7 @@ public class Main extends JavaPlugin implements Listener {
 			updateLastOn(p);
 			Cooldowns.justJoined(name);
 		} else {
-			if(debug) {
-				getLogger().info("[Debug] Skipped updating " + name + "'s file, they joined less than 60s ago.");
-			}
+			debug("Skipped updating " + name + "'s file, they joined less than 60s ago.");
 		}
 		
 		removeAll(p);

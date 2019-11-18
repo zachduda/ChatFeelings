@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zach_attack.chatfeelings.Main
 website: https://www.spigotmc.org/resources/chatfeelings.12987/
 author: zach_attack
-version: 4.5.4
+version: 4.5.5
 api-version: 1.13
 soft-depend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan]
 description: Allow your players to show their love, or hatred, with unique emotes!
@@ -53,81 +53,3 @@ commands:
     description: Pat a players head for being good.
   stalk:
     description: Stalk a player carefully... carefully.
-permissions:
-   chatfeelings.*:
-     description: Allows all chatfeelings commands & admin commands.
-     children:
-       chatfeelings.help: true
-       chatfeelings.admin: true
-       chatfeelings.ignore: true
-       chatfeelings.stats: true
-       chatfeelings.bypasscooldowns: true
-       chatfeelings.hug: true
-       chatfeelings.slap: true
-       chatfeelings.poke: true
-       chatfeelings.highfive: true
-       chatfeelings.facepalm: true
-       chatfeelings.yell: true
-       chatfeelings.highfive: true
-       chatfeelings.bite: true
-       chatfeelings.snuggle: true
-       chatfeelings.shake: true
-       chatfeelings.stab: true
-       chatfeelings.kiss: true
-       chatfeelings.punch: true
-       chatfeelings.murder: true
-       chatfeelings.boi: true
-       chatfeelings.dab: true
-       chatfeelings.cry: true
-       chatfeelings.lick: true
-       chatfeelings.highfive: true
-       chatfeelings.stalk: true
-       chatfeelings.pat: true
-       chatfeelings.scorn: true
-   chatfeelings.all:
-     description: Allows all feeling commands.
-     default: true
-     children:
-       chatfeelings.hug: true
-       chatfeelings.slap: true
-       chatfeelings.poke: true
-       chatfeelings.highfive: true
-       chatfeelings.facepalm: true
-       chatfeelings.yell: true
-       chatfeelings.highfive: true
-       chatfeelings.bite: true
-       chatfeelings.snuggle: true
-       chatfeelings.shake: true
-       chatfeelings.stab: true
-       chatfeelings.kiss: true
-       chatfeelings.punch: true
-       chatfeelings.murder: true
-       chatfeelings.boi: true
-       chatfeelings.dab: true
-       chatfeelings.cry: true
-       chatfeelings.lick: true
-       chatfeelings.highfive: true
-       chatfeelings.stalk: true
-       chatfeelings.pat: true
-       chatfeelings.scorn: true
-   chatfeelings.ignore:
-     description: Players with this permission will ignore feelings etc.
-     default: true
-   chatfeelings.mute:
-     description: Allows a player to mute other players.
-     default: op
-   chatfeelings.help:
-     description: Allows players to see available feelings.
-     default: true
-   chatfeelings.admin:
-     description: Allows players to see available feelings.
-     default: op
-   chatfeelings.stats:
-     description: Allows players to see their statistics.
-     default: true
-   chatfeelings.stats.others:
-     description: Allows players to see others statistics.
-     default: op
-   chatfeelings.bypasscooldowns:
-     description: Players with this node can bypass cooldowns on CF commands.
-     default: false
