@@ -50,14 +50,6 @@ public class Updater {
                     	return;
                     }
                     
-                    if(outdatedversion.equalsIgnoreCase("v4.5.3")) {
-                    	return;
-                    }
-                    
-                    if(outdatedversion.equalsIgnoreCase("v4.5.4")) {
-                    	return;
-                    }
-                    
                     outdated = true;
                     Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l! &rYou're running &7v" + localPluginVersion + "&r, while the latest is &a" + outdatedversion));
                     cancel(); //Cancel the runnable as an update has been found.
