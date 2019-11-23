@@ -300,7 +300,14 @@ public class FileSetup {
 		    		forceEmotes("Feelings.Spook", null);
 		    	}
 		    	
-	    		setEmotesVersion(3);
+		    	if(emotes.getInt("Version") <= 3) {
+		    		if(emotes.getString("Feelings.Bite.Msgs.Sender").contains("info")) {
+		    			forceEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin");
+		    			plugin.getLogger().info("Fixing a typo in the the '/bite' command for sender...");
+		    		}
+		    	}
+		    	
+	    		setEmotesVersion(4);
 			}
 		    
     setEmotesBoolean("Feelings.Hug.Enable", true);	  
@@ -316,7 +323,7 @@ public class FileSetup {
 	setEmotesDouble("Feelings.Hug.Sounds.Sound2.Pitch", 0.0);
 
 	setEmotesBoolean("Feelings.Bite.Enable", true);
-	setEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth info &c&l%player%&r&7's skin.");
+	setEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin.");
 	setEmotes("Feelings.Bite.Msgs.Target", "&c&l%player% &r&7sinks their teeth into your skin.");
 	setEmotes("Feelings.Bite.Msgs.Global", "&c&l%sender% &r&7sank their teeth into &4&l%target%&r&7's skin");
 //	setEmotes("Feelings.Bite.Msgs.Everyone", "&c&l%player% &r&7sinks their teeth into everyone's skin.");
@@ -531,6 +538,6 @@ public class FileSetup {
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
 
-	setEmotesVersion(3);
+	setEmotesVersion(4);
 	}
 }
