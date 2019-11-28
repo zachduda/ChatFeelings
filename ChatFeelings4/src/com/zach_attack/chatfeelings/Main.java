@@ -536,7 +536,7 @@ public class Main extends JavaPlugin implements Listener {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 		boolean debug = getConfig().getBoolean("Options.Debug");
-		if (!getConfig().getBoolean("Other.Bypass-Version-Block") && (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
+		if (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14")) {
 		getConfig().options().header(
 				"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nHaving trouble? Join our support discord: https://discord.gg/6ugXPfX");
 		if(debug) {	
