@@ -204,7 +204,7 @@ public class Main extends JavaPlugin implements Listener {
 		String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
 		
 		if(getConfig().getBoolean("General.Sounds")) {
-			if(!version.contains("1.13") && !version.contains("1.14")) {
+			if(!version.contains("1.13") && !version.contains("1.14") && !version.contains("1.15")) {
 				getLogger().warning("Sounds were disabled as you are using " + version + " and not 1.13.X or higher.");
 				sounds = false;
 			} else {
@@ -216,7 +216,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		if(getConfig().getBoolean("General.Particles")) {
-			if(!version.contains("1.14") && !version.contains("1.13") && !version.contains("1.12")) {
+			if(!version.contains("1.15") && !version.contains("1.14") && !version.contains("1.13") && !version.contains("1.12")) {
 				getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
 				particles = false;
 			} else {
@@ -514,9 +514,9 @@ public class Main extends JavaPlugin implements Listener {
 		
 		String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
 		
-		if (!version.contains("1.14") && !version.contains("1.13")) {
+		if (!version.contains("1.15") && !version.contains("1.14") && !version.contains("1.13")) {
 				getLogger().info("---------------------------------------------------");
-				getLogger().info("This version of ChatFeelings is only compatible with: 1.14 & 1.13");
+				getLogger().info("This version of ChatFeelings is only compatible with: 1.15, 1.14, & 1.13");
 				getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
 				getLogger().info(" ");
 				getLogger().info("If you continue, you understand that you will get no support, and");
@@ -536,7 +536,7 @@ public class Main extends JavaPlugin implements Listener {
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 		boolean debug = getConfig().getBoolean("Options.Debug");
-		if (Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14")) {
+		if (version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) {
 		getConfig().options().header(
 				"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nHaving trouble? Join our support discord: https://discord.gg/6ugXPfX");
 		if(debug) {	
@@ -592,7 +592,7 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		
 		configChecks();
-		if ((Bukkit.getVersion().contains("1.13") ||  Bukkit.getVersion().contains("1.14"))) {
+		if (version.contains("1.13") ||  version.contains("1.14") || version.contains("1.15")) {
 		getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
 		} else {
 			debug("Not showing support discord link. They are using " + Bukkit.getVersion().toString() + " :(");
