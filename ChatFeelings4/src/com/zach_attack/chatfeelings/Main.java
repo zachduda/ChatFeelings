@@ -1954,6 +1954,7 @@ public class Main extends JavaPlugin implements Listener {
 
 	@EventHandler(priority=EventPriority.MONITOR)
 	public void onJoin(PlayerJoinEvent e) {
+		Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 		Player p = e.getPlayer();
 		String name = p.getName();
 		
@@ -1974,5 +1975,5 @@ public class Main extends JavaPlugin implements Listener {
 			Msgs.send(p, "&7This server is running &fChatFeelings &6v" + getDescription().getVersion()
 					+ " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
 		}
-	}
+	});}
 }
