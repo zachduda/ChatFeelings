@@ -63,10 +63,8 @@ public class Main extends JavaPlugin implements Listener {
 	
 	private long lastreload = 0;
 
-	private ArrayList<String> disabledsendingworlds = (ArrayList<String>) getConfig()
-			.getStringList("General.Disable-Sending-Worlds");
-	private ArrayList<String> disabledreceivingworlds = (ArrayList<String>) getConfig()
-			.getStringList("General.Disable-Receiving-Worlds");
+	private List<String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
+	private List<String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
 	private void removeAll(Player p) {
 		Cooldowns.removeAll(p);
