@@ -37,12 +37,6 @@ import com.zach_attack.chatfeelings.api.FeelingRecieveEvent;
 import com.zach_attack.chatfeelings.api.FeelingSendEvent;
 
 public class Main extends JavaPlugin implements Listener {
-
-	// FOR GITHUB PRE-RELEASES -----------------
-	
-	boolean isPreRelease = false;
-	
-	// ----------------------------------
 	
 	public ChatFeelingsAPI api;
 	
@@ -66,6 +60,13 @@ public class Main extends JavaPlugin implements Listener {
 	private List<String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
 	private List<String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
+	protected File folder;
+	protected File msgsfile;
+	protected FileConfiguration msg;
+
+	protected File emotesfile;
+	protected FileConfiguration emotes;
+	
 	private void removeAll(Player p) {
 		Cooldowns.removeAll(p);
 	}
@@ -116,9 +117,7 @@ public class Main extends JavaPlugin implements Listener {
 				
 				if(!setcache.contains("Last-On") || (!setcache.contains("Username")) || (!setcache.contains("UUID"))) {
 					f.delete();
-					if(debug) {
-					getLogger().warning("[Debug] Deleted file: " + f.getName() + "... It was invalid!");
-					}
+					debug("Deleted file: " + f.getName() + "... It was invalid!");
 				} else {
 				
 				long daysAgo = Math
@@ -411,9 +410,7 @@ public class Main extends JavaPlugin implements Listener {
 			FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
 			
 			if(!fstats.exists()) {
-				if(debug) {
-				getLogger().info("Global stats file didn't exist, creating one now!");
-				}
+				debug("Global stats file didn't exist, creating one now!");
 				try {
 					setstats.save(fstats);
 				} catch (Exception err) {}
@@ -533,17 +530,13 @@ public class Main extends JavaPlugin implements Listener {
 		
 		getConfig().options().copyDefaults(true);
 		saveConfig();
-		boolean debug = getConfig().getBoolean("Options.Debug");
+
 		if (version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) {
 		getConfig().options().header(
 				"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nHaving trouble? Join our support discord: https://discord.gg/6ugXPfX");
-		if(debug) {	
-		debug("Setting 'supported' header in the config. Using 1.13+");
-		}
+			debug("Setting 'supported' header in the config. Using 1.13+");
 		} else {
-			if(debug) {
-				debug("Setting 'unsupported' header in the config. Using below 1.13.");
-			}
+			debug("Setting 'unsupported' header in the config. Using below 1.13.");
 			getConfig().options().header(
 					"Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nDO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.");	
 		}
@@ -558,12 +551,8 @@ public class Main extends JavaPlugin implements Listener {
 
 		debug("Disabled Sending Worlds: " + disabledsendingworlds.toString());
 		debug("Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
-
-		if(isPreRelease) {
-				getLogger().info("Using a PRE-RELEASE, skipped update checking & metrics.");
-		} else {
-			
-			addMetrics();
+		
+		addMetrics();
 			
 		if (getConfig().getBoolean("Other.Updates.Check")) {
 				try {
@@ -573,7 +562,7 @@ public class Main extends JavaPlugin implements Listener {
 				}
 			} else {
 			getLogger().info("[!] Update checking has been disabled in the config.yml");
-		}}
+		}
 
 		FileSetup.enableFiles();
 
@@ -584,7 +573,7 @@ public class Main extends JavaPlugin implements Listener {
 				updateLastOn(online); // Generates files for players who are on during restart that didn't join
 										// normally.
 			}
-			getLogger().info("Reloaded with " + onlinecount + " players online... Skipping purge.");
+			debug("Reloaded with " + onlinecount + " players online... Skipping purge.");
 		} else { 
 			purgeOldFiles();
 		}
@@ -616,10 +605,10 @@ public class Main extends JavaPlugin implements Listener {
 		
 		updateConfig();
 		
-		if(debug) {
-			getLogger().info("Finished! ChatFeelings was loaded in " + Long.toString(System.currentTimeMillis()-start) + "ms");
-		}
+		debug("Finished! ChatFeelings was loaded in " + Long.toString(System.currentTimeMillis()-start) + "ms");
+		
 		start = 0;
+		lastreload = System.currentTimeMillis();
 		
 	} // [!] End of OnEnable Event
 
@@ -839,11 +828,7 @@ public class Main extends JavaPlugin implements Listener {
 	private void getStats(CommandSender p, String name, boolean isown) {
 		String your = "";
 		
-		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
-		File msgsfile = new File(folder, File.separator + "messages.yml");
-		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
-		
-		File cache = new File(this.getDataFolder(), File.separator + "Data");
+		File cache = new File(folder, File.separator + "Data");
 		File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(name) + ".yml");
 		FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 		
@@ -878,21 +863,11 @@ public class Main extends JavaPlugin implements Listener {
 	}
 
 	private void noPermission(CommandSender sender) {
-		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
-		File msgsfile = new File(folder, File.separator + "messages.yml");
-		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
 		Msgs.sendPrefix(sender, msg.getString("No-Permission"));
 		bass(sender);
 	}
 
 	public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
-		File folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
-		File msgsfile = new File(folder, File.separator + "messages.yml");
-		FileConfiguration msg = YamlConfiguration.loadConfiguration(msgsfile);
-
-		File emotesfile = new File(folder, File.separator + "emotes.yml");
-		FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
-
 		if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length == 0) {
 			Msgs.send(sender, "");
 			Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
@@ -959,7 +934,7 @@ public class Main extends JavaPlugin implements Listener {
 				return true;
 			}
 			
-			long secsLeft = ((lastreload / 1000) + 30) - (System.currentTimeMillis() / 1000);
+			long secsLeft = ((lastreload / 1000) + 10) - (System.currentTimeMillis() / 1000);
 			if(secsLeft > 0) {
 				Msgs.sendPrefix(sender, "&7Please wait &f&l" + secsLeft + "s &7until reloading again.");
 				bass(sender);
@@ -1004,9 +979,12 @@ public class Main extends JavaPlugin implements Listener {
 				debug("Purging old data files since nobody is currently online...");
 				purgeOldFiles();
 			}
-				
-			debug("Sending Feelings is disabled in: " + disabledsendingworlds.toString());
-			debug("Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
+			if(!disabledsendingworlds.isEmpty()) {
+				debug("Sending Feelings is disabled in: " + disabledsendingworlds.toString());
+			}
+			if(!disabledreceivingworlds.isEmpty()) {
+				debug("Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
+			}
 				
 			try {
 				long reloadtime = System.currentTimeMillis()-starttime;
@@ -1504,21 +1482,22 @@ public class Main extends JavaPlugin implements Listener {
 		}
 
 		if (cmd.getName().equalsIgnoreCase("feelings")) {
+			final String path = "Command_Descriptions.";
 			if ((args.length == 0)
 					|| (args.length >= 1 && (args[0].equalsIgnoreCase("1") || args[0].equalsIgnoreCase("0")))) {
 				Msgs.send(sender, "");
 				Msgs.send(sender, msg.getString("Feelings-Help") + "                        "
 						+ msg.getString("Feelings-Help-Page").replace("%page%", "1").replace("%pagemax%", "2"));
-				Msgs.send(sender, "&8&l> &f&l/hug (player) &7Give someone a nice warm hug!");
-				Msgs.send(sender, "&8&l> &f&l/slap (player) &7Slap some sense back into someone.");
-				Msgs.send(sender, "&8&l> &f&l/poke (player) &7Poke someone to get their attention.");
-				Msgs.send(sender, "&8&l> &f&l/highfive (player) &7Show your suopport, and give a highfive!");
-				Msgs.send(sender, "&8&l> &f&l/facepalm (player) &7Need to show some disapproval?");
-				Msgs.send(sender, "&8&l> &f&l/yell (player) &7Yell at someone as loud as possible!");
-				Msgs.send(sender, "&8&l> &f&l/bite (player) &7Bite a player right on the arm.");
-				Msgs.send(sender, "&8&l> &f&l/snuggle (player) &7Snuggle up with the power of warm hugs!");
-				Msgs.send(sender, "&8&l> &f&l/shake (player) &7Shake a player to their feet.");
-				Msgs.send(sender, "&8&l> &f&l/stab (player) &7Stab someone with a knife. Ouch!");
+				Msgs.send(sender, "&8&l> &f&l/hug (player) &7 " + msg.getString(path + "Hug"));
+				Msgs.send(sender, "&8&l> &f&l/slap (player) &7 " + msg.getString(path + "Slap"));
+				Msgs.send(sender, "&8&l> &f&l/poke (player) &7 " + msg.getString(path + "Poke"));
+				Msgs.send(sender, "&8&l> &f&l/highfive (player) &7 " + msg.getString(path + "Highfive"));
+				Msgs.send(sender, "&8&l> &f&l/facepalm (player) &7 " + msg.getString(path + "Facepalm"));
+				Msgs.send(sender, "&8&l> &f&l/yell (player) &7 " + msg.getString(path + "Yell"));
+				Msgs.send(sender, "&8&l> &f&l/bite (player) &7 " + msg.getString(path + "Bite"));
+				Msgs.send(sender, "&8&l> &f&l/snuggle (player) &7 " + msg.getString(path + "Snuggle"));
+				Msgs.send(sender, "&8&l> &f&l/shake (player) &7 " + msg.getString(path + "Shake"));
+				Msgs.send(sender, "&8&l> &f&l/stab (player) &7 " + msg.getString(path + "Stab"));
 				Msgs.send(sender, "&7To go to the 2nd page do &a/feelings 2");
 				pop(sender);
 				Msgs.send(sender, "");
@@ -1526,15 +1505,15 @@ public class Main extends JavaPlugin implements Listener {
 				Msgs.send(sender, "");
 				Msgs.send(sender, msg.getString("Feelings-Help") + "                        "
 						+ msg.getString("Feelings-Help-Page").replace("%page%", "2").replace("%pagemax%", "2"));
-				Msgs.send(sender, "&8&l> &f&l/kiss (player) &7Make sweet sweet love. uwu");
-				Msgs.send(sender, "&8&l> &f&l/punch (player) &7Punch the lights out of someone!");
-				Msgs.send(sender, "&8&l> &f&l/murder (player) &7Finna kill someone here.");
-				Msgs.send(sender, "&8&l> &f&l/boi (player) &7Living in 2016? Boi at a player.");
-				Msgs.send(sender, "&8&l> &f&l/cry (player) &7Real sad hours? Cry at someone.");
-				Msgs.send(sender, "&8&l> &f&l/dab (player) &7Freshly dab on someone.");
-				Msgs.send(sender, "&8&l> &f&l/lick (player) &7Lick someone like an ice-cream sundae!");
-				Msgs.send(sender, "&8&l> &f&l/pat (player) &7Pat a players head for being good.");
-				Msgs.send(sender, "&8&l> &f&l/stalk (player) &7Stalk a player carefully... carefully.");
+				Msgs.send(sender, "&8&l> &f&l/kiss (player) &7 " + msg.getString(path + "Kiss"));
+				Msgs.send(sender, "&8&l> &f&l/punch (player) &7 " + msg.getString(path + "Punch"));
+				Msgs.send(sender, "&8&l> &f&l/murder (player) &7 " + msg.getString(path + "Murder"));
+				Msgs.send(sender, "&8&l> &f&l/boi (player) &7 " + msg.getString(path + "Boi"));
+				Msgs.send(sender, "&8&l> &f&l/cry (player) &7 " + msg.getString(path + "Cry"));
+				Msgs.send(sender, "&8&l> &f&l/dab (player) &7 " + msg.getString(path + "Dab"));
+				Msgs.send(sender, "&8&l> &f&l/lick (player) &7 " + msg.getString(path + "Lick"));
+				Msgs.send(sender, "&8&l> &f&l/pat (player) &7 " + msg.getString(path + "Pat"));
+				Msgs.send(sender, "&8&l> &f&l/stalk (player) &7 " + msg.getString(path + "Stalk"));
 				pop(sender);
 				Msgs.send(sender, "");
 			} else {
@@ -1647,9 +1626,7 @@ public class Main extends JavaPlugin implements Listener {
 				Double distance = p.getLocation().distance(target.getLocation());
 				Double radius = getConfig().getDouble("General.Radius.Radius-In-Blocks");	
 			if(distance > radius) {
-				if(debug) {
-					getLogger().info(sender.getName() + " was outside the radius of " + radius + ". (They're " + distance + ")");
-				}
+				debug(sender.getName() + " was outside the radius of " + radius + ". (They're " + distance + ")");
 				Msgs.sendPrefix(sender, msg.getString("Outside-Of-Radius").replace("%player%", target.getName()).replace("%command%", cmd.getName().toString()));
 				bass(sender);
 				return true;
@@ -1694,9 +1671,7 @@ public class Main extends JavaPlugin implements Listener {
 					if (!setcache.getBoolean("Allow-Feelings")) {
 						bass(sender);
 						Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-						if(debug) {
-							getLogger().info(sender.getName() + " couldn't send feeling to " + target.getName() + " because they are ignoring ALL.");
-						}
+						debug(sender.getName() + " couldn't send feeling to " + target.getName() + " because they are ignoring ALL.");
 						return true;
 					}
 
@@ -1829,12 +1804,11 @@ public class Main extends JavaPlugin implements Listener {
 					try {
 						if(!target.isSleeping()) {
 						  target.damage(0.01D);
-						  if(debug) {
-							  getLogger().info("Skipped damage to " + target.getName() + ", as they were sleeping.");
-						  }
+						} else {
+							debug("Skipped damage to " + target.getName() + ", as they were sleeping.");
 						}
 					} catch (Exception err) {
-						getLogger().warning("Unable to damage player: " + target.getName());
+						debug("Unable to damage player: " + target.getName());
 					}
 				}
 			}

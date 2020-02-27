@@ -1,5 +1,6 @@
-Copyright 2019 :: zachrocks22
-				     ChatFeeling's License Agreement:
+Copyright 2020 ::  A plugin by zach_attack
+
+                     ChatFeeling's License Agreement:
 
     This program is free software: you can modify it but may NOT resell/redistribute for
     it is under the terms of the GNU General Public License as published by
@@ -14,15 +15,15 @@ Copyright 2019 :: zachrocks22
     Basically:
        - You may use code from this project in your own public (open source) if you provide credit.
        - If you redistribute with modifications, it must be open source.
-       - You may NOT redistribute without permission.
+       - You may NOT claim this work as your own.
+       - You may NOT redistribute without credit.
        - You may NOT sell this resource.
        - You may NOT use revenue links when sharing this resource.
-       - You MAY edit for personal or private use.
-       - You MAY edit for free public use (with credit).
-       - You agree this software has NO WARRANTY 
+       - You MAY edit for public, personal or private use.
+       - You agree this software has NO WARRANTY and comes AS-IS.
        - You MAY provide infinite hugs to Zach. <3
  
- All source code is readily available on our GitHub, if you have any questions or conerns! 
+ All source code is readily available on our GitHub, if you have any questions or concerns! 
  
    ________          __     ______          ___                 
   / ____/ /_  ____ _/ /_   / ____/__  ___  / (_)___  ____ ______
@@ -30,5 +31,3 @@ Copyright 2019 :: zachrocks22
 / /___/ / / / /_/ / /_   / __/ /  __/  __/ / / / / / /_/ (__  ) 
 \____/_/ /_/\__,_/\__/  /_/    \___/\___/_/_/_/ /_/\__, /____/  
                                                   /____/        GPLv3 License.
-                                                  
-                                                  

@@ -20,7 +20,7 @@ General:
   Particles: true
   Sounds: true
   Extra-Help: true
-  Use-Feeling-Permissions: true
+  Use-Feeling-Permissions: false
   Disabled-Sending-Worlds: []
   Disabled-Receiving-Worlds:
   - world_the_end

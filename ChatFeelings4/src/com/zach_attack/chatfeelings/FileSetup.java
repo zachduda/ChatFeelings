@@ -222,16 +222,16 @@ public class FileSetup {
 	    	msgs.options().header("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!");
 		    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new messages.yml file."); }
 	    	
-	    } else if(msgs.getInt("Version") != 8) {
+	    } else if(msgs.getInt("Version") != 9) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
 			
 	    	if(msgs.getInt("Version") < 6 ) {
-			forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
+	    		forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
 	    	}
 	    	
 	    	if(msgs.getInt("Version") < 7) {
-	    	forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
-	    	forceMsgs("No-Player-Ignore", null); // removed in v7
+	    		forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
+	    		forceMsgs("No-Player-Ignore", null); // removed in v7
 	    	}
 		}
 		  
@@ -286,7 +286,26 @@ public class FileSetup {
 	    	setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 	    	setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 	    	setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
-	    	setMsgsVersion(8);
+	    	setMsgs("Command_Descriptions.Hug", "Give someone a nice warm hug!");
+	    	setMsgs("Command_Descriptions.Slap", "Slap some sense back into someone.");
+	    	setMsgs("Command_Descriptions.Poke", "Poke someone to get their attention");
+	    	setMsgs("Command_Descriptions.Highfive", "Show your support, and give a highfive!");
+	    	setMsgs("Command_Descriptions.Facepalm", "Need to show some disapproval?");
+	    	setMsgs("Command_Descriptions.Yell", "Yell at someone as loud as possible!");
+	    	setMsgs("Command_Descriptions.Bite", "Bite a player right on the arm.");
+	    	setMsgs("Command_Descriptions.Snuggle", "Snuggle up with the power of warm hugs!");
+	    	setMsgs("Command_Descriptions.Shake", "Shake a player to their feet.");
+	    	setMsgs("Command_Descriptions.Stab", "Stab someone with a knife. Ouch!");
+	    	setMsgs("Command_Descriptions.Kiss", "Give a kiss on the cheek. How sweet!");
+	    	setMsgs("Command_Descriptions.Punch", "Snuggle up with the power of warm hugs!");
+	    	setMsgs("Command_Descriptions.Murder", "Finna kill someone here.");
+	    	setMsgs("Command_Descriptions.Boi", "Living in 2016? Boi at a player.");
+	    	setMsgs("Command_Descriptions.Cry", "Real sad hours? Cry at someone.");
+	    	setMsgs("Command_Descriptions.Dab", "Freshly dab on someone.");
+	    	setMsgs("Command_Descriptions.Lick", "Lick someone like an ice-cream sundae!");
+	    	setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
+	    	setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
+	    	setMsgsVersion(9);
 	  
 	    	
 		    if (!emotesfile.exists() || !emotes.contains("Version")) {
@@ -294,7 +313,7 @@ public class FileSetup {
 		    	emotes.save(emotesfile);
 		    	plugin.getLogger().info("Created new emotes.yml file...");
 			    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new emotes.yml file."); }
-		    } else if(emotes.getInt("Version") != 3) {
+		    } else if(emotes.getInt("Version") != 4) {
 				plugin.getLogger().info("Updating your emotes.yml for the latest update...");  
 		    	if(emotes.getInt("Version") <= 2) {
 		    		forceEmotes("Feelings.Spook", null);
@@ -539,5 +558,15 @@ public class FileSetup {
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
 
 	setEmotesVersion(4);
+	reloadFiles();
+	}
+	
+	static void reloadFiles() {
+		plugin.folder = Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+		plugin.msgsfile = new File(plugin.folder, File.separator + "messages.yml");
+		plugin.msg = YamlConfiguration.loadConfiguration(plugin.msgsfile);
+
+		plugin.emotesfile = new File(plugin.folder, File.separator + "emotes.yml");
+		plugin.emotes = YamlConfiguration.loadConfiguration(plugin.emotesfile);
 	}
 }
