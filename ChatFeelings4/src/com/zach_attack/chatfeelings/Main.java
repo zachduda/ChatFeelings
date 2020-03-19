@@ -1566,16 +1566,6 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			String cmdconfig = (StringUtils.capitalize(cmd.getName().toString()));
-			
-			if (sender instanceof Player) {
-				if (args[0].equalsIgnoreCase(sender.getName().toString())) {
-					if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
-						bass(sender);
-						Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
-						return true;
-					}
-				}
-			}
 
 			if (sender instanceof Player) {
 				Player p = (Player) sender;
@@ -1605,6 +1595,14 @@ public class Main extends JavaPlugin implements Listener {
 			}
 
 			Player target = Bukkit.getServer().getPlayer(args[0]);
+			
+			if (target.getName().equalsIgnoreCase(sender.getName())) {
+				if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
+					bass(sender);
+					Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
+					return true;
+				}
+			}
 			
 			if (target == null || isVanished(target)) {
 				bass(sender);
