@@ -1596,18 +1596,18 @@ public class Main extends JavaPlugin implements Listener {
 
 			Player target = Bukkit.getServer().getPlayer(args[0]);
 			
+			if (target == null || isVanished(target)) {
+				bass(sender);
+				Msgs.sendPrefix(sender, msg.getString("Player-Offline").replace("%player%", args[0].toString()));
+				return true;
+			}
+			
 			if (target.getName().equalsIgnoreCase(sender.getName())) {
 				if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
 					bass(sender);
 					Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
 					return true;
 				}
-			}
-			
-			if (target == null || isVanished(target)) {
-				bass(sender);
-				Msgs.sendPrefix(sender, msg.getString("Player-Offline").replace("%player%", args[0].toString()));
-				return true;
 			}
 
 			if (disabledreceivingworlds.contains(target.getWorld().getName())) {
