@@ -13,6 +13,7 @@ public class ChatFeelingsAPI {
 	
 	// Feel free to submit a pull request for an API feature you wish to have implemented!
 	
+	// MUST BE RUN ASYNC
 	public static boolean isMuted(String name) {
 		String player = plugin.hasPlayedNameGetUUID(name);
 		
@@ -20,7 +21,7 @@ public class ChatFeelingsAPI {
 			return false;
 		} else {
 		
-		if(plugin.APIisMutedUUIDBoolean(plugin.hasPlayedNameGetUUID(player))) {
+		if(plugin.APIisMutedUUIDBoolean(player)) {
 			return true;
 		}}
 		
@@ -35,6 +36,7 @@ public class ChatFeelingsAPI {
 		}
 	}
 	
+	// MUST BE RUN ASYNC
 	public static boolean isBanned(String name) {
 		String player = plugin.hasPlayedNameGetUUID(name);
 		
@@ -55,5 +57,24 @@ public class ChatFeelingsAPI {
 	
 	public static int getTotalFeelingsSent(String name) {
 		return plugin.APIgetTotalSent(name);
+	}
+	
+	public static boolean usingAdvancedBans() {
+		return plugin.APIhasAB();
+	}
+	
+	public static boolean usingLiteBans() {
+		return plugin.APIhasLB();
+	}
+	
+	public static boolean usingEssentials() {
+		return plugin.APIhasEss();
+	}
+	
+	public static boolean hookedToPunishments() {
+		if(plugin.APIhasAB() || plugin.APIhasEss() || plugin.APIhasLB()) {
+			return true;
+		}
+		return false;
 	}
 }
