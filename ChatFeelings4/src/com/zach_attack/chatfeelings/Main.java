@@ -1748,17 +1748,19 @@ public class Main extends JavaPlugin implements Listener {
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
 
                 // API Events ----------------------------
-                FeelingSendEvent fse = new FeelingSendEvent(sender, target, cmdconfig);
-                Bukkit.getPluginManager().callEvent(fse);
-                if (fse.isCancelled()) {
-                    return;
-                }
+                Bukkit.getScheduler().runTask(this, () -> {
+                	FeelingSendEvent fse = new FeelingSendEvent(sender, target, cmdconfig);
+                	Bukkit.getPluginManager().callEvent(fse);
+                	if (fse.isCancelled()) {
+                		return;
+                	}
 
-                FeelingRecieveEvent fre = new FeelingRecieveEvent(target, sender, cmdconfig);
-                Bukkit.getPluginManager().callEvent(fre);
-                if (fre.isCancelled()) {
-                    return;
-                }
+                	FeelingRecieveEvent fre = new FeelingRecieveEvent(target, sender, cmdconfig);
+                	Bukkit.getPluginManager().callEvent(fre);
+                	if (fre.isCancelled()) {
+                		return;
+                	}
+                });
 
                 // End of API events (Except for Global event below ---------------------
 
@@ -1799,13 +1801,14 @@ public class Main extends JavaPlugin implements Listener {
                                 if (sender instanceof Player) {
                                     Player p = (Player) sender;
                                     if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
-
-                                        FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
-                                        Bukkit.getPluginManager().callEvent(fgne);
+                                    	Bukkit.getScheduler().runTask(this, () -> {
+                                    		FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
+                                    		Bukkit.getPluginManager().callEvent(fgne);
                                         if (!fgne.isCancelled()) {
                                             Msgs.send(online.getPlayer(), emotes.getString("Feelings." + cmdconfig + ".Msgs.Global")
                                                 .replace("%sender%", sender.getName()).replace("%target%", target.getName()));
                                         }
+                                      });
 
                                     } // end of check to make sure message is sent to those NOT ignoring the player
                                 } // end of if player confirmation (just a safeguard)
