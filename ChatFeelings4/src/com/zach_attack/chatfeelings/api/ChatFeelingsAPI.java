@@ -140,4 +140,8 @@ public class ChatFeelingsAPI {
 		}
 		return false;
 	}
+	
+	public static boolean isAcceptingFeelings(UUID u) {
+		return plugin.APIisAcceptingFeelings(u);
+	}
 }

@@ -35,6 +35,7 @@ import com.zach_attack.chatfeelings.Msgs;
 import com.zach_attack.chatfeelings.api.FeelingGlobalNotifyEvent;
 import com.zach_attack.chatfeelings.api.FeelingRecieveEvent;
 import com.zach_attack.chatfeelings.api.FeelingSendEvent;
+import com.zach_attack.chatfeelings.api.Placeholders;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -489,24 +490,13 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public String hasPlayedUUIDGetName(UUID uuid) {
-        File folder = new File(this.getDataFolder(), File.separator + "Data");
-
-        for (File AllData: folder.listFiles()) {
-            File f = new File(AllData.getPath());
-
-            if (!f.getName().equalsIgnoreCase("global.yml")) {
-                FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-                String playername = setcache.getString("Username");
-                String fileuuid = setcache.getString("UUID");
-
-                if (uuid == UUID.fromString(fileuuid)) {
-                    return playername;
-                }
-            }
+        File cache = new File(this.getDataFolder(), File.separator + "Data");
+        File f = new File(cache, File.separator + "" + uuid + ".yml");
+        if(!f.exists()) {
+        	return "0";
         }
-        // No Match Found
-        return "0";
+        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+        return setcache.getString("Username", "0");
     }
 
     @Override
@@ -608,6 +598,12 @@ public class Main extends JavaPlugin implements Listener {
             hasess = true;
             getLogger().info("Hooking into Essentials...");
         }
+        
+        if (this.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI") &&
+                this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                getLogger().info("Hooking into PlaceholderAPI...");
+                new Placeholders(this).register();
+            }
 
         updateConfig();
 
@@ -700,6 +696,13 @@ public class Main extends JavaPlugin implements Listener {
         }
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
         return setcache.getInt("Stats.Sent.Total");
+    }
+    
+    public boolean APIisAcceptingFeelings(UUID u) {
+    	File cache = new File(this.getDataFolder(), File.separator + "Data");
+        File f = new File(cache, File.separator + "" + u + ".yml");
+        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+        return setcache.getBoolean("Allow-Feelings");
     }
 
     // END OF API CALLS ------------------------------------
@@ -842,13 +845,13 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-    private void getStats(CommandSender p, String name, boolean isown) {
+    private void getStats(CommandSender p, UUID uuid, boolean isown) {
         String your = "";
 
         File cache = new File(folder, File.separator + "Data");
-        File f = new File(cache, File.separator + "" + hasPlayedNameGetUUID(name) + ".yml");
+        File f = new File(cache, File.separator + "" + uuid + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
+        final String name = setcache.getString("Username");
         if (isown) {
             Msgs.send(p, msg.getString("Stats-Header-Own").replace("%player%", name));
             your = "&7Your ";
@@ -915,7 +918,8 @@ public class Main extends JavaPlugin implements Listener {
                     return true;
                 }
 
-                getStats(sender, sender.getName(), true);
+                final Player p = (Player)sender;
+                getStats(sender, p.getUniqueId(), true);
                 pop(sender);
                 return true;
             }
@@ -939,8 +943,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            String getName = hasPlayedUUIDGetName(getUUID);
-            getStats(sender, getName, false);
+            getStats(sender, getUUID, false);
             pop(sender);
             return true;
         }

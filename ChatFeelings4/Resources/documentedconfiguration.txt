@@ -1,38 +1,40 @@
 General:
   Global-Feelings:
-    Enabled: false        # Should feelings be broadcasted instead of between the target and sender?
-    Broadcast-To-Console: true        # If Global-Feelings are on, should the CONSOLE see the messages too?
-  Prevent-Self-Feelings: true        # Can players use feelings on themselves? (EX: A player named Notch doing: /hug Notch)
-  Violent-Command-Harm: true        # Should violent commands shake the players screen?
-  No-Violent-Cmds-When-Sleeping: true   # Violent commands can kick players out of bed when dmg is enabled. It's recommended to leave this true.
+    Enabled: false    # Should feeling notifications be broadcasted globally?
+    Broadcast-To-Console: true    # If above is true, should CONSOLE also get notified?
+  Prevent-Self-Feelings: true    # Should we prevent players from using feelings on themselves?
+  Violent-Command-Harm: true    # Should violent feelings do a little damage (Takes no real damage, only for effect)
   Cooldowns:
     Feelings:
-      Enabled: false        # Enable feeling cooldowns?
-      Seconds: 10        # How many seconds in between feelings must a player wait?
+      Enabled: true    # Enable a Cooldown between feelings?
+      Seconds: 10      # Amount in seconds the cooldown should last. 
     Ignoring:
-      Enabled: true        # Use cooldowns for Ignoring?
-      Seconds: 5        # How many seconds until someone can ignore another player?
+      Enabled: true    # Enable a Cooldown between /cf ignore (player)
+      Seconds: 5       # Amount in seconds the cooldown should last. 
+    Ignore-List:
+      Enabled: true    # Enable a Cooldown between /cf ignore
+      Seconds: 10      # Amount in seconds the cooldown should last. 
   Radius:
-    Enabled: false      # Should we block feelings unless a player is near their target?
-    Radius-In-Blocks: 35     # How many blocks should a player be minimum to use feelings if the radius is on.
-  Particles: true        # Show the target particles for feelings
-  Sounds: true        # Should we use sounds for emotions? If using below 1.13 this MUST be false unless you are going to change them in the emotes.yml
-  Extra-Help: true        # Show additional command recommendations if a player does a command w/o Permission.
-  Disabled-Sending-Worlds: []      # Which worlds can players not send feelings?
-  Disabled-Receiving-Worlds:        # Which worlds can players not receive /feelings?
-  -  world_the_end
-  Multi-Version-Support: false      # Should we reduce some features to preserve functionality with ViaVersion/ProtocolLib/ViaBackwards etc.?
-  
+    Enabled: false    # Should feelings only be allowed if the player is close enough? 
+    Radius-In-Blocks: 35     # If above is true: Max amount of blocks can a player be from their target. 
+  Particles: true    # Should feelings also show particles? (Requires 1.12+)
+  Sounds: true       # Should feelings and commands use sound effects? (Requires 1.13+)
+  Extra-Help: true   # For invalid commands, should we show detailed help messages?
+  Use-Feeling-Permissions: false       #  If false, we will not check for permissions when using feelings.
+  Disabled-Sending-Worlds: []          #  A list of worlds that players can not be in to send feelings.
+  Disabled-Receiving-Worlds:           #  A list of worlds that players cannot receive feelings in.
+  - world_the_end
+  Multi-Version-Support: false         #  If using ViaVersion / ProtocolSupport, setting this to true may be beneficial.
 Other:
-  Bypass-Version-Block: false        # If using 1.12 or below, setting this to true forces ChatFeelings to run.
   Vanished-Players:
-    Check: true        # Should we tell people that vanished players are offline if players try feelings on them?
-    Use-Legacy: false        # Leave on False unless you are having issues with vanish checks not working.
+    Check: true           #  If true, we'll prevent feelings on players who are vanished. (Supports Essentials & Others)
+    Use-Legacy: false     #  If the above doesn't work, setting this to true may help fix issues.
   Player-Files:
-    Cleanup: true        # Should we erase ChatFeelings data for players who haven't joined in a while?
-    Cleanup-After-Days: 185        # How many days from the time the player last joined until we can erase their ChatFeeling's data?
+    Cleanup: true         #  Should we delete players ChatFeelings data if it's really old? 
+    Cleanup-After-Days: 185      #  How many days until a data file is considered old?
+    Erase-If-Banned: true        #  If a player was banned, should we erase their ChatFeelings data?
   Updates:
-    Check: true        # Recommend to set to true. This checks for updates to ChatFeelings
-  Metrics: true        # Recommended to set to true. This helps to improve ChatFeelings by sending stats about your server.
-  Debug: false        # When true, shows additional console messages & errors.
-Version: 4        # Do not touch. This helps keep your config up to date.
+    Check: true          #  Should we notify you of any updates to ChatFeelings?
+  Metrics: true          #  Can we send anonymous metrics? (bStats.org) (Doesn't effect performance) 
+  Debug: false           #  Should we send extra messages in console and print detailed errors?
+Version: 7               #  DO NOT TOUCH. Changing this number may reset your config.yml
