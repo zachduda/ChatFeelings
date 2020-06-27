@@ -55,9 +55,13 @@ public class Main extends JavaPlugin implements Listener {
     protected static boolean debug = false;
 
     private static boolean sounds = false;
+    private static boolean punishmentError = false;
 
     private long lastreload = 0;
     private long lastmutelist = 0;
+    
+    private final String version = Bukkit.getVersion().toString().replace("-SNAPSHOT", "");
+    private final boolean supported = (version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15") || version.contains("1.16")) ?true :false;
 
     private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
@@ -204,19 +208,13 @@ public class Main extends JavaPlugin implements Listener {
         String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
 
         if (getConfig().getBoolean("General.Sounds")) {
-            if (!version.contains("1.13") && !version.contains("1.14") && !version.contains("1.15")) {
-                getLogger().warning("Sounds were disabled as you are using " + version + " and not 1.13.X or higher.");
-                sounds = false;
-            } else {
-                debug("Using supported MC version for sounds: " + version);
-                sounds = true;
-            }
+            sounds = true;
         } else {
             sounds = false;
         }
 
         if (getConfig().getBoolean("General.Particles")) {
-            if (!version.contains("1.15") && !version.contains("1.14") && !version.contains("1.13") && !version.contains("1.12")) {
+            if (supported || version.contains("1.12")) {
                 getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
                 particles = false;
             } else {
@@ -299,7 +297,11 @@ public class Main extends JavaPlugin implements Listener {
 
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 2.0F, 2.0F);
+            try {
+            	p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 2.0F, 2.0F);
+            } catch (Exception err) {
+            	sounds = false;
+            }
         }
     }
 
@@ -310,7 +312,11 @@ public class Main extends JavaPlugin implements Listener {
 
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
+            try {
+            	p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
+            } catch (Exception err) {
+            	sounds = false;
+            }
         }
     }
 
@@ -321,7 +327,11 @@ public class Main extends JavaPlugin implements Listener {
 
         if (sender instanceof Player) {
             Player p = (Player) sender;
-            p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 2.0F);
+            try {
+            	p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 2.0F);
+            } catch (Exception err) {
+            	sounds = false;
+            }
         }
     }
 
@@ -502,12 +512,10 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         long start = System.currentTimeMillis();
-
-        String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
-
-        if (!version.contains("1.15") && !version.contains("1.14") && !version.contains("1.13")) {
+        
+        if (supported) {
             getLogger().info("---------------------------------------------------");
-            getLogger().info("This version of ChatFeelings is only compatible with: 1.15, 1.14, & 1.13");
+            getLogger().info("This version of ChatFeelings is only compatible with: 1.16-1.13");
             getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
             getLogger().info(" ");
             getLogger().info("If you continue, you understand that you will get no support, and");
@@ -527,7 +535,7 @@ public class Main extends JavaPlugin implements Listener {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
-        if (version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) {
+        if (supported) {
             getConfig().options().header(
                 "Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\nHaving trouble? Join our support discord: https://discord.gg/6ugXPfX");
             debug("Setting 'supported' header in the config. Using 1.13+");
@@ -575,10 +583,10 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         configChecks();
-        if (version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) {
+        if (supported) {
             getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
         } else {
-            debug("Not showing support discord link. They are using " + Bukkit.getVersion().toString() + " :(");
+            debug("Not showing support discord link. They are using " + version + " :(");
         }
 
         if (this.getServer().getPluginManager().isPluginEnabled("LiteBans") &&
@@ -717,8 +725,9 @@ public class Main extends JavaPlugin implements Listener {
             }
             return false;
         } catch (Exception err) {
-            Bukkit.getLogger().warning("[ChatFeelings] Error when trying to check if a player was muted. (ES)");
-            if (debug) {
+            if (debug && !punishmentError) {
+            	punishmentError = true;
+            	debug("Essentials isMuted Error:");
                 err.printStackTrace();
             }
             return false;
@@ -734,8 +743,9 @@ public class Main extends JavaPlugin implements Listener {
             }
             return false;
         } catch (Exception err) {
-            Bukkit.getLogger().warning("[ChatFeelings] Error when trying to check if a player was muted. (LB)");
-            if (debug) {
+            if (debug && !punishmentError) {
+            	punishmentError = true;
+            	debug("LiteBan isMuted Error:");
                 err.printStackTrace();
             }
             return false;
@@ -751,8 +761,9 @@ public class Main extends JavaPlugin implements Listener {
             }
             return false;
         } catch (Exception err) {
-            Bukkit.getLogger().warning("[ChatFeelings] Error when trying to check if a player was muted. (AB)");
-            if (debug) {
+            if (debug && !punishmentError) {
+            	punishmentError = true;
+            	debug("AdvancedBan isMuted Error:");
                 err.printStackTrace();
             }
             return false;
@@ -777,7 +788,11 @@ public class Main extends JavaPlugin implements Listener {
             }
             return false;
         } catch (Exception err) {
-            getLogger().warning("Error when trying to check if a player was banned. (ES)");
+            if (debug && !punishmentError) {
+            	punishmentError = true;
+            	debug("Essentials isBanned Error:");
+                err.printStackTrace();
+            }
             return false;
         }
     }
@@ -791,7 +806,11 @@ public class Main extends JavaPlugin implements Listener {
             }
             return false;
         } catch (Exception err) {
-            getLogger().warning("Error when trying to check if a player was banned. (LB)");
+        	if (debug && !punishmentError) {
+            	punishmentError = true;
+            	debug("LiteBans isBanned Error:");
+                err.printStackTrace();
+            }
             return false;
         }
     }
@@ -805,7 +824,11 @@ public class Main extends JavaPlugin implements Listener {
             }
             return false;
         } catch (Exception err) {
-            getLogger().warning("Error when trying to check if a player was Banned. (AB)");
+        	if (debug && !punishmentError) {
+            	punishmentError = true;
+            	debug("AdvancedBan isBanned Error:");
+                err.printStackTrace();
+            }
             return false;
         }
     }
@@ -1926,10 +1949,10 @@ public class Main extends JavaPlugin implements Listener {
                         }
 
                     } catch (Exception sounderr) { // err test for sounds
-                        getLogger().info("One or more of your sounds for /" + cmdconfig + " is incorrect. See below:");
+                        getLogger().warning("One or more of your sounds for /" + cmdconfig + " are incorrect. See below:");
                         sounderr.printStackTrace();
-                        getLogger().info("DO NOT report this error. This is a configuration related issue.");
-                        getLogger().info("---------------------------[End of Error]---------------------------");
+                        getLogger().info("This happens when the sound values don't match the version of MC. This is not a bug. Sounds will now disable.");
+                        sounds = false;
                     }
                 } // end of config sound check
                 // ---------- End of Sounds
@@ -1997,7 +2020,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
                 Msgs.send(p, "&7This server is running &fChatFeelings &6v" + getDescription().getVersion() +
-                    " &7for " + Bukkit.getBukkitVersion().replace("-SNAPSHOT", ""));
+                    " &7for " + version);
             }
         });
     }
