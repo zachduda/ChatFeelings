@@ -60,7 +60,7 @@ public class Main extends JavaPlugin implements Listener {
     private long lastreload = 0;
     private long lastmutelist = 0;
     
-    private final String version = Bukkit.getVersion().toString().replace("-SNAPSHOT", "");
+    private final String version = Bukkit.getBukkitVersion().toString().replace("-SNAPSHOT", "");
     private final boolean supported = (version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15") || version.contains("1.16")) ?true :false;
 
     private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
@@ -214,7 +214,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (getConfig().getBoolean("General.Particles")) {
-            if (supported || version.contains("1.12")) {
+            if (!supported && !version.contains("1.12")) {
                 getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
                 particles = false;
             } else {
@@ -513,7 +513,7 @@ public class Main extends JavaPlugin implements Listener {
     public void onEnable() {
         long start = System.currentTimeMillis();
         
-        if (supported) {
+        if (!supported) {
             getLogger().info("---------------------------------------------------");
             getLogger().info("This version of ChatFeelings is only compatible with: 1.16-1.13");
             getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
