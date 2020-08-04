@@ -172,12 +172,7 @@ public class Particles {
 
 	private static void murderParticle(final Player p) {
         World world = p.getLocation().getWorld();
-        
-        if(Bukkit.getBukkitVersion().contains("1.12") || Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15"))  {
         world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.RED_CONCRETE);
-        } else {
-        world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.REDSTONE);	
-        }
         
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable()
         {

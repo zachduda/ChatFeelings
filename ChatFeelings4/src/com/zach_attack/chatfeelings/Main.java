@@ -1900,6 +1900,10 @@ public class Main extends JavaPlugin implements Listener {
                     try {
                         Particles.show(target, cmd.getName().toLowerCase());
                     } catch (Exception parterr) {
+                    	if(debug) {
+                    		parterr.printStackTrace();
+                    	}
+                    	particles = false;
                         getLogger().warning("Couldn't display '" + cmd.getName().toUpperCase() + "' particles to " + target.getName() + ". Make sure you use 1.12 or higher.");
                     }
                 }
