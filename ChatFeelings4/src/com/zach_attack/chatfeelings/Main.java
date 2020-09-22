@@ -1,7 +1,9 @@
 package com.zach_attack.chatfeelings;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
@@ -17,8 +19,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
@@ -61,8 +65,9 @@ public class Main extends JavaPlugin implements Listener {
     private long lastmutelist = 0;
     
     private final String version = Bukkit.getBukkitVersion().toString().replace("-SNAPSHOT", "");
-    private final boolean supported = (version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15") || version.contains("1.16")) ?true :false;
-
+    final boolean supported = (version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15") || version.contains("1.16")) ?true :false;
+    // made package from private for spook ^
+    
     private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
@@ -1576,6 +1581,16 @@ public class Main extends JavaPlugin implements Listener {
                 Msgs.send(sender, "&8&l> &f&l/lick (player) &7 " + msg.getString(path + "Lick"));
                 Msgs.send(sender, "&8&l> &f&l/pat (player) &7 " + msg.getString(path + "Pat"));
                 Msgs.send(sender, "&8&l> &f&l/stalk (player) &7 " + msg.getString(path + "Stalk"));
+                
+                Date now = new Date();
+			    SimpleDateFormat format = new SimpleDateFormat("MM");
+
+			    if(!supported || emotes.getBoolean("Feelings.Spook.Enable")) {}else if(format.format(now).equals("10") || format.format(now).equals("09")) {
+			 		Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+			 	} else {
+			 		Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+			 	}
+			 	
                 pop(sender);
                 Msgs.send(sender, "");
             } else {
@@ -1595,7 +1610,7 @@ public class Main extends JavaPlugin implements Listener {
             cmd.getName().equalsIgnoreCase("boi") || cmd.getName().equalsIgnoreCase("cry") ||
             cmd.getName().equalsIgnoreCase("dab") || cmd.getName().equalsIgnoreCase("lick") ||
             cmd.getName().equalsIgnoreCase("scorn") || cmd.getName().equalsIgnoreCase("pat") ||
-            cmd.getName().equalsIgnoreCase("stalk")) {
+            cmd.getName().equalsIgnoreCase("stalk") || cmd.getName().equalsIgnoreCase("spook")) {
 
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 if (sender instanceof Player && useperms) {
@@ -1767,7 +1782,37 @@ public class Main extends JavaPlugin implements Listener {
 
 
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
+                if(cmd.getName().equalsIgnoreCase("spook")) {
+    		 	    Date now = new Date();
+    			    SimpleDateFormat format = new SimpleDateFormat("MM");
 
+    			 	if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
+    			 		Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
+    			 		bass(sender);
+    			 		return;
+    			 	}
+    			 	
+    			 	if(!supported) {
+    			 		Msgs.sendPrefix(sender, "&c&lSorry. &fThe spook emote requires 1.13 or higher.");
+    			 		bass(sender);
+    			 		return;
+    			 	}
+
+    			 	if(Cooldowns.spook.containsKey(target.getName())) {
+    			 		Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
+    			 		bass(sender);
+    			 		return;
+    			 	}
+ 
+    			 	if(target.getInventory().getHelmet() != null) {
+    			 		Msgs.sendPrefix(sender, "&cSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
+    			 		bass(sender);
+    			 		return;
+    			 	}
+
+    			 	Cooldowns.spookHash(target);
+    			}
+                
                 // API Events ----------------------------
                 Bukkit.getScheduler().runTask(this, () -> {
                 	FeelingSendEvent fse = new FeelingSendEvent(sender, target, cmdconfig);
@@ -1938,12 +1983,18 @@ public class Main extends JavaPlugin implements Listener {
                             sound2 != null &&
                             sound2 != "null") {
 
+                        	if(sound2.contains("DISC") && !multiversion) {
+        						// Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
+        						target.playSound(target.getPlayer().getLocation(),
+        								Sound.AMBIENT_CAVE,
+        								2.0F, 0.5F);
+        					} else {
                             target.playSound(target.getPlayer().getLocation(),
                                 Sound.valueOf(sound2),
                                 (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                 (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
-                            if (sender instanceof Player) {
+                            if (sender instanceof Player && !sound2.contains("DISC")) {
                                 Player p = (Player) sender;
                                 p.playSound(p.getLocation(),
                                     Sound.valueOf(sound2),
@@ -1951,7 +2002,7 @@ public class Main extends JavaPlugin implements Listener {
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
                             }
                         }
-
+                        }
                     } catch (Exception sounderr) { // err test for sounds
                         getLogger().warning("One or more of your sounds for /" + cmdconfig + " are incorrect. See below:");
                         sounderr.printStackTrace();
@@ -1962,7 +2013,7 @@ public class Main extends JavaPlugin implements Listener {
                 // ---------- End of Sounds
 
                 // Add Stats
-                if (sender instanceof Player) {
+                if (sender instanceof Player && !cmd.getName().equalsIgnoreCase("Spook")) {
                     Player p = (Player) sender;
                     statsAdd(p, cmdconfig);
                 }
@@ -1985,11 +2036,40 @@ public class Main extends JavaPlugin implements Listener {
         return true;
     }
 
+    @EventHandler
+	public void onChestEvent(InventoryClickEvent event) {
+		Player p = (Player)event.getWhoClicked();
+
+		if(Cooldowns.spook.containsKey(p.getName())) {
+			event.setCancelled(true);
+		}
+	}
+    
+    @EventHandler(priority = EventPriority.HIGH)
+	public void onTP(PlayerTeleportEvent e) {
+		if(e.isCancelled()) {
+			return;
+		}
+
+		 Player p = (Player)e.getPlayer();
+
+		 if(Cooldowns.spook.containsKey(p.getName())) {
+			 e.setCancelled(true);
+			 bass(p);
+			 Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
+			 Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
+		 }
+	}
+    
     @EventHandler(priority = EventPriority.MONITOR)
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         String name = p.getName();
-
+        
+        if(Cooldowns.spook.containsKey(name)) {
+			Cooldowns.spookStop(p);
+		}
+        
         if (!Cooldowns.playerFileUpdate.contains(name)) {
             updateLastOn(p);
             Cooldowns.justJoined(name);
