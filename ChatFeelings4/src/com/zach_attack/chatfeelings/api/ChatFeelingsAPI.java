@@ -1,5 +1,6 @@
 package com.zach_attack.chatfeelings.api;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -139,6 +140,10 @@ public class ChatFeelingsAPI {
 			return true;
 		}
 		return false;
+	}
+	
+	public static List<String> getFeelingsList() {
+		return plugin.APIgetFeelings();
 	}
 	
 	public static boolean isAcceptingFeelings(UUID u) {

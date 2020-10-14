@@ -58,6 +58,12 @@ public class Placeholders extends PlaceholderExpansion {
         if(identifier.equalsIgnoreCase("incoming_allow")) {
         	return plugin.APIisAcceptingFeelings(player.getUniqueId()) ?yes :no;
         }
+        
+        for (String fl : plugin.APIgetFeelings()) {
+        	if(identifier.equalsIgnoreCase("total_"+fl+"s")) {
+        		return Integer.toString(plugin.APIgetSentStat(player.getUniqueId(), fl));
+        	}
+        }
 
         return null;
     }

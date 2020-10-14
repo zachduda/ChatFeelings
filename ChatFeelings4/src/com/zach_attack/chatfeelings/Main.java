@@ -3,6 +3,7 @@ package com.zach_attack.chatfeelings;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +45,12 @@ import com.zach_attack.chatfeelings.api.Placeholders;
 public class Main extends JavaPlugin implements Listener {
 
     public ChatFeelingsAPI api;
+    
+    final static List <String> feelings = Arrays.asList(new String[] {
+    		"hug", "slap", "poke", "highfive", "facepalm", "yell",
+    		"bite", "snuggle", "shake", "stab", "kiss", "punch", "murder",
+    		"boi", "dab", "lick", "scorn", "pat", "stalk", "spook"
+    });
 
     private boolean hasess = false;
     private boolean haslitebans = false;
@@ -691,6 +698,9 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public int APIgetSentStat(UUID u, String feeling) {
+    	if(!feelings.contains(feeling.toLowerCase())) {
+    		return 0;
+    	}
         File cache = new File(this.getDataFolder(), File.separator + "Data");
         File f = new File(cache, File.separator + "" + u + ".yml");
         if(!f.exists()) {
@@ -699,6 +709,10 @@ public class Main extends JavaPlugin implements Listener {
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
         return setcache.getInt("Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
+    }
+    
+    public List<String> APIgetFeelings() {
+        return feelings;
     }
 
     public int APIgetTotalSent(UUID u) {
@@ -887,27 +901,11 @@ public class Main extends JavaPlugin implements Listener {
             Msgs.send(p, msg.getString("Stats-Header-Other").replace("%player%", name));
             your = "&7";
         }
-        Msgs.send(p, "&f   &8&l> " + your + "Hugs: &f&l" + setcache.getInt("Stats.Sent.Hug"));
-        Msgs.send(p, "&f   &8&l> " + your + "Slaps: &f&l" + setcache.getInt("Stats.Sent.Slap"));
-        Msgs.send(p, "&f   &8&l> " + your + "Pokes: &f&l" + setcache.getInt("Stats.Sent.Poke"));
-        Msgs.send(p, "&f   &8&l> " + your + "Highfives: &f&l" + setcache.getInt("Stats.Sent.Highfive"));
-        Msgs.send(p, "&f   &8&l> " + your + "Facepalms: &f&l" + setcache.getInt("Stats.Sent.Facepalm"));
-        Msgs.send(p, "&f   &8&l> " + your + "Yells: &f&l" + setcache.getInt("Stats.Sent.Yell"));
-        Msgs.send(p, "&f   &8&l> " + your + "Bites: &f&l" + setcache.getInt("Stats.Sent.Bite"));
-        Msgs.send(p, "&f   &8&l> " + your + "Snuggles: &f&l" + setcache.getInt("Stats.Sent.Snuggle"));
-        Msgs.send(p, "&f   &8&l> " + your + "Shakes: &f&l" + setcache.getInt("Stats.Sent.Shake"));
-        Msgs.send(p, "&f   &8&l> " + your + "Stabs: &f&l" + setcache.getInt("Stats.Sent.Stab"));
-        Msgs.send(p, "&f   &8&l> " + your + "Kisses: &f&l" + setcache.getInt("Stats.Sent.Kiss"));
-        Msgs.send(p, "&f   &8&l> " + your + "Punches: &f&l" + setcache.getInt("Stats.Sent.Punch"));
-        Msgs.send(p, "&f   &8&l> " + your + "Murders: &f&l" + setcache.getInt("Stats.Sent.Murder"));
-        Msgs.send(p, "&f   &8&l> " + your + "Boi: &f&l" + setcache.getInt("Stats.Sent.Boi"));
-        Msgs.send(p, "&f   &8&l> " + your + "Cries: &f&l" + setcache.getInt("Stats.Sent.Cry"));
-        Msgs.send(p, "&f   &8&l> " + your + "Dabs: &f&l" + setcache.getInt("Stats.Sent.Dab"));
-        Msgs.send(p, "&f   &8&l> " + your + "Licks: &f&l" + setcache.getInt("Stats.Sent.Lick"));
-        Msgs.send(p, "&f   &8&l> " + your + "Scorn: &f&l" + setcache.getInt("Stats.Sent.Scorn"));
-        Msgs.send(p, "&f   &8&l> " + your + "Pats: &f&l" + setcache.getInt("Stats.Sent.Pat"));
-        Msgs.send(p, "&f   &8&l> " + your + "Stalks: &f&l" + setcache.getInt("Stats.Sent.Stalk"));
-        Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
+        for (String fl : feelings) {
+        	final String flcap = fl.substring(0,1).toUpperCase() + fl.substring(1).toLowerCase();
+        	Msgs.send(p, "&f   &8&l> " + your + flcap +"s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
+        }
+    	Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
     }
 
     private void noPermission(CommandSender sender) {
@@ -1585,11 +1583,13 @@ public class Main extends JavaPlugin implements Listener {
                 Date now = new Date();
 			    SimpleDateFormat format = new SimpleDateFormat("MM");
 
-			    if(!supported || emotes.getBoolean("Feelings.Spook.Enable")) {}else if(format.format(now).equals("10") || format.format(now).equals("09")) {
-			 		Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
-			 	} else {
-			 		Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
-			 	}
+			    if(supported && emotes.getBoolean("Feelings.Spook.Enable")) {
+			    	if(format.format(now).equals("10") || format.format(now).equals("09")) {
+			    		Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+			    	} else {
+			    		Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+			    	}
+            	}
 			 	
                 pop(sender);
                 Msgs.send(sender, "");
@@ -1600,17 +1600,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("hug") || cmd.getName().equalsIgnoreCase("poke") ||
-            cmd.getName().equalsIgnoreCase("slap") || cmd.getName().equalsIgnoreCase("highfive") ||
-            cmd.getName().equalsIgnoreCase("facepalm") || cmd.getName().equalsIgnoreCase("yell") ||
-            cmd.getName().equalsIgnoreCase("bite") || cmd.getName().equalsIgnoreCase("snuggle") ||
-            cmd.getName().equalsIgnoreCase("shake") || cmd.getName().equalsIgnoreCase("stab") ||
-            cmd.getName().equalsIgnoreCase("stab") || cmd.getName().equalsIgnoreCase("kiss") ||
-            cmd.getName().equalsIgnoreCase("punch") || cmd.getName().equalsIgnoreCase("murder") ||
-            cmd.getName().equalsIgnoreCase("boi") || cmd.getName().equalsIgnoreCase("cry") ||
-            cmd.getName().equalsIgnoreCase("dab") || cmd.getName().equalsIgnoreCase("lick") ||
-            cmd.getName().equalsIgnoreCase("scorn") || cmd.getName().equalsIgnoreCase("pat") ||
-            cmd.getName().equalsIgnoreCase("stalk") || cmd.getName().equalsIgnoreCase("spook")) {
+        if (feelings.contains(cmd.getName().toLowerCase())) {
 
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 if (sender instanceof Player && useperms) {
