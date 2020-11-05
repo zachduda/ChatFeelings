@@ -313,12 +313,10 @@ public class FileSetup {
 		    	emotes.save(emotesfile);
 		    	plugin.getLogger().info("Created new emotes.yml file...");
 			    }catch(Exception noerr) { plugin.getLogger().warning("Couldn't create new emotes.yml file."); }
+		    } else if(emotes.get("Feelings.Spook") != null) {
+		    	forceEmotes("Feelings.Spook", null);
 		    } else if(emotes.getInt("Version") != 4) {
 				plugin.getLogger().info("Updating your emotes.yml for the latest update...");  
-		    	if(emotes.getInt("Version") <= 2) {
-		    		forceEmotes("Feelings.Spook", null);
-		    	}
-		    	
 		    	if(emotes.getInt("Version") <= 3) {
 		    		if(emotes.getString("Feelings.Bite.Msgs.Sender").contains("info")) {
 		    			forceEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin");
@@ -556,17 +554,6 @@ public class FileSetup {
 	setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 	setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
-	
-	setEmotesBoolean("Feelings.Spook.Enable", true);
-	setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
-	setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
-	setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
-	setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY_WITCH_AMBIENT");
-	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
-	setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
-	setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC_13");
-	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
-	setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
 
 	setEmotesVersion(4);
 	reloadFiles();
