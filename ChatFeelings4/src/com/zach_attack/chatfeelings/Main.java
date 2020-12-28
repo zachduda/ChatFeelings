@@ -24,19 +24,17 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
-import com.zach_attack.chatfeelings.other.Metrics;
-import com.zach_attack.chatfeelings.other.Updater;
-import com.zach_attack.chatfeelings.api.ChatFeelingsAPI;
-
-import litebans.api.Database;
-import me.leoko.advancedban.manager.PunishmentManager;
-
 import com.earth2me.essentials.Essentials;
-import com.zach_attack.chatfeelings.Msgs;
+import com.zach_attack.chatfeelings.api.ChatFeelingsAPI;
 import com.zach_attack.chatfeelings.api.FeelingGlobalNotifyEvent;
 import com.zach_attack.chatfeelings.api.FeelingRecieveEvent;
 import com.zach_attack.chatfeelings.api.FeelingSendEvent;
 import com.zach_attack.chatfeelings.api.Placeholders;
+import com.zach_attack.chatfeelings.other.Metrics;
+import com.zach_attack.chatfeelings.other.Updater;
+
+import litebans.api.Database;
+import me.leoko.advancedban.manager.PunishmentManager;
 
 public class Main extends JavaPlugin implements Listener {
 
