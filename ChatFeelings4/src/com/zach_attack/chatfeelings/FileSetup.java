@@ -226,7 +226,7 @@ public class FileSetup {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");  
 			
 	    	if(msgs.getInt("Version") < 6 ) {
-	    		forceMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%");
+	    		forceMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%");
 	    	}
 	    	
 	    	if(msgs.getInt("Version") < 7) {
@@ -236,12 +236,13 @@ public class FileSetup {
 		}
 		  
 	    	setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");			
-	    	setMsgs("Reload", "&8&l> &a&l✓  &7Configuration reloaded in &f%time%"); // updated in version 5
+	    	setMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%"); // updated in version 5
 	    	setMsgs("Console-Name", "The Server");
 	    	setMsgs("No-Permission", "&cSorry. &fYou don't have permission for that.");
 	    	setMsgs("Feelings-Help", "&a&lFeelings:");
 	    	setMsgs("Feelings-Help-Page", "&7(Page &f%page%&8&l/&r&f%pagemax%&7)");
 	    	setMsgs("Sending-World-Disabled", "&cSorry. &fYou can't use feelings in this world.");
+	    	setMsgs("Disabled-Serverwide-Targets", "&cNot Allowed. &fThis server has disabled emoting everyone.");
 	    	setMsgs("Receiving-World-Disabled", "&cSorry. &fYour target is in a world with feelings disabled.");
 	    	setMsgs("Page-Not-Found", "&cOops. &fThat page doesn't exist, try &7/feelings 1");
 	    	setMsgs("No-Player", "&cOops! &fYou need to provide a player to do that to."); // updated in version 2

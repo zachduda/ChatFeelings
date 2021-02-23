@@ -2,8 +2,8 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="C:/Users/Zach/Desktop/BuildTools/spigot-1.16.4.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/EssentialsX-2.18.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zach/Desktop/BuildTools/spigot-1.16.5.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/EssentialsX-2.19.0-dev+85-e5db842.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/PlaceholderAPI-2.10.9.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/AdvancedBan-Bundle-2.3.0-RELEASE.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/LiteBans.jar"/>

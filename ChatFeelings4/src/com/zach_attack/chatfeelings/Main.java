@@ -907,7 +907,8 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length == 0) {
+    	final String cmdlr = cmd.getName().toLowerCase();
+        if (cmdlr.equals("chatfeelings") && args.length == 0) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &7/cf help &7&ofor commands & settings.");
@@ -916,7 +917,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("version")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("version")) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &7You are currently running &f&lv" + getDescription().getVersion());
@@ -925,7 +926,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("stats")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("stats")) {
             if (!sender.hasPermission("chatfeelings.stats") && !sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
                 noPermission(sender);
                 return true;
@@ -967,7 +968,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
             if (!sender.hasPermission("chatfeelings.admin") && !sender.isOp()) {
                 noPermission(sender);
                 return true;
@@ -1041,7 +1042,7 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }
             } catch (Exception err) {
-                Msgs.send(sender, "&8&l> &a&l✓  &7Configuration Reloaded. &c(1 file was regenerated)");
+                Msgs.send(sender, "&8&l> &a&l✓  &7Plugin Reloaded. &c(1 file was regenerated)");
             }
             Msgs.send(sender, "");
             levelup(sender);
@@ -1049,7 +1050,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("help")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("help")) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &e&l/cf help &7Shows you this page.");
@@ -1079,7 +1080,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("uuid")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("uuid")) {
             if (!sender.hasPermission("chatfeelings.admin") && !sender.isOp()) {
                 noPermission(sender);
                 return true;
@@ -1111,7 +1112,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mutelist")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mutelist")) {
             if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
                 noPermission(sender);
                 return true;
@@ -1194,7 +1195,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("unmute")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("unmute")) {
             if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
@@ -1287,7 +1288,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mute")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mute")) {
             if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
@@ -1379,7 +1380,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("ignore")) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("ignore")) {
             if (!sender.hasPermission("chatfeelings.ignore") && !sender.isOp()) {
                 noPermission(sender);
                 return true;
@@ -1539,7 +1540,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("feelings")) {
+        if (cmdlr.equals("feelings")) {
             final String path = "Command_Descriptions.";
             if ((args.length == 0) ||
                 (args.length >= 1 && (args[0].equalsIgnoreCase("1") || args[0].equalsIgnoreCase("0")))) {
@@ -1581,12 +1582,17 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (feelings.contains(cmd.getName().toLowerCase())) {
+        if (feelings.contains(cmdlr)) {
 
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 if (sender instanceof Player && useperms) {
-                    if (!sender.hasPermission("chatfeelings." + cmd.getName().toLowerCase()) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
+                    if (!sender.hasPermission("chatfeelings." + cmdlr) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
                         noPermission(sender);
+                        return;
+                    }
+                    if (getConfig().getBoolean("Can-Target-All-Players")) {
+                    	 Msgs.sendPrefix(sender, msg.getString("Disabled-Serverwide-Targets"));
+                    	 bass(sender);
                         return;
                     }
                 }
@@ -1641,16 +1647,21 @@ public class Main extends JavaPlugin implements Listener {
                     bass(sender);
                     return;
                 }
-
+                
+                boolean targetall = false;
+                if(args[0].equalsIgnoreCase("*")) {
+                	targetall = true;
+                }
+                
                 final Player target = Bukkit.getServer().getPlayer(args[0]);
 
-                if (target == null || isVanished(target)) {
+                if (!targetall && (target == null || isVanished(target))) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Player-Offline").replace("%player%", args[0]));
                     return;
                 }
 
-                if (target.getName().equalsIgnoreCase(sender.getName())) {
+                if (!targetall && target.getName().equalsIgnoreCase(sender.getName())) {
                     if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
@@ -1658,7 +1669,7 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }
 
-                if (disabledreceivingworlds.contains(target.getWorld().getName())) {
+                if (!targetall && disabledreceivingworlds.contains(target.getWorld().getName())) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Receiving-World-Disabled"));
                     return;
@@ -1855,9 +1866,9 @@ public class Main extends JavaPlugin implements Listener {
 
                 // Special Effect Command Handlers -----------------------------
                 if (getConfig().getBoolean("General.Violent-Command-Harm")) {
-                    if (cmd.getName().equalsIgnoreCase("slap") || cmd.getName().equalsIgnoreCase("bite") ||
-                        cmd.getName().equalsIgnoreCase("shake") || cmd.getName().equalsIgnoreCase("stab") ||
-                        cmd.getName().equalsIgnoreCase("punch") || cmd.getName().equalsIgnoreCase("murder")) {
+                    if (cmdlr.equals("slap") || cmdlr.equals("bite") ||
+                        cmdlr.equals("shake") || cmdlr.equals("stab") ||
+                        cmdlr.equals("punch") || cmdlr.equals("murder")) {
                         try {
                             if (!target.isSleeping()) {
                                 target.damage(0.01D);
@@ -1884,7 +1895,7 @@ public class Main extends JavaPlugin implements Listener {
                 // Particle Handler -------------------------------------
                 if (particles) {
                     try {
-                        Particles.show(target, cmd.getName().toLowerCase());
+                        Particles.show(target, cmdlr);
                     } catch (Exception parterr) {
                     	if(debug) {
                     		parterr.printStackTrace();
@@ -1963,7 +1974,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("chatfeelings") && args.length >= 1) {
+        if (cmdlr.equals("chatfeelings") && args.length >= 1) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
