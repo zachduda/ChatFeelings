@@ -13,7 +13,7 @@ Copyright 2021 ::  A plugin by zach_attack
     GNU General Public License for more details.
 
     Basically:
-       - You may use code from this project in your own public (open source) if you provide credit.
+       - You may use code from this project in your own public (open source) project(s) if you provide credit.
        - If you redistribute with modifications, it must be open source.
        - You may NOT claim this work as your own.
        - You may NOT redistribute without credit.
@@ -23,7 +23,7 @@ Copyright 2021 ::  A plugin by zach_attack
        - You agree this software has NO WARRANTY and comes AS-IS.
        - You MAY provide infinite hugs to Zach. <3
  
- All source code is readily available on our GitHub, if you have any questions or concerns! 
+ All source code is readily available on our GitHub if you have any questions or concerns! 
  
    ________          __     ______          ___                 
   / ____/ /_  ____ _/ /_   / ____/__  ___  / (_)___  ____ ______
