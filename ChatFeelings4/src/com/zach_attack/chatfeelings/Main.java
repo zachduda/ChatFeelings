@@ -66,7 +66,7 @@ public class Main extends JavaPlugin implements Listener {
     private long lastmutelist = 0;
     
     private final String version = Bukkit.getBukkitVersion().toString().replace("-SNAPSHOT", "");
-    private final boolean supported = (version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15") || version.contains("1.16")) ?true :false;
+    private final boolean supported = (version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) ?true :false;
     
     private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
@@ -520,7 +520,7 @@ public class Main extends JavaPlugin implements Listener {
         
         if (!supported) {
             getLogger().info("---------------------------------------------------");
-            getLogger().info("This version of ChatFeelings is only compatible with: 1.16-1.13");
+            getLogger().info("This version of ChatFeelings is only compatible with: 1.17-1.13");
             getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
             getLogger().info(" ");
             getLogger().info("If you continue, you understand that you will get no support, and");
