@@ -1590,11 +1590,6 @@ public class Main extends JavaPlugin implements Listener {
                         noPermission(sender);
                         return;
                     }
-                    if (getConfig().getBoolean("Can-Target-All-Players")) {
-                    	 Msgs.sendPrefix(sender, msg.getString("Disabled-Serverwide-Targets"));
-                    	 bass(sender);
-                        return;
-                    }
                 }
 
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !sender.isOp() && !sender.hasPermission("chatfeelings.bypasscooldowns")) {
@@ -1648,20 +1643,15 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
                 
-                boolean targetall = false;
-                if(args[0].equalsIgnoreCase("*")) {
-                	targetall = true;
-                }
-                
                 final Player target = Bukkit.getServer().getPlayer(args[0]);
 
-                if (!targetall && (target == null || isVanished(target))) {
+                if (target == null || isVanished(target)) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Player-Offline").replace("%player%", args[0]));
                     return;
                 }
 
-                if (!targetall && target.getName().equalsIgnoreCase(sender.getName())) {
+                if (target.getName().equalsIgnoreCase(sender.getName())) {
                     if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
@@ -1669,7 +1659,7 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }
 
-                if (!targetall && disabledreceivingworlds.contains(target.getWorld().getName())) {
+                if (disabledreceivingworlds.contains(target.getWorld().getName())) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Receiving-World-Disabled"));
                     return;
