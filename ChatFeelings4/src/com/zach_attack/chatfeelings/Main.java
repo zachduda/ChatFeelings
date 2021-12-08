@@ -273,7 +273,7 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        Metrics metrics = new Metrics(this, 111);
+        Metrics metrics = new Metrics(this, 1376);
         metrics.addCustomChart(new SimplePie("server_version", () -> {
             try {
                 Class.forName("com.destroystokyo.paper.PaperConfig");
