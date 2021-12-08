@@ -1,2 +1,8 @@
 /bin/
+<<<<<<< HEAD
 /target/
+=======
+.classpath
+.project
+/Resources
+>>>>>>> branch 'master' of https://github.com/zachduda/ChatFeelings.git
