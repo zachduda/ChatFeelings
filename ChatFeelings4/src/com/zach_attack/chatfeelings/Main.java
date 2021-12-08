@@ -8,6 +8,8 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
+import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
@@ -30,7 +32,7 @@ import com.zach_attack.chatfeelings.api.FeelingGlobalNotifyEvent;
 import com.zach_attack.chatfeelings.api.FeelingRecieveEvent;
 import com.zach_attack.chatfeelings.api.FeelingSendEvent;
 import com.zach_attack.chatfeelings.api.Placeholders;
-import com.zach_attack.chatfeelings.other.Metrics;
+
 import com.zach_attack.chatfeelings.other.Updater;
 
 import litebans.api.Database;
@@ -66,7 +68,7 @@ public class Main extends JavaPlugin implements Listener {
     private long lastmutelist = 0;
     
     private final String version = Bukkit.getBukkitVersion().toString().replace("-SNAPSHOT", "");
-    private final boolean supported = (version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) ?true :false;
+    private final boolean supported = (version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) ?true :false;
     
     private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
@@ -271,8 +273,8 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        Metrics metrics = new Metrics(this, 1376);
-        metrics.addCustomChart(new Metrics.SimplePie("server_version", () -> {
+        Metrics metrics = new Metrics(this, 111);
+        metrics.addCustomChart(new SimplePie("server_version", () -> {
             try {
                 Class.forName("com.destroystokyo.paper.PaperConfig");
                 return "Paper";
@@ -286,7 +288,7 @@ public class Main extends JavaPlugin implements Listener {
             }
         }));
 
-        metrics.addCustomChart(new Metrics.SimplePie("update_notifications", () -> {
+        metrics.addCustomChart(new SimplePie("update_notifications", () -> {
             if (getConfig().getBoolean("Other.Updates.Check")) {
                 return "Enabled";
             } else {
@@ -520,7 +522,7 @@ public class Main extends JavaPlugin implements Listener {
         
         if (!supported) {
             getLogger().info("---------------------------------------------------");
-            getLogger().info("This version of ChatFeelings is only compatible with: 1.17-1.13");
+            getLogger().info("This version of ChatFeelings is only compatible with: 1.18-1.13");
             getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
             getLogger().info(" ");
             getLogger().info("If you continue, you understand that you will get no support, and");

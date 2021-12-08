@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+
 public class Cooldowns {
 	private static Main plugin = Main.getPlugin(Main.class);
 	

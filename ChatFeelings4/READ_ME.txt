@@ -1,4 +1,4 @@
-Copyright 2021 ::  A plugin by zach_attack
+Copyright 2022 ::  A plugin by zach_attack
 
                      ChatFeeling's License Agreement:
 
