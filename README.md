@@ -1,5 +1,5 @@
 ![Alt text](Images/chatfeelingsbanner.png?raw=true "ChatFeelings Banner")
-The GitHub open source page for the famous ChatFeeling's plugin for SpigotMC.
+The GitHub open source page for the original feeling's Minecraft plugin.
 
 # API
 For information on how to use the API, [click here](https://www.spigotmc.org/wiki/chatfeelings-api/).
