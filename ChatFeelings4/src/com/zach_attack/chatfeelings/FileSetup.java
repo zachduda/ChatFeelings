@@ -298,7 +298,7 @@ public class FileSetup {
 	    	setMsgs("Command_Descriptions.Shake", "Shake a player to their feet.");
 	    	setMsgs("Command_Descriptions.Stab", "Stab someone with a knife. Ouch!");
 	    	setMsgs("Command_Descriptions.Kiss", "Give a kiss on the cheek. How sweet!");
-	    	setMsgs("Command_Descriptions.Punch", "Snuggle up with the power of warm hugs!");
+	    	setMsgs("Command_Descriptions.Punch", "Punch someone back from insanity!");
 	    	setMsgs("Command_Descriptions.Murder", "Finna kill someone here.");
 	    	setMsgs("Command_Descriptions.Boi", "Living in 2016? Boi at a player.");
 	    	setMsgs("Command_Descriptions.Cry", "Real sad hours? Cry at someone.");
