@@ -54,7 +54,7 @@ public class Updater {
                     	return;
                     }
                     
-                    if(outdatedversion.equalsIgnoreCase("v4.7")) {
+                    if(outdatedversion.equalsIgnoreCase("v4.8")) {
                     	return;
                     }
                     

@@ -4,7 +4,7 @@
   <groupId>com.zach_attack</groupId>
   <artifactId>chatfeelings</artifactId>
   <name>ChatFeelings</name>
-  <version>4.8</version>
+  <version>4.8.1</version>
   <build>
     <sourceDirectory>src/main/java</sourceDirectory>
     <resources>
@@ -176,6 +176,12 @@
       <artifactId>placeholderapi</artifactId>
       <version>2.11.1</version>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>annotations</artifactId>
+          <groupId>org.jetbrains</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>

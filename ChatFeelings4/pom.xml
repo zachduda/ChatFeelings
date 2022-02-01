@@ -5,7 +5,7 @@
   <groupId>com.zach_attack</groupId>
   <artifactId>chatfeelings</artifactId>
   <packaging>jar</packaging>
-  <version>4.8</version>
+  <version>4.8.1</version>
   <build>
     <resources>
         <resource>
