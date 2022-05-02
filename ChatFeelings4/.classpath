@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
+			<attribute name="module" value="true"/>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -12,5 +13,8 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/LiteBans.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Zach/eclipse-workspace/AdvancedBan-Bundle-2.3.0-RELEASE.jar"/>
+	<classpathentry kind="lib" path="src/plugin.yml"/>
+	<classpathentry kind="lib" path="src/config.yml"/>
+	<classpathentry kind="lib" path="src/bungee.yml"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

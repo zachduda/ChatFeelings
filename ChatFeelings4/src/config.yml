@@ -25,6 +25,8 @@ General:
   Disabled-Receiving-Worlds:
   - world_the_end
   Multi-Version-Support: false
+  Use-Nickname-Placeholder: false
+  Nickname-Placeholder: "%essentials_nickname%"
 Other:
   Vanished-Players:
     Check: true
