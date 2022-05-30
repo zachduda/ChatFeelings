@@ -618,7 +618,11 @@ public class Main extends JavaPlugin implements Listener {
                 this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
                 getLogger().info("Hooking into PlaceholderAPI...");
                 new Placeholders(this).register();
-            }
+                
+                // enable nickname placeholders if placehodler api is present
+                NicknamePlaceholders.enablePlaceholders(getConfig(), msg, true);
+            } else 
+                NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
 
         updateConfig();
 
@@ -1802,10 +1806,7 @@ public class Main extends JavaPlugin implements Listener {
 
                             if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player)) {
                                 // ONLY for CONSOLE Global notify here.
-                                Msgs.send(online.getPlayer(),
-                                    emotes.getString("Feelings." + cmdconfig + ".Msgs.Global")
-                                    .replace("%sender%", msg.getString("Console-Name"))
-                                    .replace("%target%", target.getName()));
+                                Msgs.send(online.getPlayer(),NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"),sender,target));
                             } else {
                                 // Global for PLAYER below
                                 if (sender instanceof Player) {
@@ -1814,9 +1815,9 @@ public class Main extends JavaPlugin implements Listener {
                                     	Bukkit.getScheduler().runTask(this, () -> {
                                     		FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
                                     		Bukkit.getPluginManager().callEvent(fgne);
+                                    		
                                         if (!fgne.isCancelled()) {
-                                            Msgs.send(online.getPlayer(), emotes.getString("Feelings." + cmdconfig + ".Msgs.Global")
-                                                .replace("%sender%", sender.getName()).replace("%target%", target.getName()));
+                                        	Msgs.send(online.getPlayer(),NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"),sender,target));
                                         }
                                       });
 
@@ -1829,31 +1830,17 @@ public class Main extends JavaPlugin implements Listener {
 
                     // Global Console Broadcast Msg ------------------------------------------------
                     if (getConfig().getBoolean("General.Global-Feelings.Broadcast-To-Console")) {
-                        if (sender.getName().equalsIgnoreCase("console")) {
-                            Msgs.send(getServer().getConsoleSender(),
-                                emotes.getString("Feelings." + cmdconfig + ".Msgs.Global")
-                                .replace("%sender%", msg.getString("Console-Name"))
-                                .replace("%target%", target.getName()));
-                        } else {
-                            Msgs.send(getServer().getConsoleSender(),
-                                emotes.getString("Feelings." + cmdconfig + ".Msgs.Global")
-                                .replace("%sender%", sender.getName()).replace("%target%", target.getName()));
-                        }
+                        Msgs.send(getServer().getConsoleSender(),NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"),sender,target));
+
                     }
                     // Global Console End --------------------------------------------------
 
                 } else {
                     // if not global (normal)
-                    if (sender.getName().equalsIgnoreCase("console")) {
-                        Msgs.send(target.getPlayer(), emotes.getString("Feelings." + cmdconfig + ".Msgs.Target")
-                            .replace("%player%", msg.getString("Console-Name")));
-                    } else {
-                        Msgs.send(target.getPlayer(), emotes.getString("Feelings." + cmdconfig + ".Msgs.Target")
-                            .replace("%player%", sender.getName()));
-                    }
-
-                    Msgs.send(sender, emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender").replace("%player%",
-                        target.getName())); // sender (not global)
+                	// send to target
+                    Msgs.send(target.getPlayer(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Target"),sender));
+                    // send to cmd sender
+                    Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender"),target));
                 } // end of global else
 
                 // Special Effect Command Handlers -----------------------------
