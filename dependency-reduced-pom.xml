@@ -4,7 +4,7 @@
   <groupId>com.zach_attack</groupId>
   <artifactId>chatfeelings</artifactId>
   <name>ChatFeelings</name>
-  <version>4.9.0</version>
+  <version>4.9.1</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
@@ -77,13 +77,9 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
-      <version>1.18-R0.1-SNAPSHOT</version>
+      <version>1.19-R0.1-SNAPSHOT</version>
       <scope>provided</scope>
       <exclusions>
-        <exclusion>
-          <artifactId>commons-lang</artifactId>
-          <groupId>commons-lang</groupId>
-        </exclusion>
         <exclusion>
           <artifactId>guava</artifactId>
           <groupId>com.google.guava</groupId>

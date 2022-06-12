@@ -68,7 +68,7 @@ public class Main extends JavaPlugin implements Listener {
     private long lastmutelist = 0;
     
     private final String version = Bukkit.getBukkitVersion().toString().replace("-SNAPSHOT", "");
-    private final boolean supported = (version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) ?true :false;
+    private final boolean supported = (version.contains("1.19") || version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) ?true :false;
     
     private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
@@ -522,18 +522,19 @@ public class Main extends JavaPlugin implements Listener {
         
         if (!supported) {
             getLogger().info("---------------------------------------------------");
-            getLogger().info("This version of ChatFeelings is only compatible with: 1.18-1.13");
+            getLogger().info("This version of ChatFeelings is only compatible with: 1.19-1.13");
             getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
             getLogger().info(" ");
             getLogger().info("If you continue, you understand that you will get no support, and");
             getLogger().info("that some features, such as sounds, may disable to continue working.");
+            getLogger().info("");
             getLogger().info("");
             getLogger().warning("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
             getLogger().info("---------------------------------------------------");
         }
 
         if (version.contains("1.8") || version.contains("1.7") || version.contains("1.6") || version.contains("1.5") || version.contains("1.4")) {
-            getLogger().warning("1.8 or below may have severe issues with this version of ChatFeelings, please use this version:");
+            getLogger().warning("1.8 or below may have severe issues with this version of ChatFeelings, please use this version (v2):");
             getLogger().warning("https://www.spigotmc.org/resources/chatfeelings.12987/download?version=208840");
         }
 
@@ -543,13 +544,13 @@ public class Main extends JavaPlugin implements Listener {
         saveConfig();
 
         List<String> confighead = new ArrayList<String>();
-        confighead.add("Thanks for downloading ChatFeelings!\nMessages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n\n");
+        confighead.add("Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n");
         if (supported) {
-            confighead.add("Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
+            confighead.add("# Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
             getConfig().options().setHeader(confighead);
             debug("Setting 'supported' header in the config. Using 1.13+");
         } else {
-            confighead.add("DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.");
+            confighead.add("# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.");
             debug("Setting 'unsupported' header in the config. Using below 1.13.");
             getConfig().options().setHeader(confighead);
         }
