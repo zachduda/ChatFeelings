@@ -1,8 +1,8 @@
 name: ChatFeelings
-main: com.zach_attack.chatfeelings.Main
-website: https://www.spigotmc.org/resources/chatfeelings.12987/
+main: com.zachduda.chatfeelings.Main
+website: https://zachduda.com/chatfeelings
 authors: [zach_attack]
-version: 4.9
+version: 4.9.1
 api-version: 1.13
 softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
