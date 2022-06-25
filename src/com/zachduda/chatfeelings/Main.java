@@ -1,10 +1,7 @@
 package com.zachduda.chatfeelings;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 import com.zachduda.chatfeelings.other.Updater;
@@ -543,16 +540,32 @@ public class Main extends JavaPlugin implements Listener {
         getConfig().options().copyDefaults(true);
         saveConfig();
 
-        List<String> confighead = new ArrayList<String>();
-        confighead.add("Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n");
-        if (supported) {
-            confighead.add("# Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
-            getConfig().options().setHeader(confighead);
-            debug("Setting 'supported' header in the config. Using 1.13+");
-        } else {
-            confighead.add("# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.");
-            debug("Setting 'unsupported' header in the config. Using below 1.13.");
-            getConfig().options().setHeader(confighead);
+        final String confgreeting = "Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n";
+        final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.\n";
+        try {
+            List<String> confighead = new ArrayList<String>();
+            confighead.add(confgreeting);
+            if (supported) {
+                confighead.add("# Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
+                getConfig().options().setHeader(confighead);
+                debug("Setting 'supported' header in the config. Using 1.13+");
+            } else {
+                confighead.add(nosupport);
+                debug("Setting 'unsupported' header in the config. Using below 1.13.");
+                getConfig().options().setHeader(confighead);
+            }
+        } catch (NoSuchMethodError e) {
+            // Using less than Java 18 will use this method instead.
+            try {
+                if(supported) {
+                    getConfig().options().header(confgreeting);
+                } else {
+                    getConfig().options().header(confgreeting + nosupport);
+                }
+                debug("Using older java that doesn't support non deprecated method. Use old file method.");
+            } catch (Exception giveup) {
+                debug("Unable to set configuration greeting. Method removed: " + giveup.getMessage());
+            }
         }
         saveConfig();
 
@@ -1555,7 +1568,21 @@ public class Main extends JavaPlugin implements Listener {
                 (args.length >= 1 && (args[0].equalsIgnoreCase("1") || args[0].equalsIgnoreCase("0")))) {
                 Msgs.send(sender, "");
                 Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
-                    msg.getString("Feelings-Help-Page").replace("%page%", "1").replace("%pagemax%", "2"));
+                        msg.getString("Feelings-Help-Page").replace("%page%", "1").replace("%pagemax%", "2"));
+                /* This needs to be a loop zach, cmon
+
+                for (String fl : feelings) {
+                    final String cmdconfig = (StringUtils.capitalize(cmd.getName())); // This may be the exact same as flcap. If so find other code and consolidate.
+                    final String flcap = fl.substring(0,1).toUpperCase() + fl.substring(1).toLowerCase(); // see cmdconfig
+                    if(emotes.getBoolean("Feelings." + cmdconfig + ".Enable")) {
+                         Msgs.send(sender, "&8&l> &f&l/"+fl.toLowerCase()+" (player) &7 " + msg.getString(path + flcap));
+                         if (!sender.hasPermission("chatfeelings." + cmdlr) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
+                              Msgs.send(sender, "&8&l> &c/"+fl.toLowerCase()+" &7 You aren't able to use this feeling.");
+                         }
+                     }
+                }
+
+                */
                 Msgs.send(sender, "&8&l> &f&l/hug (player) &7 " + msg.getString(path + "Hug"));
                 Msgs.send(sender, "&8&l> &f&l/slap (player) &7 " + msg.getString(path + "Slap"));
                 Msgs.send(sender, "&8&l> &f&l/poke (player) &7 " + msg.getString(path + "Poke"));

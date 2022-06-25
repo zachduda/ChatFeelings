@@ -25,4 +25,6 @@ com/zachduda/chatfeelings/Cooldowns$2.class
 com/zachduda/chatfeelings/Particles$4.class
 com/zachduda/chatfeelings/Particles$7.class
 com/zachduda/chatfeelings/Particles$12.class
+com/zachduda/chatfeelings/other/Updater$1.class
+com/zachduda/chatfeelings/other/Updater.class
 com/zachduda/chatfeelings/api/FeelingRecieveEvent.class

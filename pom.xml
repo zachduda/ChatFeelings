@@ -6,7 +6,7 @@
     <groupId>com.zach_attack</groupId>
     <artifactId>chatfeelings</artifactId>
     <packaging>jar</packaging>
-    <version>4.9.1</version>
+    <version>4.9.3</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -37,7 +37,7 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>com.zach_attack.chatfeelings.other.metrics</shadedPattern>
+                            <shadedPattern>com.zachduda.chatfeelings.other.metrics</shadedPattern>
                         </relocation>
                     </relocations>
                     <minimizeJar>true</minimizeJar>

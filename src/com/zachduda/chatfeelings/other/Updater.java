@@ -52,13 +52,12 @@ public class Updater {
                             final String vs = ((String)jsonObject.get("tag_name")).replace("v", "");
                             final Boolean prerelease = ((Boolean)jsonObject.get("prerelease"));
                             if(!prerelease) {
-                                postedver = vs;
+                                if(!localPluginVersion.equalsIgnoreCase(vs)){
+                                    outdated = true;
+                                    postedver = vs;
+                                }
                                 break;
                             }
-                        }
-                        javaPlugin.getLogger().info("Github Version: " + postedver);
-                        if (!("v" + localPluginVersion).equalsIgnoreCase(postedver)) {
-                            outdated = true;
                         }
                     } catch (final IOException | ParseException e) {
                     	e.printStackTrace();
@@ -67,7 +66,7 @@ public class Updater {
                         return;
                     }
                     if(outdated) {
-                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l! &rYou're running &7v" + localPluginVersion + "&r, while the latest is &a" + postedver));
+                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion + "&r, while the latest is &av" + postedver));
                         cancel(); //Cancel the runnable as an update has been found.
                     }
                 });
