@@ -8,7 +8,8 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
 ChatFeelings is a Spigot plugin for 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, & 1.19. Please check out the [Spigot Page](https://www.spigotmc.org/resources/chatfeelings.12987/). for full documentation.
 
 # Terms of Use
-All of my Minecraft related resources are licensed under GNU v3. You may read the fine print [here](https://github.com/zachduda/ChatFeelings/blob/master/LICENSE). Key takeaways are:
+All of my Minecraft related resources are licensed under GNU v3. You may read the fine print [here](https://github.com/zachduda/ChatFeelings/blob/master/LICENSE).
+The most important parts of the license:
 - You are not to sell this plugin, regaurdless of your modifications.
 - You **are** able welcomed to distribute this resource or any modifcation thereof on any platform for free.
 - If you do make modifications and redisitrbute **you must disclose the modifications made** and link back to the original resource in some way.
