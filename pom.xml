@@ -6,7 +6,7 @@
     <groupId>com.zach_attack</groupId>
     <artifactId>chatfeelings</artifactId>
     <packaging>jar</packaging>
-    <version>4.9.3</version>
+    <version>4.9.4-beta-1</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

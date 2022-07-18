@@ -4,7 +4,7 @@
   <groupId>com.zach_attack</groupId>
   <artifactId>chatfeelings</artifactId>
   <name>ChatFeelings</name>
-  <version>4.9.3</version>
+  <version>4.9.4-beta-1</version>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
