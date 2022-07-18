@@ -32,14 +32,6 @@ Other:
     Check: true
     Use-Legacy: false
   Player-Files:
-    MySQL:
-      Enabled: false
-      Credentials:
-        host: localhost
-        port: 3306
-        database: chatfeelings
-        user: username
-        password: password
     Cleanup: true
     Cleanup-After-Days: 185
     Erase-If-Banned: true
