@@ -1,15 +1,14 @@
 package com.zachduda.chatfeelings;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
 import com.zachduda.chatfeelings.other.Updater;
 import org.apache.commons.lang3.StringUtils;
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -41,7 +40,7 @@ import org.jetbrains.annotations.NotNull;
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
-    public final static boolean beta = true;
+    public final static boolean beta = false;
 
     public ChatFeelingsAPI api;
 
@@ -314,6 +313,24 @@ public class Main extends JavaPlugin implements Listener {
                 return "Disabled";
             }
         }));
+
+        metrics.addCustomChart(new SimpleBarChart("feeling_usage", new Callable<Map<String, Integer>>() {
+            @Override
+            public Map<String, Integer> call() throws Exception {
+                File folder = new File(getDataFolder(), File.separator + "Data");
+                File fstats = new File(folder, File.separator + "global.yml");
+                FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
+
+                Map<String, Integer> map = new HashMap<>();
+                for (String fl: feelings) {
+                    final String flc = StringUtils.capitalize(fl);
+                    map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
+                }
+                map.put("Feature 1", 1);
+                return map;
+            }
+        }));
+
     } // End Metrics
 
     protected void pop(CommandSender sender) {
@@ -456,7 +473,7 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
 
             // Global Stats -------------------------------------
-            File folder = new File(this.getDataFolder(), File.separator + "Data");
+            File folder = new File(getDataFolder(), File.separator + "Data");
             File fstats = new File(folder, File.separator + "global.yml");
             FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
 
@@ -502,21 +519,28 @@ public class Main extends JavaPlugin implements Listener {
 
     public UUID hasPlayedNameGetUUID(String inputsearch) {
         File folder = new File(this.getDataFolder(), File.separator + "Data");
+        if(!folder.exists()) {
+            return null;
+        }
+        try {
+            for (File AllData : folder.listFiles()) {
+                File f = new File(AllData.getPath());
 
-        for (File AllData: folder.listFiles()) {
-            File f = new File(AllData.getPath());
+                if (!f.getName().equalsIgnoreCase("global.yml")) {
 
-            if (!f.getName().equalsIgnoreCase("global.yml")) {
+                    FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-                FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+                    String playername = setcache.getString("Username");
+                    String u = setcache.getString("UUID");
 
-                String playername = setcache.getString("Username");
-                String u = setcache.getString("UUID");
-
-                if (inputsearch.equalsIgnoreCase(playername)) {
-                    return UUID.fromString(u);
+                    if (inputsearch.equalsIgnoreCase(playername)) {
+                        return UUID.fromString(u);
+                    }
                 }
             }
+        } catch (NullPointerException err) {
+            // No match found, data files are missing.
+            return null;
         }
         // No Match Found
         return null;
@@ -524,6 +548,9 @@ public class Main extends JavaPlugin implements Listener {
 
     private boolean isTargetIgnoringSender(Player target, Player sender) {
         File cache = new File(this.getDataFolder(), File.separator + "Data");
+        if(!cache.exists()) {
+            return false;
+        }
         File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
@@ -542,6 +569,9 @@ public class Main extends JavaPlugin implements Listener {
 
     public String hasPlayedUUIDGetName(UUID uuid) {
         File cache = new File(this.getDataFolder(), File.separator + "Data");
+        if(!cache.exists()) {
+            return "0";
+        }
         File f = new File(cache, File.separator + "" + uuid + ".yml");
         if (!f.exists()) {
             return "0";
@@ -933,7 +963,7 @@ public class Main extends JavaPlugin implements Listener {
             your = "&7";
         }
         for (String fl: feelings) {
-            final String flcap = fl.substring(0, 1).toUpperCase() + fl.substring(1).toLowerCase();
+            final String flcap = StringUtils.capitalize(fl);
             Msgs.send(p, "&f   &8&l> " + your + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
         }
         Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
@@ -1588,7 +1618,7 @@ public class Main extends JavaPlugin implements Listener {
 
         for (String fl : feelings) {
             final String cmdconfig = (StringUtils.capitalize(cmd.getName())); // This may be the exact same as flcap. If so find other code and consolidate.
-            final String flcap = fl.substring(0,1).toUpperCase() + fl.substring(1).toLowerCase(); // see cmdconfig
+            final String flcap = StringUtils.capitalize(fl); // see cmdconfig
             if(emotes.getBoolean("Feelings." + cmdconfig + ".Enable")) {
                  Msgs.send(sender, "&8&l> &f&l/"+fl.toLowerCase()+" (player) &7 " + msg.getString(path + flcap));
                  <!--- NEED TO UPDATE with hasPerm() func --- >
