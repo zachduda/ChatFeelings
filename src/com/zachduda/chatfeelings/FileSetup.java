@@ -1,7 +1,9 @@
 package com.zachduda.chatfeelings;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -142,17 +144,19 @@ public class FileSetup {
 	}
 
 	static void enableFiles() {
-		File msgsfile = new File(getFolder(), File.separator + "messages.yml");
+		File folder = getFolder();
+
+		File msgsfile = new File(folder, File.separator + "messages.yml");
 		FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 
-		File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
+		File emotesfile = new File(folder, File.separator + "emotes.yml");
 		FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
 
 		/// ---------------------------------- LEGACY FILE SAVING  ---------------------------------------
 
 		File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
 
-		File soundsfile = new File(getFolder(), File.separator + "sounds.yml");
+		File soundsfile = new File(folder, File.separator + "sounds.yml");
 		FileConfiguration sounds = YamlConfiguration.loadConfiguration(soundsfile); // Sounds.yml moved to emotes.yml,  this is here for Legacy reasons.
 
 		if (msgsfile.exists() && !msgs.contains("Version")) {
@@ -180,10 +184,24 @@ public class FileSetup {
 		//------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
 
 		if (!msgsfile.exists() || !msgs.contains("Version")) {
-			msgs.options().setHeader(Collections.singletonList("Looking for messages for the feelings?\nThose can now be found in the emotes.yml!"));
+
+			List<String> confighead = new ArrayList<String>();
+			confighead.add("Looking for the messages used for feelings?");
+			confighead.add("Check inside your emotes.yml!");
+
+			try {
+				msgs.options().setHeader(confighead);
+			} catch (NoSuchMethodError e) {
+				// Using less than Java 18 will use this method instead.
+				try {
+					msgs.options().header("Looking for the messages used for feelings? Check the emotes.yml!");
+				} catch (Exception giveup) { /* just skip this */ }
+			}
+
 			if (saveFile(msgs, msgsfile)) {
 				plugin.getLogger().info("Created new messages.yml file...");
 			}
+
 		} else if (msgs.getInt("Version") != 9) {
 			plugin.getLogger().info("Updating your messages.yml with new additional messages...");
 
@@ -249,6 +267,8 @@ public class FileSetup {
 		setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 		setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 		setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
+		setMsgs("Command-List-Page", "&7To go to the next page do &a/feelings %page%");
+		setMsgs("Command-List-Player", "&r &f(player)");
 		setMsgs("Command_Descriptions.Hug", "Give someone a nice warm hug!");
 		setMsgs("Command_Descriptions.Slap", "Slap some sense back into someone.");
 		setMsgs("Command_Descriptions.Poke", "Poke someone to get their attention");

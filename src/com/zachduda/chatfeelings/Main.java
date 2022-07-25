@@ -36,13 +36,16 @@ import com.zachduda.chatfeelings.api.Placeholders;
 
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
+import org.jetbrains.annotations.NotNull;
 
-@SuppressWarnings("ALL")
 public class Main extends JavaPlugin implements Listener {
+
+    /* If true, metrics & update checking are skipped. */
+    public final static boolean beta = true;
 
     public ChatFeelingsAPI api;
 
-    final static List < String > feelings = Arrays.asList(new String[] {
+    final static List < String > feelings = Arrays.asList(
             "hug",
             "slap",
             "poke",
@@ -62,8 +65,7 @@ public class Main extends JavaPlugin implements Listener {
             "lick",
             "scorn",
             "pat",
-            "stalk"
-    });
+            "stalk");
 
     private boolean hasess = false;
     private boolean haslitebans = false;
@@ -84,11 +86,11 @@ public class Main extends JavaPlugin implements Listener {
     private long lastreload = 0;
     private long lastmutelist = 0;
 
-    private final String version = Bukkit.getBukkitVersion().toString().replace("-SNAPSHOT", "");
-    private final boolean supported = (version.contains("1.19") || version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15")) ? true : false;
+    private final String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
+    private final boolean supported = version.contains("1.19") || version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15");
 
-    private List < String > disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
-    private List < String > disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
+    private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
+    private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
     protected File folder;
     protected File msgsfile;
@@ -139,16 +141,16 @@ public class Main extends JavaPlugin implements Listener {
             for (File cachefile: folder.listFiles()) {
                 File f = new File(cachefile.getPath());
 
-                if (f.getName().equalsIgnoreCase("global.yml")) {
-
-                } else {
-
+                if (!f.getName().equalsIgnoreCase("global.yml")) {
                     try {
                         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
                         if (!setcache.contains("Last-On") || (!setcache.contains("Username")) || (!setcache.contains("UUID"))) {
-                            f.delete();
-                            debug("Deleted file: " + f.getName() + "... It was invalid!");
+                            if(f.delete()) {
+                                debug("Deleted file: " + f.getName() + "... It was invalid!");
+                            } else {
+                                debug("Unable to delete invalid player file: " + f.getName());
+                            }
                         } else {
 
                             long daysAgo = Math
@@ -159,7 +161,7 @@ public class Main extends JavaPlugin implements Listener {
                             String IPAdd = setcache.getString("IP");
                             UUID puuid = UUID.fromString(uuid);
 
-                            int banInt = 0;
+                            int banInt;
 
                             if (getConfig().getBoolean("Other.Player-Files.Erase-If-Banned")) {
                                 banInt = isBanned(puuid, IPAdd);
@@ -194,7 +196,12 @@ public class Main extends JavaPlugin implements Listener {
 
                                         try {
                                             setcache.save(f);
-                                        } catch (Exception err) {}
+                                        } catch (Exception err) {
+                                            if(debug) {
+                                                getLogger().warning("Unable to update file:");
+                                                err.printStackTrace();
+                                            }
+                                        }
                                     }
 
                                     if (useclean) {
@@ -221,20 +228,11 @@ public class Main extends JavaPlugin implements Listener {
 
     private void updateConfig() {
         boolean confdebug = getConfig().getBoolean("Other.Debug");
-
-        if (confdebug) {
-            debug = true;
-        } else {
-            debug = false;
-        }
+        debug = confdebug;
 
         String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
 
-        if (getConfig().getBoolean("General.Sounds")) {
-            sounds = true;
-        } else {
-            sounds = false;
-        }
+        sounds = getConfig().getBoolean("General.Sounds");
 
         if (getConfig().getBoolean("General.Particles")) {
             if (!supported && !version.contains("1.12")) {
@@ -248,34 +246,39 @@ public class Main extends JavaPlugin implements Listener {
             particles = false;
         }
 
-        if (getConfig().getBoolean("Other.Vanished-Players.Check")) {
-            usevanishcheck = true;
-        } else {
-            usevanishcheck = false;
-        }
+        usevanishcheck = getConfig().getBoolean("Other.Vanished-Players.Check");
 
         if (getConfig().contains("General.Use-Feeling-Permissions")) {
-            if (getConfig().getBoolean("General.Use-Feeling-Permissions")) {
-                useperms = true;
-            } else {
-                useperms = false;
-            }
+            useperms = getConfig().getBoolean("General.Use-Feeling-Permissions");
         } else {
             useperms = false;
         }
 
         if (getConfig().contains("General.Multi-Version-Support")) {
-            if (getConfig().getBoolean("General.Multi-Version-Support")) {
-                multiversion = true;
-            } else {
-                multiversion = false;
-            }
+            multiversion = getConfig().getBoolean("General.Multi-Version-Support");
         } else {
             multiversion = false;
         }
     }
 
+    public boolean hasPerm(CommandSender p, String node, Boolean admin_cmd) {
+        return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms);
+    }
+    public boolean hasPerm(CommandSender p, String node) {
+        return hasPerm(p, node, false);
+    }
+    public boolean hasPerm(CommandSender p, Boolean admin_cmd) {
+        return hasPerm(p, "none", admin_cmd);
+    }
+    public boolean hasPerm(CommandSender p) {
+        return hasPerm(p, "none", false);
+    }
+
     private void addMetrics() {
+        if(beta) {
+            debug("Metrics were not enabled as this is a pre-release version.");
+            return;
+        }
         if (!getConfig().getBoolean("Other.Metrics")) {
             debug("Metrics was disabled. Guess we won't support the developer today!");
             return;
@@ -413,7 +416,12 @@ public class Main extends JavaPlugin implements Listener {
             if (!f.exists()) {
                 try {
                     setcache.save(f);
-                } catch (Exception err) {}
+                } catch (Exception err) {
+                    if(debug) {
+                        getLogger().warning("Unable to update last seen var in player file:");
+                        err.printStackTrace();
+                    }
+                }
             }
 
             String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
@@ -435,7 +443,12 @@ public class Main extends JavaPlugin implements Listener {
             setcache.set("Last-On", System.currentTimeMillis());
             try {
                 setcache.save(f);
-            } catch (Exception err) {}
+            } catch (Exception err) {
+                if(debug) {
+                    getLogger().warning("Unable to update player file:");
+                    err.printStackTrace();
+                }
+            }
         });
     }
 
@@ -451,7 +464,12 @@ public class Main extends JavaPlugin implements Listener {
                 debug("Global stats file didn't exist, creating one now!");
                 try {
                     setstats.save(fstats);
-                } catch (Exception err) {}
+                } catch (Exception err) {
+                    if(debug) {
+                        getLogger().warning("Unable to create or save global stats file:");
+                        err.printStackTrace();
+                    }
+                }
             }
 
             setstats.set("Feelings.Sent." + emotion, setstats.getInt("Feelings.Sent." + emotion) + 1);
@@ -598,16 +616,20 @@ public class Main extends JavaPlugin implements Listener {
         debug("Disabled Sending Worlds: " + disabledsendingworlds.toString());
         debug("Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
 
-        addMetrics();
+        if(!beta) {
+            addMetrics();
 
-        if (getConfig().getBoolean("Other.Updates.Check")) {
-            try {
-                new Updater(this).checkForUpdate();
-            } catch (Exception e) {
-                getLogger().warning("There was an issue while trying to check for updates.");
+            if (getConfig().getBoolean("Other.Updates.Check")) {
+                try {
+                    new Updater(this).checkForUpdate();
+                } catch (Exception e) {
+                    getLogger().warning("There was an issue while trying to check for updates.");
+                }
+            } else {
+                getLogger().info("[!] Update checking has been disabled in the config.yml");
             }
         } else {
-            getLogger().info("[!] Update checking has been disabled in the config.yml");
+            debug("Using a pre-release of ChatFeelings. Update checking & metrics have been disabled!");
         }
 
         FileSetup.enableFiles();
@@ -660,10 +682,12 @@ public class Main extends JavaPlugin implements Listener {
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
 
         updateConfig();
+        if(beta) {
+            getLogger().warning("You're using a beta update, so update checking is off!");
+            getLogger().warning("Check for updates daily at https://github.com/zachduda/ChatFeelings/releases");
+        }
+        debug("Finished! ChatFeelings was loaded in " + (System.currentTimeMillis() - start) + "ms");
 
-        debug("Finished! ChatFeelings was loaded in " + Long.toString(System.currentTimeMillis() - start) + "ms");
-
-        start = 0;
         lastreload = System.currentTimeMillis();
 
     } // [!] End of OnEnable Event
@@ -717,17 +741,11 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public boolean APIisMutedUUIDBoolean(UUID uuid) {
-        if (isMuted(uuid, null) != 0) {
-            return true;
-        }
-        return false;
+        return isMuted(uuid, null) != 0;
     }
 
     public boolean APIisBannedUUIDBoolean(UUID uuid) {
-        if (isBanned(uuid, null) != 0) {
-            return true;
-        }
-        return false;
+        return isBanned(uuid, null) != 0;
     }
 
     public int APIgetSentStat(UUID u, String feeling) {
@@ -771,9 +789,7 @@ public class Main extends JavaPlugin implements Listener {
         try {
             if (hasess) {
                 Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-                if (ess.getUser(uuid).isMuted()) {
-                    return true;
-                }
+                return ess != null && ess.getUser(uuid).isMuted();
             }
             return false;
         } catch (Exception err) {
@@ -789,9 +805,7 @@ public class Main extends JavaPlugin implements Listener {
     private boolean isLiteBanMuted(UUID uuid, String IPAdd) {
         try {
             if (haslitebans) {
-                if (Database.get().isPlayerMuted(uuid, IPAdd)) {
-                    return true;
-                }
+                return Database.get().isPlayerMuted(uuid, IPAdd);
             }
             return false;
         } catch (Exception err) {
@@ -807,9 +821,7 @@ public class Main extends JavaPlugin implements Listener {
     private boolean isABMuted(UUID uuid) {
         try {
             if (hasadvancedban) {
-                if (PunishmentManager.get().isMuted(uuid.toString())) {
-                    return true;
-                }
+                return PunishmentManager.get().isMuted(uuid.toString());
             }
             return false;
         } catch (Exception err) {
@@ -823,20 +835,14 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private boolean isVanillaBanned(UUID uuid) {
-        if (Bukkit.getOfflinePlayer(uuid).isBanned()) {
-            return true;
-        }
-
-        return false;
+        return Bukkit.getOfflinePlayer(uuid).isBanned();
     }
 
     private boolean isEssBanned(UUID uuid) {
         try {
             if (hasess) {
                 Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-                if (ess.getUser(uuid).getBase().isBanned()) {
-                    return true;
-                }
+                return ess.getUser(uuid).getBase().isBanned();
             }
             return false;
         } catch (Exception err) {
@@ -852,9 +858,7 @@ public class Main extends JavaPlugin implements Listener {
     private boolean isLiteBanBanned(UUID uuid, String IPAdd) {
         try {
             if (haslitebans) {
-                if (Database.get().isPlayerBanned(uuid, IPAdd)) {
-                    return true;
-                }
+                return Database.get().isPlayerBanned(uuid, IPAdd);
             }
             return false;
         } catch (Exception err) {
@@ -870,9 +874,7 @@ public class Main extends JavaPlugin implements Listener {
     private boolean isABBanned(UUID uuid) {
         try {
             if (hasadvancedban) { // Requires UUID as string.
-                if (PunishmentManager.get().isBanned(uuid.toString())) {
-                    return true;
-                }
+                return PunishmentManager.get().isBanned(uuid.toString());
             }
             return false;
         } catch (Exception err) {
@@ -907,11 +909,7 @@ public class Main extends JavaPlugin implements Listener {
             }
 
             if (getConfig().getBoolean("Other.Vanished-Players.Use-Legacy")) {
-                if (player.hasPotionEffect(PotionEffectType.INVISIBILITY)) {
-                    return true;
-                }
-
-                return false;
+                return player.hasPotionEffect(PotionEffectType.INVISIBILITY);
             }
 
             return false;
@@ -921,7 +919,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
-        String your = "";
+        String your;
 
         File cache = new File(folder, File.separator + "Data");
         File f = new File(cache, File.separator + "" + uuid + ".yml");
@@ -946,7 +944,7 @@ public class Main extends JavaPlugin implements Listener {
         bass(sender);
     }
 
-    public boolean onCommand(CommandSender sender, Command cmd, String cmdLabel, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String cmdLabel, String[] args) {
         final String cmdlr = cmd.getName().toLowerCase();
         if (cmdlr.equals("chatfeelings") && args.length == 0) {
             Msgs.send(sender, "");
@@ -957,7 +955,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("version")) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("version")) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &7You are currently running &f&lv" + getDescription().getVersion());
@@ -966,8 +964,8 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("stats")) {
-            if (!sender.hasPermission("chatfeelings.stats") && !sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("stats")) {
+            if (!hasPerm(sender,"chatfeelings.stats")) {
                 noPermission(sender);
                 return true;
             }
@@ -984,7 +982,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (!sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
+            if (!hasPerm(sender,"chatfeelings.stats.others", true)) {
                 noPermission(sender);
                 return true;
             }
@@ -1008,8 +1006,8 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("chatfeelings.admin") && !sender.isOp()) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("reload")) {
+            if (!hasPerm(sender, "chatfeelings.admin", true)) {
                 noPermission(sender);
                 return true;
             }
@@ -1090,27 +1088,26 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("help")) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("help")) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &e&l/cf help &7Shows you this page.");
-            if (sender.hasPermission("chatfeelings.ignore") || sender.isOp()) {
+            if (hasPerm(sender, "chatfeelings.ignore")) {
                 Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7Ignore/Unignore feelings from players.");
                 Msgs.send(sender, "&8&l> &e&l/cf ignore all &7Toggles everyone being able to use feelings.");
             }
-            if (sender.hasPermission("chatfeelings.stats") || sender.isOp()) {
-                if (!sender.hasPermission("chatfeelings.stats.others") && !sender.isOp()) {
-                    Msgs.send(sender, "&8&l> &e&l/cf stats &7Shows your feeling statistics.");
-                } else {
-                    Msgs.send(sender, "&8&l> &e&l/cf stats (player) &7Shows your a players statistics.");
-                }
+            if (hasPerm(sender, "chatfeelings.stats")) {
+                Msgs.send(sender, "&8&l> &e&l/cf stats &7Shows your feeling statistics.");
             }
-            if (sender.hasPermission("chatfeelings.mute") || sender.isOp()) {
+            if (hasPerm(sender, "chatfeelings.stats.others", true)) {
+                Msgs.send(sender, "&8&l> &e&l/cf stats (player) &7Shows your a players statistics.");
+            }
+            if (hasPerm(sender, "chatfeelings.mute", true)) {
                 Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7Prevents a player from using feelings.");
                 Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7Unmutes a muted player.");
                 Msgs.send(sender, "&8&l> &e&l/cf mutelist &7Shows who's currently muted.");
             }
-            if (sender.hasPermission("chatfeelings.admin") || sender.isOp()) {
+            if (hasPerm(sender, "chatfeelings.admin", true)) {
                 Msgs.send(sender, "&8&l> &e&l/cf version &7Shows you the plugin version.");
                 Msgs.send(sender, "&8&l> &e&l/cf reload &7Reloads the plugin.");
             }
@@ -1120,8 +1117,8 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("uuid")) {
-            if (!sender.hasPermission("chatfeelings.admin") && !sender.isOp()) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("uuid")) {
+            if (!hasPerm(sender, "chatfeelings.admin", true)) {
                 noPermission(sender);
                 return true;
             }
@@ -1152,8 +1149,8 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mutelist")) {
-            if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("mutelist")) {
+            if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
                 return true;
             }
@@ -1236,7 +1233,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("unmute")) {
-            if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
+            if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
                     if (getConfig().getBoolean("General.Extra-Help")) {
@@ -1328,7 +1325,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mute")) {
-            if (!sender.hasPermission("chatfeelings.mute") && !sender.isOp()) {
+            if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
                     if (getConfig().getBoolean("General.Extra-Help")) {
@@ -1420,7 +1417,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("ignore")) {
-            if (!sender.hasPermission("chatfeelings.ignore") && !sender.isOp()) {
+            if (!hasPerm(sender, "chatfeelings.ignore")) {
                 noPermission(sender);
                 return true;
             }
@@ -1484,7 +1481,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (getConfig().getBoolean("General.Cooldowns.Ignoring.Enabled") && !sender.isOp() && !sender.hasPermission("chatfeelings.bypasscooldowns")) {
+            if (getConfig().getBoolean("General.Cooldowns.Ignoring.Enabled") && !sender.isOp() && !hasPerm(sender, "chatfeelings.bypasscooldowns", true)) {
                 if (Cooldowns.ignorecooldown.containsKey(p)) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Ignore-Cooldown"));
@@ -1502,7 +1499,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            File f = new File(datafolder, File.separator + "" + p.getUniqueId().toString() + ".yml");
+            File f = new File(datafolder, File.separator + "" + p.getUniqueId() + ".yml");
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
@@ -1581,6 +1578,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if (cmdlr.equals("feelings")) {
             final String path = "Command_Descriptions.";
+            final String plyr = msg.getString("Command-List-Player");
             if ((args.length == 0) ||
                     (args.length >= 1 && (args[0].equalsIgnoreCase("1") || args[0].equalsIgnoreCase("0")))) {
                 Msgs.send(sender, "");
@@ -1593,6 +1591,7 @@ public class Main extends JavaPlugin implements Listener {
             final String flcap = fl.substring(0,1).toUpperCase() + fl.substring(1).toLowerCase(); // see cmdconfig
             if(emotes.getBoolean("Feelings." + cmdconfig + ".Enable")) {
                  Msgs.send(sender, "&8&l> &f&l/"+fl.toLowerCase()+" (player) &7 " + msg.getString(path + flcap));
+                 <!--- NEED TO UPDATE with hasPerm() func --- >
                  if (!sender.hasPermission("chatfeelings." + cmdlr) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
                       Msgs.send(sender, "&8&l> &c/"+fl.toLowerCase()+" &7 You aren't able to use this feeling.");
                  }
@@ -1600,32 +1599,32 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         */
-                Msgs.send(sender, "&8&l> &f&l/hug (player) &7 " + msg.getString(path + "Hug"));
-                Msgs.send(sender, "&8&l> &f&l/slap (player) &7 " + msg.getString(path + "Slap"));
-                Msgs.send(sender, "&8&l> &f&l/poke (player) &7 " + msg.getString(path + "Poke"));
-                Msgs.send(sender, "&8&l> &f&l/highfive (player) &7 " + msg.getString(path + "Highfive"));
-                Msgs.send(sender, "&8&l> &f&l/facepalm (player) &7 " + msg.getString(path + "Facepalm"));
-                Msgs.send(sender, "&8&l> &f&l/yell (player) &7 " + msg.getString(path + "Yell"));
-                Msgs.send(sender, "&8&l> &f&l/bite (player) &7 " + msg.getString(path + "Bite"));
-                Msgs.send(sender, "&8&l> &f&l/snuggle (player) &7 " + msg.getString(path + "Snuggle"));
-                Msgs.send(sender, "&8&l> &f&l/shake (player) &7 " + msg.getString(path + "Shake"));
-                Msgs.send(sender, "&8&l> &f&l/stab (player) &7 " + msg.getString(path + "Stab"));
-                Msgs.send(sender, "&7To go to the 2nd page do &a/feelings 2");
+                Msgs.send(sender, "&8&l> &f&l/hug" + plyr + "&7 " + msg.getString(path + "Hug"));
+                Msgs.send(sender, "&8&l> &f&l/slap" + plyr + "&7 " + msg.getString(path + "Slap"));
+                Msgs.send(sender, "&8&l> &f&l/poke" + plyr + "&7 " + msg.getString(path + "Poke"));
+                Msgs.send(sender, "&8&l> &f&l/highfive" + plyr + "&7 " + msg.getString(path + "Highfive"));
+                Msgs.send(sender, "&8&l> &f&l/facepalm" + plyr + "&7 " + msg.getString(path + "Facepalm"));
+                Msgs.send(sender, "&8&l> &f&l/yell" + plyr + "&7 " + msg.getString(path + "Yell"));
+                Msgs.send(sender, "&8&l> &f&l/bite" + plyr + "&7 " + msg.getString(path + "Bite"));
+                Msgs.send(sender, "&8&l> &f&l/snuggle" + plyr + "&7 " + msg.getString(path + "Snuggle"));
+                Msgs.send(sender, "&8&l> &f&l/shake" + plyr + "&7 " + msg.getString(path + "Shake"));
+                Msgs.send(sender, "&8&l> &f&l/stab" + plyr + "&7 " + msg.getString(path + "Stab"));
+                Msgs.send(sender, msg.getString("Command-List-Page").replaceAll("%page%", "2"));
                 pop(sender);
                 Msgs.send(sender, "");
             } else if (args.length >= 1 && args[0].equalsIgnoreCase("2")) {
                 Msgs.send(sender, "");
                 Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
                         msg.getString("Feelings-Help-Page").replace("%page%", "2").replace("%pagemax%", "2"));
-                Msgs.send(sender, "&8&l> &f&l/kiss (player) &7 " + msg.getString(path + "Kiss"));
-                Msgs.send(sender, "&8&l> &f&l/punch (player) &7 " + msg.getString(path + "Punch"));
-                Msgs.send(sender, "&8&l> &f&l/murder (player) &7 " + msg.getString(path + "Murder"));
-                Msgs.send(sender, "&8&l> &f&l/boi (player) &7 " + msg.getString(path + "Boi"));
-                Msgs.send(sender, "&8&l> &f&l/cry (player) &7 " + msg.getString(path + "Cry"));
-                Msgs.send(sender, "&8&l> &f&l/dab (player) &7 " + msg.getString(path + "Dab"));
-                Msgs.send(sender, "&8&l> &f&l/lick (player) &7 " + msg.getString(path + "Lick"));
-                Msgs.send(sender, "&8&l> &f&l/pat (player) &7 " + msg.getString(path + "Pat"));
-                Msgs.send(sender, "&8&l> &f&l/stalk (player) &7 " + msg.getString(path + "Stalk"));
+                Msgs.send(sender, "&8&l> &f&l/kiss" + plyr + "&7 " + msg.getString(path + "Kiss"));
+                Msgs.send(sender, "&8&l> &f&l/punch" + plyr + "&7 " + msg.getString(path + "Punch"));
+                Msgs.send(sender, "&8&l> &f&l/murder" + plyr + "&7 " + msg.getString(path + "Murder"));
+                Msgs.send(sender, "&8&l> &f&l/boi+" + plyr + "&7 " + msg.getString(path + "Boi"));
+                Msgs.send(sender, "&8&l> &f&l/cry" + plyr + "&7 " + msg.getString(path + "Cry"));
+                Msgs.send(sender, "&8&l> &f&l/dab" + plyr + "&7 " + msg.getString(path + "Dab"));
+                Msgs.send(sender, "&8&l> &f&l/lick" +plyr + "&7 " + msg.getString(path + "Lick"));
+                Msgs.send(sender, "&8&l> &f&l/pat" + plyr + "&7 " + msg.getString(path + "Pat"));
+                Msgs.send(sender, "&8&l> &f&l/stalk" + plyr + "&7 " + msg.getString(path + "Stalk"));
                 pop(sender);
                 Msgs.send(sender, "");
             } else {
@@ -1639,13 +1638,13 @@ public class Main extends JavaPlugin implements Listener {
 
             Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                 if (sender instanceof Player && useperms) {
-                    if (!sender.hasPermission("chatfeelings." + cmdlr) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
+                    if(!hasPerm(sender, "chatfeelings." + cmdlr) && !hasPerm(sender, "chatfeelings.all")) {
                         noPermission(sender);
                         return;
                     }
                 }
 
-                if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !sender.isOp() && !sender.hasPermission("chatfeelings.bypasscooldowns")) {
+                if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !hasPerm(sender,"chatfeelings.bypasscooldowns", true)) {
                     if (sender instanceof Player) {
                         Player p = (Player) sender;
                         if (Cooldowns.cooldown.containsKey(p.getPlayer())) {
@@ -1740,12 +1739,14 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 // Ignoring & Mute Check ----------------
+
+                File playerfiles = new File(this.getDataFolder(), File.separator + "Data");
+
                 if (sender instanceof Player) {
                     final Player p = (Player) sender;
 
-                    File cache = new File(this.getDataFolder(), File.separator + "Data");
-                    File f = new File(cache, File.separator + "" + p.getUniqueId() + ".yml");
-                    FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+                    File myf = new File(playerfiles, File.separator + "" + p.getUniqueId() + ".yml");
+                    FileConfiguration me = YamlConfiguration.loadConfiguration(myf);
 
                     final int muteInt = isMuted(p.getUniqueId(), null);
 
@@ -1764,18 +1765,11 @@ public class Main extends JavaPlugin implements Listener {
                         return;
                     }
 
-                    if (f.exists()) {
-                        if (setcache.getBoolean("Muted")) {
+                    if (myf.exists()) {
+                        if (me.getBoolean("Muted")) {
                             debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
                             bass(sender);
                             Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
-                            return;
-                        }
-
-                        if (!setcache.getBoolean("Allow-Feelings")) {
-                            bass(sender);
-                            Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-                            debug(sender.getName() + " couldn't send feeling to " + target.getName() + " because they are ignoring ALL.");
                             return;
                         }
 
@@ -1788,17 +1782,16 @@ public class Main extends JavaPlugin implements Listener {
                             return;
                         }
                     }
-                } else {
-                    File cache = new File(this.getDataFolder(), File.separator + "Data");
-                    File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
-                    FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+                }
 
-                    if (f.exists()) {
-                        if (!setcache.getBoolean("Allow-Feelings")) {
-                            Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-                            debug("Blocking CONSOLE from sending feeling because " + target.getName() + " is blocking ALL.");
-                            return;
-                        } // Sender is Console however the player is still blocking ALL feelings.
+                File tfraw = new File(playerfiles, File.separator + "" + target.getUniqueId() + ".yml");
+                FileConfiguration targetfile = YamlConfiguration.loadConfiguration(tfraw);
+
+                if (tfraw.exists()) {
+                    if (!targetfile.getBoolean("Allow-Feelings")) {
+                        Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
+                        debug("Blocking feeling because " + target.getName() + " is blocking ALL.");
+                        return;
                     }
                 }
                 // ------------------------------------------------
@@ -2030,7 +2023,7 @@ public class Main extends JavaPlugin implements Listener {
 
             try {
                 if (getConfig().getBoolean("Other.Updates.Check")) {
-                    if (p.hasPermission("chatfeelings.admin") || p.isOp()) {
+                    if (hasPerm(p, "chatfeelings.admin", true)) {
                         if (Updater.isOutdated()) {
                             Msgs.sendPrefix(p, "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion() +
                                     " while the latest is &f&l" + Updater.getPostedVersion());
