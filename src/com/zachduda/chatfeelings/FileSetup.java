@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -288,6 +290,7 @@ public class FileSetup {
 		setMsgs("Command_Descriptions.Lick", "Lick someone like an ice-cream sundae!");
 		setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
 		setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
+		setMsgs("Command_Descriptions.Sus", "Pure single-boned suspicion.");
 		setMsgsVersion(9);
 
 		if (!emotesfile.exists() || !emotes.contains("Version")) {
@@ -532,6 +535,30 @@ public class FileSetup {
 		setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
 		setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
 		setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
+
+		setEmotesBoolean("Feelings.Sus.Enable", true);
+		setEmotes("Feelings.Sus.Msgs.Sender", "&7You look at &e&l%player%&r&7's single-boned body in suspicion.");
+		setEmotes("Feelings.Sus.Msgs.Target", "&e&l%player% &r&7suspiciously looks at your single-boned body.");
+		setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
+
+		if (EnumUtils.isValidEnum(Sound.class, "AMBIENT_NETHER_WASTES_MOOD")) {
+			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
+		} else {
+			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
+		}
+		if (EnumUtils.isValidEnum(Sound.class, "BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
+			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
+			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
+			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
+		} else {
+			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
+			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.0);
+			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.0);
+		}
 
 		setEmotesVersion(4);
 		reloadFiles();

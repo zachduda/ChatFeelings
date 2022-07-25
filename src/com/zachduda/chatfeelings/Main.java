@@ -64,7 +64,9 @@ public class Main extends JavaPlugin implements Listener {
             "lick",
             "scorn",
             "pat",
-            "stalk");
+            "stalk",
+            "sus"
+        );
 
     private boolean hasess = false;
     private boolean haslitebans = false;
@@ -326,7 +328,6 @@ public class Main extends JavaPlugin implements Listener {
                     final String flc = StringUtils.capitalize(fl);
                     map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
                 }
-                map.put("Feature 1", 1);
                 return map;
             }
         }));
@@ -1655,6 +1656,7 @@ public class Main extends JavaPlugin implements Listener {
                 Msgs.send(sender, "&8&l> &f&l/lick" +plyr + "&7 " + msg.getString(path + "Lick"));
                 Msgs.send(sender, "&8&l> &f&l/pat" + plyr + "&7 " + msg.getString(path + "Pat"));
                 Msgs.send(sender, "&8&l> &f&l/stalk" + plyr + "&7 " + msg.getString(path + "Stalk"));
+                Msgs.send(sender, "&8&l> &f&l/sus" + plyr + "&7 " + msg.getString(path + "Sus"));
                 pop(sender);
                 Msgs.send(sender, "");
             } else {

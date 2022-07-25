@@ -103,3 +103,5 @@ commands:
     description: Pat a players head for being good.
   stalk:
     description: Stalk a player carefully... carefully.
+  sus:
+    description: Pure single-boned suspicion.

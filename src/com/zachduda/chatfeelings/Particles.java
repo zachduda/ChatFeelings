@@ -52,11 +52,14 @@ public class Particles {
 			} else if(label.equalsIgnoreCase("lick")) {
 				lickParticle(p);
 			} else if(label.equalsIgnoreCase("scorn")) {
-				//scornParticle(p);
+				// No particle
 			} else if(label.equalsIgnoreCase("pat")) {
-				//patParticle(p);
+				// Use hug particle
+                hugParticle(p);
 			} else if(label.equalsIgnoreCase("stalk")) {
-				//stalkParticle(p);
+                // No particle
+            } else if(label.equalsIgnoreCase("sus")) {
+                // No particle
 			} else {
 				plugin.getLogger().warning("Couldn't find Particle for: /" + label.toString().toLowerCase());
 			}
