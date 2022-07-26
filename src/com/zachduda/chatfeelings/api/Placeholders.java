@@ -60,7 +60,7 @@ public class Placeholders extends PlaceholderExpansion {
         }
         
         for (String fl : plugin.APIgetFeelings()) {
-        	if(identifier.equalsIgnoreCase("total_"+fl+"s") || identifier.equalsIgnoreCase("total_"+fl+"es")) {
+        	if(identifier.equalsIgnoreCase("total_"+fl) || identifier.equalsIgnoreCase("total_"+fl+"s") || identifier.equalsIgnoreCase("total_"+fl+"es")) {
         		return Integer.toString(plugin.APIgetSentStat(player.getUniqueId(), fl));
         	}
         }
