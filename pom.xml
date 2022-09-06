@@ -5,7 +5,7 @@
     <name>ChatFeelings</name>
     <groupId>com.zach_attack</groupId>
     <artifactId>chatfeelings</artifactId>
-    <url>https://github.com/zachduda/ChatFeelings</url>
+    <url>https://zachduda.com/chatfeelings</url>
     <packaging>jar</packaging>
     <version>4.9.5</version>
     <description>Show your feelings in Minecraft with this lightweight Java plugin!</description>
