@@ -1,18 +1,17 @@
 package com.zachduda.chatfeelings;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class FileSetup {
-	private static Main plugin = Main.getPlugin(Main.class);
+	private static final Main plugin = Main.getPlugin(Main.class);
 
 	private static boolean saveFile(FileConfiguration fc, File f) {
 		try {
@@ -185,6 +184,7 @@ public class FileSetup {
 		}
 		//------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
 
+		final int msgfilever = 10;
 		if (!msgsfile.exists() || !msgs.contains("Version")) {
 
 			List<String> confighead = new ArrayList<String>();
@@ -204,20 +204,26 @@ public class FileSetup {
 				plugin.getLogger().info("Created new messages.yml file...");
 			}
 
-		} else if (msgs.getInt("Version") != 9) {
-			plugin.getLogger().info("Updating your messages.yml with new additional messages...");
-
-			if (msgs.getInt("Version") < 6) {
+		} else {
+			final int currentmsgv = msgs.getInt("Version");
+			if (currentmsgv != msgfilever) {
+				plugin.getLogger().info("Updating your messages.yml with new additional messages...");
+			}
+			if (currentmsgv < 6) {
 				forceMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%");
 			}
 
-			if (msgs.getInt("Version") < 7) {
+			if (currentmsgv < 7) {
 				forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
 				forceMsgs("No-Player-Ignore", null); // removed in v7
 			}
+
+			if(currentmsgv < 10) {
+				forceMsgs("Prefix", msgs.getString("Prefix") + " &f"); // removed space in prefix internally in v10
+			}
 		}
 
-		setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃");
+		setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃ &f");
 		setMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%"); // updated in version 5
 		setMsgs("Console-Name", "The Server");
 		setMsgs("No-Permission", "&cSorry. &fYou don't have permission for that.");
@@ -291,7 +297,7 @@ public class FileSetup {
 		setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
 		setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
 		setMsgs("Command_Descriptions.Sus", "Pure single-boned suspicion.");
-		setMsgsVersion(9);
+		setMsgsVersion(10);
 
 		if (!emotesfile.exists() || !emotes.contains("Version")) {
 			if (saveFile(emotes, emotesfile)) {
