@@ -1,16 +1,16 @@
 package com.zachduda.chatfeelings;
 
-import java.io.File;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.logging.Logger;
-
+import com.earth2me.essentials.Essentials;
+import com.zachduda.chatfeelings.api.*;
 import com.zachduda.chatfeelings.other.Updater;
+import litebans.api.Database;
+import me.leoko.advancedban.manager.PunishmentManager;
 import org.apache.commons.lang3.StringUtils;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,22 +20,21 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
-
-import com.earth2me.essentials.Essentials;
-import com.zachduda.chatfeelings.api.ChatFeelingsAPI;
-import com.zachduda.chatfeelings.api.FeelingGlobalNotifyEvent;
-import com.zachduda.chatfeelings.api.FeelingRecieveEvent;
-import com.zachduda.chatfeelings.api.FeelingSendEvent;
-import com.zachduda.chatfeelings.api.Placeholders;
-
-import litebans.api.Database;
-import me.leoko.advancedban.manager.PunishmentManager;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -65,7 +64,8 @@ public class Main extends JavaPlugin implements Listener {
             "scorn",
             "pat",
             "stalk",
-            "sus"
+            "sus",
+            "spook"
         );
 
     private boolean hasess = false;
@@ -90,8 +90,8 @@ public class Main extends JavaPlugin implements Listener {
     private final String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
     private final boolean supported = version.contains("1.19") || version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15");
 
-    private List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
-    private List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
+    private final List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
+    private final List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
     protected File folder;
     protected File msgsfile;
@@ -1089,10 +1089,10 @@ public class Main extends JavaPlugin implements Listener {
                 purgeOldFiles();
             }
             if (!disabledsendingworlds.isEmpty()) {
-                debug("Sending Feelings is disabled in: " + disabledsendingworlds.toString());
+                debug("Sending Feelings is disabled in: " + disabledsendingworlds);
             }
             if (!disabledreceivingworlds.isEmpty()) {
-                debug("Receiving Feelings is disabled in: " + disabledreceivingworlds.toString());
+                debug("Receiving Feelings is disabled in: " + disabledreceivingworlds);
             }
 
             try {
@@ -1100,12 +1100,12 @@ public class Main extends JavaPlugin implements Listener {
                 if (reloadtime >= 1000) {
                     double reloadsec = reloadtime / 1000;
                     // Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
-                    Msgs.send(sender, msg.getString("Reload").replace("%time%", Double.toString(reloadsec) + "s"));
+                    Msgs.send(sender, msg.getString("Reload").replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
                         getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s");
                     }
                 } else {
-                    Msgs.send(sender, msg.getString("Reload").replace("%time%", Long.toString(reloadtime) + "ms"));
+                    Msgs.send(sender, msg.getString("Reload").replace("%time%", reloadtime + "ms"));
                     if (sender instanceof Player) {
                         getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
                     }
@@ -1477,7 +1477,7 @@ public class Main extends JavaPlugin implements Listener {
                     return true;
                 }
 
-                File f = new File(datafolder, File.separator + "" + p.getUniqueId().toString() + ".yml");
+                File f = new File(datafolder, File.separator + "" + p.getUniqueId() + ".yml");
                 FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
                 List < String > ignoredplayers = new ArrayList < String > ();
@@ -1657,6 +1657,16 @@ public class Main extends JavaPlugin implements Listener {
                 Msgs.send(sender, "&8&l> &f&l/pat" + plyr + "&7 " + msg.getString(path + "Pat"));
                 Msgs.send(sender, "&8&l> &f&l/stalk" + plyr + "&7 " + msg.getString(path + "Stalk"));
                 Msgs.send(sender, "&8&l> &f&l/sus" + plyr + "&7 " + msg.getString(path + "Sus"));
+
+                Date now = new Date();
+                SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                if(format.format(now).equals("10") || format.format(now).equals("09")) {
+                    Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+                } else {
+                    Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+                }
+
                 pop(sender);
                 Msgs.send(sender, "");
             } else {
@@ -1684,7 +1694,7 @@ public class Main extends JavaPlugin implements Listener {
                             long secondsLeft = ((Cooldowns.cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
                             if (secondsLeft > 0) {
                                 Msgs.sendPrefix(sender, msg.getString("Cooldown-Active").replace("%time%",
-                                        Long.toString(secondsLeft) + "s"));
+                                        secondsLeft + "s"));
                                 bass(sender);
                                 return;
                             }
@@ -1829,6 +1839,31 @@ public class Main extends JavaPlugin implements Listener {
                 // ------------------------------------------------
 
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
+
+                if(cmdlr.equals("spook")) {
+                    Date now = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                    if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
+                        Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
+                        bass(sender);
+                        return;
+                    }
+
+                    if(Cooldowns.spook.containsKey(target.getName())) {
+                        Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
+                        bass(sender);
+                        return;
+                    }
+
+                    if(!(target.getInventory().getHelmet() == (new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
+                        Msgs.sendPrefix(sender, "&cSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
+                        bass(sender);
+                        return;
+                    }
+
+                    Cooldowns.spookHash(target);
+                }
 
                 // API Events ----------------------------
                 Bukkit.getScheduler().runTask(this, () -> {
@@ -2012,7 +2047,9 @@ public class Main extends JavaPlugin implements Listener {
                 // Add Stats
                 if (sender instanceof Player) {
                     Player p = (Player) sender;
-                    statsAdd(p, cmdconfig);
+                    if(!cmdlr.equals("Spook")) {
+                        statsAdd(p, cmdconfig);
+                    }
                 }
             });
             // End Stats
@@ -2044,7 +2081,36 @@ public class Main extends JavaPlugin implements Listener {
             debug("Skipped updating " + name + "'s file, they joined less than 60s ago.");
         }
 
+        if(Cooldowns.spook.containsKey(name)) {
+            Cooldowns.spookStop(p);
+        }
+
         removeAll(p);
+    }
+
+    @EventHandler
+    public void onChestEvent(InventoryClickEvent event) {
+        Player p = (Player)event.getWhoClicked();
+
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onTP(PlayerTeleportEvent e) {
+        if(e.isCancelled()) {
+            return;
+        }
+
+        Player p = e.getPlayer();
+
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            e.setCancelled(true);
+            bass(p);
+            Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
+            Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

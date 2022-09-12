@@ -7,6 +7,12 @@ api-version: 1.13
 softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
 commands:
+  chatfeelings:
+    description: General command for chatfeelings.
+    aliases: [ cf ]
+  feelings:
+    description: Lists all the feelings you can do!
+    aliases: [ emotions ]
   hug:
     description: Gives somebody a nice warm hug!
   slap:
@@ -19,12 +25,6 @@ commands:
     description: Need to show some disapproval?
   yell:
     description: Yell at someone as loud as possible!
-  chatfeelings:
-    description: General command for chatfeelings.
-    aliases: [cf]
-  feelings:
-    description: Lists all the feelings you can do!
-    aliases: [emotions]
   bite:
     description: Bite a player right on the arm.
   snuggle:
@@ -46,56 +46,6 @@ commands:
   dab:
     description: Cash me outside. How bout dab?
   lick:
-api-version: 1.13
-softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
-description: Allow your players to show their love, or hatred, with unique emotes!
-commands:
-  hug:
-    description: Gives somebody a nice warm hug!
-  slap:
-    description: Slap some sense back into someone.
-  poke:
-    description: Poke someone to get their attention.
-  highfive:
-    description: Show your support, and give a highfive!
-  facepalm:
-    description: Need to show some disapproval?
-  yell:
-    description: Yell at someone as loud as possible!
-  chatfeelings:
-    description: General command for chatfeelings.
-    aliases: [cf]
-  feelings:
-    description: Lists all the feelings you can do!
-    aliases: [emotions]
-  bite:
-    description: Bite a player right on the arm.
-  snuggle:
-    description: Snuggle up with the power of warm hugs!
-  shake:
-    description: Shakes a player to their feet.
-  stab:
-    description: Stab someone with a knife. Ouch!
-  kiss:
-    description: Make sweet sweet love. uwu
-  punch:
-    description: Punch the lights out of someone!
-  murder:
-    description: Finna kill someone here.
-  boi:
-    description: Living in 2016? Boi at a player.
-  cry:
-    description: Real sad hours? Cry at a player.
-  dab:
-    description: Cash me outside. How bout dab?
-  lick:
-    description: Lick someone like an ice-cream sundae!
-  scorn:
-    description: Shame a player for what they've done.
-  pat:
-    description: Pat a players head for being good.
-  stalk:
-    description: Stalk a player carefully..
     description: Lick someone like an ice-cream sundae!
   scorn:
     description: Shame a player for what they've done.
@@ -105,3 +55,5 @@ commands:
     description: Stalk a player carefully... carefully.
   sus:
     description: Pure single-boned suspicion.
+  spook:
+    description: Give your friends some festive fright!

@@ -1,15 +1,15 @@
 package com.zachduda.chatfeelings;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Effect;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class Particles {
 	
-	private static Main plugin = (Main)Main.getPlugin(Main.class);
+	private static final Main plugin = Main.getPlugin(Main.class);
 
 		static void show(Player p, String label)
 		{
@@ -60,8 +60,11 @@ public class Particles {
                 // No particle
             } else if(label.equalsIgnoreCase("sus")) {
                 // No particle
+            } else if(label.equalsIgnoreCase("spook")) {
+                spookEffects(p);
+                spookDripParticle(p);
 			} else {
-				plugin.getLogger().warning("Couldn't find Particle for: /" + label.toString().toLowerCase());
+				plugin.getLogger().warning("Couldn't find Particle for: /" + label.toLowerCase());
 			}
 		}
 
@@ -235,4 +238,58 @@ public class Particles {
         World world = p.getLocation().getWorld();
         world.spawnParticle(Particle.EXPLOSION_HUGE, p.getLocation().add(0, 1, 0), 1, 0.2D, 0.5D, 0.2D);
     }
+
+    private static void spookEffects(Player p)
+    {
+        try {
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                    // MUST BE SYNC
+                    p.removePotionEffect(PotionEffectType.SLOW);
+                    p.removePotionEffect(PotionEffectType.BLINDNESS);
+                    p.removePotionEffect(PotionEffectType.SATURATION);
+                    p.removePotionEffect(PotionEffectType.CONFUSION);
+
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 99999, 2));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 99999, 1));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 99999, 10));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 99999, 1));
+
+                World world = p.getLocation().getWorld();
+
+                final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19");
+                if (fullSupport) {
+                    ItemStack pumpkin = new ItemStack(Material.CARVED_PUMPKIN);
+                    ItemMeta pmm = pumpkin.getItemMeta();
+                    pmm.setDisplayName(ChatColor.GOLD + "§lSPOOKY HAT");
+                    pumpkin.setItemMeta(pmm);
+                    p.getInventory().setHelmet(pumpkin);
+                } else {
+                    ItemStack pumpkin = new ItemStack(Material.valueOf("PUMPKIN"));
+                    ItemMeta pmm = pumpkin.getItemMeta();
+                    pmm.setDisplayName(ChatColor.GOLD + "§lSPOOKY HAT");
+                    pumpkin.setItemMeta(pmm);
+                    p.getInventory().setHelmet(pumpkin);
+                }
+                if(fullSupport) {
+                    world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.ORANGE_WOOL);
+                } else {
+                    world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.valueOf("WOOL"), (byte) 1);
+                }
+            });
+        } catch(Exception e) {
+            plugin.getLogger().info("Error! Couldn't display spooky particles.");
+            e.printStackTrace();
+        }
+    }
+
+    static void spookDripParticle(Player p)
+    {
+        try {
+            World world = p.getLocation().getWorld();
+            world.spawnParticle(Particle.DRIP_LAVA, p.getLocation(), 2, 0.1D, 0.2D, 0.1D);
+        } catch(Exception e) {
+            plugin.getLogger().info("Error! Couldn't display spooky particles.");
+        }
+    }
+
 }
