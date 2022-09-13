@@ -1674,7 +1674,7 @@ public class Main extends JavaPlugin implements Listener {
                             if (hasPerm(sender, "chatfeelings." + cmdlr)) {
                                 Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
                             } else {
-                                Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 You aren't able to use this feeling.");
+                                Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                             }
                         }
                     }

@@ -277,6 +277,7 @@ public class FileSetup {
 		setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
 		setMsgs("Command-List-Page", "&7To go to the next page do &a/feelings %page%");
 		setMsgs("Command-List-Player", "&r &f(player)");
+		setMsgs("Command-List-NoPerm", "&7You aren't able to use this feeling.");
 		setMsgs("Command_Descriptions.Hug", "Give someone a nice warm hug!");
 		setMsgs("Command_Descriptions.Slap", "Slap some sense back into someone.");
 		setMsgs("Command_Descriptions.Poke", "Poke someone to get their attention");
