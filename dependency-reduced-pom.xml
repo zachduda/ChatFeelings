@@ -4,7 +4,7 @@
   <groupId>com.zach_attack</groupId>
   <artifactId>chatfeelings</artifactId>
   <name>ChatFeelings</name>
-  <version>4.9.5</version>
+  <version>4.10.0</version>
   <description>Show your feelings in Minecraft with this lightweight Java plugin!</description>
   <url>https://zachduda.com/chatfeelings</url>
   <licenses>

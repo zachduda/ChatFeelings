@@ -293,6 +293,7 @@ public class FileSetup {
 		setMsgs("Command_Descriptions.Boi", "Living in 2016? Boi at a player.");
 		setMsgs("Command_Descriptions.Cry", "Real sad hours? Cry at someone.");
 		setMsgs("Command_Descriptions.Dab", "Freshly dab on someone.");
+		setMsgs("Command_Descriptions.Scorn", "Shame a player for what they've done.");
 		setMsgs("Command_Descriptions.Lick", "Lick someone like an ice-cream sundae!");
 		setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
 		setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");

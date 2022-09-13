@@ -1625,10 +1625,25 @@ public class Main extends JavaPlugin implements Listener {
                 page = 1;
             }
 
-            final int page_length = 6;
-            final int totalpages = feelings.size()/page_length;
+            final int page_length = Math.max(1, getConfig().getInt("General.Help-Page-Length"));
+
+            List<String> enabledfeelings = new ArrayList<>();
+            for(String fl : feelings) {
+                if (emotes.getBoolean("Feelings." + StringUtils.capitalize(fl) + ".Enable")) {
+                    enabledfeelings.add(fl);
+                }
+            }
+
+            if(enabledfeelings.isEmpty()) {
+                bass(sender);
+                Msgs.sendPrefix(sender,"&cThere was an error when trying to sort available commands.");
+                return true;
+            }
+
+            final int totalpages = Math.max(1, (int)Math.ceil(enabledfeelings.size()/page_length));
 
             if(page > totalpages) {
+                getLogger().info("page: " + page + "   total:" + totalpages + "   efsize:" + enabledfeelings.size());
                 bass(sender);
                 Msgs.sendPrefix(sender, msg.getString("Page-Not-Found"));
                 return true;
@@ -1636,15 +1651,6 @@ public class Main extends JavaPlugin implements Listener {
 
             final int start = (page-1) * page_length;
             final int end = start + page_length;
-
-            // Throwing iterator method not found error List <String> enabledfeelings = null;
-
-            for(String fl : feelings) {
-
-                if (emotes.getBoolean("Feelings." + StringUtils.capitalize(fl) + ".Enable")) {
-                    enabledfeelings.add(fl);
-                }
-            }
 
             Msgs.send(sender, "");
             Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
@@ -1673,6 +1679,9 @@ public class Main extends JavaPlugin implements Listener {
                         }
                     }
                 }
+            }
+            if(totalpages > 1 && ((page+1) <= totalpages)) {
+                Msgs.send(sender, msg.getString("Command-List-Page").replaceAll("%page%", Integer.toString(page + 1)));
             }
             pop(sender);
             Msgs.send(sender, "");
