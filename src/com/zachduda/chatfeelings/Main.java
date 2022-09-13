@@ -644,8 +644,8 @@ public class Main extends JavaPlugin implements Listener {
 
         Bukkit.getServer().getPluginManager().registerEvents(this, this);
 
-        debug("Disabled Sending Worlds: " + disabledsendingworlds.toString());
-        debug("Disabled Receiving Worlds: " + disabledreceivingworlds.toString());
+        debug("Disabled Sending Worlds: " + disabledsendingworlds);
+        debug("Disabled Receiving Worlds: " + disabledreceivingworlds);
 
         if(!beta) {
             addMetrics();
@@ -1610,69 +1610,72 @@ public class Main extends JavaPlugin implements Listener {
         if (cmdlr.equals("feelings")) {
             final String path = "Command_Descriptions.";
             final String plyr = msg.getString("Command-List-Player");
-            if ((args.length == 0) ||
-                    (args.length >= 1 && (args[0].equalsIgnoreCase("1") || args[0].equalsIgnoreCase("0")))) {
-                Msgs.send(sender, "");
-                Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
-                        msg.getString("Feelings-Help-Page").replace("%page%", "1").replace("%pagemax%", "2"));
-        /* This needs to be a loop zach, cmon
-
-        for (String fl : feelings) {
-            final String cmdconfig = (StringUtils.capitalize(cmd.getName())); // This may be the exact same as flcap. If so find other code and consolidate.
-            final String flcap = StringUtils.capitalize(fl); // see cmdconfig
-            if(emotes.getBoolean("Feelings." + cmdconfig + ".Enable")) {
-                 Msgs.send(sender, "&8&l> &f&l/"+fl.toLowerCase()+" (player) &7 " + msg.getString(path + flcap));
-                 <!--- NEED TO UPDATE with hasPerm() func --- >
-                 if (!sender.hasPermission("chatfeelings." + cmdlr) && !sender.hasPermission("chatfeelings.all") && !sender.isOp()) {
-                      Msgs.send(sender, "&8&l> &c/"+fl.toLowerCase()+" &7 You aren't able to use this feeling.");
-                 }
-             }
-        }
-
-        */
-                Msgs.send(sender, "&8&l> &f&l/hug" + plyr + "&7 " + msg.getString(path + "Hug"));
-                Msgs.send(sender, "&8&l> &f&l/slap" + plyr + "&7 " + msg.getString(path + "Slap"));
-                Msgs.send(sender, "&8&l> &f&l/poke" + plyr + "&7 " + msg.getString(path + "Poke"));
-                Msgs.send(sender, "&8&l> &f&l/highfive" + plyr + "&7 " + msg.getString(path + "Highfive"));
-                Msgs.send(sender, "&8&l> &f&l/facepalm" + plyr + "&7 " + msg.getString(path + "Facepalm"));
-                Msgs.send(sender, "&8&l> &f&l/yell" + plyr + "&7 " + msg.getString(path + "Yell"));
-                Msgs.send(sender, "&8&l> &f&l/bite" + plyr + "&7 " + msg.getString(path + "Bite"));
-                Msgs.send(sender, "&8&l> &f&l/snuggle" + plyr + "&7 " + msg.getString(path + "Snuggle"));
-                Msgs.send(sender, "&8&l> &f&l/shake" + plyr + "&7 " + msg.getString(path + "Shake"));
-                Msgs.send(sender, "&8&l> &f&l/stab" + plyr + "&7 " + msg.getString(path + "Stab"));
-                Msgs.send(sender, msg.getString("Command-List-Page").replaceAll("%page%", "2"));
-                pop(sender);
-                Msgs.send(sender, "");
-            } else if (args.length >= 1 && args[0].equalsIgnoreCase("2")) {
-                Msgs.send(sender, "");
-                Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
-                        msg.getString("Feelings-Help-Page").replace("%page%", "2").replace("%pagemax%", "2"));
-                Msgs.send(sender, "&8&l> &f&l/kiss" + plyr + "&7 " + msg.getString(path + "Kiss"));
-                Msgs.send(sender, "&8&l> &f&l/punch" + plyr + "&7 " + msg.getString(path + "Punch"));
-                Msgs.send(sender, "&8&l> &f&l/murder" + plyr + "&7 " + msg.getString(path + "Murder"));
-                Msgs.send(sender, "&8&l> &f&l/boi+" + plyr + "&7 " + msg.getString(path + "Boi"));
-                Msgs.send(sender, "&8&l> &f&l/cry" + plyr + "&7 " + msg.getString(path + "Cry"));
-                Msgs.send(sender, "&8&l> &f&l/dab" + plyr + "&7 " + msg.getString(path + "Dab"));
-                Msgs.send(sender, "&8&l> &f&l/lick" +plyr + "&7 " + msg.getString(path + "Lick"));
-                Msgs.send(sender, "&8&l> &f&l/pat" + plyr + "&7 " + msg.getString(path + "Pat"));
-                Msgs.send(sender, "&8&l> &f&l/stalk" + plyr + "&7 " + msg.getString(path + "Stalk"));
-                Msgs.send(sender, "&8&l> &f&l/sus" + plyr + "&7 " + msg.getString(path + "Sus"));
-
-                Date now = new Date();
-                SimpleDateFormat format = new SimpleDateFormat("MM");
-
-                if(format.format(now).equals("10") || format.format(now).equals("09")) {
-                    Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
-                } else {
-                    Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+            int page = 1;
+            if (args.length >= 1) {
+                try {
+                    page = Integer.parseInt(args[0]);
+                } catch(NumberFormatException e) {
+                    bass(sender);
+                    Msgs.sendPrefix(sender, msg.getString("Page-Not-Found"));
+                    return true;
                 }
+            }
 
-                pop(sender);
-                Msgs.send(sender, "");
-            } else {
+            if(page <= 0) {
+                page = 1;
+            }
+
+            final int page_length = 6;
+            final int totalpages = feelings.size()/page_length;
+
+            if(page > totalpages) {
                 bass(sender);
                 Msgs.sendPrefix(sender, msg.getString("Page-Not-Found"));
+                return true;
             }
+
+            final int start = (page-1) * page_length;
+            final int end = start + page_length;
+
+            // Throwing iterator method not found error List <String> enabledfeelings = null;
+
+            for(String fl : feelings) {
+
+                if (emotes.getBoolean("Feelings." + StringUtils.capitalize(fl) + ".Enable")) {
+                    enabledfeelings.add(fl);
+                }
+            }
+
+            Msgs.send(sender, "");
+            Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
+                    msg.getString("Feelings-Help-Page").replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
+            for (int i = start; i < end; i++) {
+                if(i < enabledfeelings.size()) {
+                    final String flcap = StringUtils.capitalize(enabledfeelings.get(i));
+                    if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
+
+                        if(enabledfeelings.get(i).toLowerCase() == "spook") { // test if spook
+                            Date now = new Date();
+                            SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                            if (format.format(now).equals("10") || format.format(now).equals("09")) {
+                                Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+                            } else {
+                                Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+                            }
+
+                        } else { // spook else
+                            if (hasPerm(sender, "chatfeelings." + cmdlr)) {
+                                Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
+                            } else {
+                                Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 You aren't able to use this feeling.");
+                            }
+                        }
+                    }
+                }
+            }
+            pop(sender);
+            Msgs.send(sender, "");
             return true;
         }
 
