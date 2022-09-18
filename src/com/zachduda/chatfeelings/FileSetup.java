@@ -305,8 +305,9 @@ public class FileSetup {
 			if (saveFile(emotes, emotesfile)) {
 				plugin.getLogger().info("Created new emotes.yml file...");
 			}
-		} else if (emotes.get("Feelings.Spook") != null) {
-			forceEmotes("Feelings.Spook", null);
+		//} else if (emotes.get("Feelings.Spook") != null) {
+		//	forceEmotes("Feelings.Spook", null);
+		//  oops. forgot to remove this
 		} else if (emotes.getInt("Version") != 4) {
 			plugin.getLogger().info("Updating your emotes.yml for the latest update...");
 			if (emotes.getInt("Version") <= 3) {
@@ -549,19 +550,29 @@ public class FileSetup {
 		setEmotes("Feelings.Sus.Msgs.Target", "&e&l%player% &r&7suspiciously looks at your single-boned body.");
 		setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
 
-		if (EnumUtils.isValidEnum(Sound.class, "AMBIENT_NETHER_WASTES_MOOD")) {
-			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
-		} else {
-			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
-		}
-		setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
-		setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
+		try {
+			if (EnumUtils.isValidEnum(Sound.class, "AMBIENT_NETHER_WASTES_MOOD")) {
+				setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
+			} else {
+				setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
+			}
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 
-		if (EnumUtils.isValidEnum(Sound.class, "BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
-			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
-			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
-			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
-		} else {
+			if (EnumUtils.isValidEnum(Sound.class, "BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
+				setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
+				setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
+				setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
+			} else {
+				setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
+				setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.0);
+				setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.0);
+			}
+		} catch (Exception err) {
+			plugin.getLogger().warning("EnumUtils class is missing for /spook, are you using the latest Java LTS?");
+			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
+			setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.0);
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.0);

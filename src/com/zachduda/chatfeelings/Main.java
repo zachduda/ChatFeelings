@@ -1735,6 +1735,8 @@ public class Main extends JavaPlugin implements Listener {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Emote-Disabled"));
                     return;
+                } else {
+                    getLogger().info("Allowing" + cmdconfig);
                 }
 
                 if (args.length < 1) {
