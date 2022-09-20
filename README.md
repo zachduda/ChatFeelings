@@ -4,6 +4,9 @@ The GitHub open source page for the original feeling's Minecraft plugin.
 # API
 For information on how to use the API, [click here](https://www.spigotmc.org/wiki/chatfeelings-api/).
 
+# Build Status
+[![Build Status](https://app.travis-ci.com/zachduda/ChatFeelings.svg?branch=master)](https://app.travis-ci.com/zachduda/ChatFeelings)
+
 # Spigot
 ChatFeelings is a Spigot plugin for 1.13, 1.14, 1.15, 1.16, 1.17, 1.18, & 1.19. Please check out the [Spigot Page](https://www.spigotmc.org/resources/chatfeelings.12987/). for full documentation.
 
