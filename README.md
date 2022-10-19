@@ -20,3 +20,6 @@ The most important parts of the license:
 
 # Contact Me
 If you have any questions or inquiries, you can reach me at https://zachduda.com/contact
+
+# Metrics
+[![ChatFeelings bStats Graph](https://bstats.org/signatures/bukkit/ChatFeelings.svg)](https://bstats.org/plugin/bukkit/ChatFeelings/1376)
