@@ -1,0 +1,14 @@
+{
+    "Legend": "FULL, PARTIAL, NONE",
+    "Versions": {
+        "1.19": "FULL",
+        "1.18": "FULL",
+        "1.17": "FULL",
+        "1.16": "FULL",
+        "1.15": "FULL",
+        "1.14": "FULL",
+        "1.13": "FULL"
+    },
+    "Latest": "1.19",
+    "Oldest": "1.13"
+}

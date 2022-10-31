@@ -2,6 +2,7 @@ package com.zachduda.chatfeelings;
 
 import com.earth2me.essentials.Essentials;
 import com.zachduda.chatfeelings.api.*;
+import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
@@ -20,18 +21,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
@@ -43,7 +40,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public ChatFeelingsAPI api;
 
-    final static List < String > feelings = Arrays.asList(
+    final static List< String > feelings = Arrays.asList(
             "hug",
             "slap",
             "poke",
@@ -64,8 +61,7 @@ public class Main extends JavaPlugin implements Listener {
             "scorn",
             "pat",
             "stalk",
-            "sus",
-            "spook"
+            "sus"
         );
 
     private boolean hasess = false;
@@ -87,7 +83,7 @@ public class Main extends JavaPlugin implements Listener {
     private long lastreload = 0;
     private long lastmutelist = 0;
 
-    private final String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
+    public static final String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
     private final boolean supported = version.contains("1.19") || version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15");
 
     private final List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
@@ -555,7 +551,7 @@ public class Main extends JavaPlugin implements Listener {
         File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-        List < String > ignoredplayers = new ArrayList < String > ();
+        List < String > ignoredplayers = new ArrayList< String >();
         ignoredplayers.clear();
         ignoredplayers.addAll(setcache.getStringList("Ignoring"));
 
@@ -585,18 +581,18 @@ public class Main extends JavaPlugin implements Listener {
     public void onEnable() {
         long start = System.currentTimeMillis();
 
-        if (!supported) {
-            getLogger().info("---------------------------------------------------");
-            getLogger().info("This version of ChatFeelings is only compatible with: 1.19-1.13");
-            getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
-            getLogger().info(" ");
-            getLogger().info("If you continue, you understand that you will get no support, and");
-            getLogger().info("that some features, such as sounds, may disable to continue working.");
-            getLogger().info("");
-            getLogger().info("");
-            getLogger().warning("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
-            getLogger().info("---------------------------------------------------");
-        }
+        //if (!supported) {
+        //    getLogger().info("---------------------------------------------------");
+        //    getLogger().info("This version of ChatFeelings is only compatible with: 1.19-1.13");
+        //    getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
+        //    getLogger().info(" ");
+        //    getLogger().info("If you continue, you understand that you will get no support, and");
+        //    getLogger().info("that some features, such as sounds, may disable to continue working.");
+        //    getLogger().info("");
+        //    getLogger().info("");
+        //    getLogger().warning("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
+        //    getLogger().info("---------------------------------------------------");
+        //}
 
         if (version.contains("1.8") || version.contains("1.7") || version.contains("1.6") || version.contains("1.5") || version.contains("1.4")) {
             getLogger().warning("1.8 or below may have severe issues with this version of ChatFeelings, please use this version (v2):");
@@ -648,6 +644,7 @@ public class Main extends JavaPlugin implements Listener {
         debug("Disabled Receiving Worlds: " + disabledreceivingworlds);
 
         if(!beta) {
+            new Supports(this).fetch();
             addMetrics();
 
             if (getConfig().getBoolean("Other.Updates.Check")) {
@@ -660,7 +657,7 @@ public class Main extends JavaPlugin implements Listener {
                 getLogger().info("[!] Update checking has been disabled in the config.yml");
             }
         } else {
-            debug("Using a pre-release of ChatFeelings. Update checking & metrics have been disabled!");
+            debug("Using a pre-release of ChatFeelings. Update/Support checking & metrics have been disabled!");
         }
 
         FileSetup.enableFiles();
@@ -921,7 +918,6 @@ public class Main extends JavaPlugin implements Listener {
     private boolean isVanished(Player player) {
         if (usevanishcheck) {
             try {
-
                 if (hasess) {
                     Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
                     if (ess.getVanishedPlayers().contains(player.getName())) {
@@ -943,10 +939,8 @@ public class Main extends JavaPlugin implements Listener {
                 return player.hasPotionEffect(PotionEffectType.INVISIBILITY);
             }
 
-            return false;
-        } else { // Vanish Check is Off
-            return false;
         }
+        return false;
     }
 
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
@@ -1643,7 +1637,6 @@ public class Main extends JavaPlugin implements Listener {
             final int totalpages = Math.max(1, (int)Math.ceil(enabledfeelings.size()/page_length));
 
             if(page > totalpages) {
-                getLogger().info("page: " + page + "   total:" + totalpages + "   efsize:" + enabledfeelings.size());
                 bass(sender);
                 Msgs.sendPrefix(sender, msg.getString("Page-Not-Found"));
                 return true;
@@ -1659,23 +1652,10 @@ public class Main extends JavaPlugin implements Listener {
                 if(i < enabledfeelings.size()) {
                     final String flcap = StringUtils.capitalize(enabledfeelings.get(i));
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-
-                        if(enabledfeelings.get(i).toLowerCase() == "spook") { // test if spook
-                            Date now = new Date();
-                            SimpleDateFormat format = new SimpleDateFormat("MM");
-
-                            if (format.format(now).equals("10") || format.format(now).equals("09")) {
-                                Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
-                            } else {
-                                Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
-                            }
-
-                        } else { // spook else
-                            if (hasPerm(sender, "chatfeelings." + cmdlr)) {
-                                Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
-                            } else {
-                                Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
-                            }
+                        if (hasPerm(sender, "chatfeelings." + cmdlr)) {
+                            Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
+                        } else {
+                            Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
                     }
                 }
@@ -1851,31 +1831,6 @@ public class Main extends JavaPlugin implements Listener {
                 // ------------------------------------------------
 
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
-
-                if(cmdlr.equals("spook")) {
-                    Date now = new Date();
-                    SimpleDateFormat format = new SimpleDateFormat("MM");
-
-                    if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
-                        Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
-                        bass(sender);
-                        return;
-                    }
-
-                    if(Cooldowns.spook.containsKey(target.getName())) {
-                        Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
-                        bass(sender);
-                        return;
-                    }
-
-                    if(!(target.getInventory().getHelmet() == (new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
-                        Msgs.sendPrefix(sender, "&cSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
-                        bass(sender);
-                        return;
-                    }
-
-                    Cooldowns.spookHash(target);
-                }
 
                 // API Events ----------------------------
                 Bukkit.getScheduler().runTask(this, () -> {
@@ -2059,9 +2014,7 @@ public class Main extends JavaPlugin implements Listener {
                 // Add Stats
                 if (sender instanceof Player) {
                     Player p = (Player) sender;
-                    if(!cmdlr.equals("Spook")) {
-                        statsAdd(p, cmdconfig);
-                    }
+                    statsAdd(p, cmdconfig);
                 }
             });
             // End Stats
@@ -2093,36 +2046,7 @@ public class Main extends JavaPlugin implements Listener {
             debug("Skipped updating " + name + "'s file, they joined less than 60s ago.");
         }
 
-        if(Cooldowns.spook.containsKey(name)) {
-            Cooldowns.spookStop(p);
-        }
-
         removeAll(p);
-    }
-
-    @EventHandler
-    public void onChestEvent(InventoryClickEvent event) {
-        Player p = (Player)event.getWhoClicked();
-
-        if(Cooldowns.spook.containsKey(p.getName())) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onTP(PlayerTeleportEvent e) {
-        if(e.isCancelled()) {
-            return;
-        }
-
-        Player p = e.getPlayer();
-
-        if(Cooldowns.spook.containsKey(p.getName())) {
-            e.setCancelled(true);
-            bass(p);
-            Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
-            Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

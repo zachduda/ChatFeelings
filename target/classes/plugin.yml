@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zachduda.chatfeelings.Main
 website: https://zachduda.com/chatfeelings
 authors: [zach_attack]
-version: 4.10.0
+version: 4.11.0
 api-version: 1.13
 softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
@@ -55,5 +55,3 @@ commands:
     description: Stalk a player carefully... carefully.
   sus:
     description: Pure single-boned suspicion.
-  spook:
-    description: Give your friends some festive fright!
