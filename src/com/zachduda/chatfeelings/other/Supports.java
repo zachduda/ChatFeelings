@@ -1,59 +1,51 @@
 package com.zachduda.chatfeelings.other;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Iterator;
+import java.nio.charset.Charset;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.zachduda.chatfeelings.Main;
+import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 
 public class Supports {
 
     private final JavaPlugin javaPlugin;
 
-    static boolean supported = false;
+    static boolean supported;
     public Supports(final JavaPlugin javaPlugin) {
         this.javaPlugin = javaPlugin;
     }
 
     public void fetch() {
-        try {
-            Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, () -> {
-                try {
-                    URL url = new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports.json");
-                    BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-                    String str = br.readLine();
-                    JSONArray rawja = (JSONArray) new JSONParser().parse(str);
-                    Iterator iterator = rawja.iterator();
-                    while (iterator.hasNext()) {
-                        JSONObject jsonObject = (JSONObject) iterator.next();
-                        final String vs = ((String) jsonObject.get("Versions." + Main.version));
-                        if(vs != null) {
-                            javaPlugin.getLogger().info("Found supports.json match: " + vs);
-                            break;
-                        }
+        Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, () -> {
+            try {
+                final Pattern versionPattern = Pattern.compile("([1-9]\\d*)\\.(\\d+)\\.(\\d+)(?:-([a-zA-Z0-9]+))?");
+                final Matcher version = versionPattern.matcher(Bukkit.getBukkitVersion().toString());
+
+                JSONParser reader = new JSONParser();
+                JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports.json").openStream(), Charset.forName("UTF-8"))));
+                if(json.get("Versions."+version.group(1)+"_"+version.group(2)) != null) {
+                    if(json.get("Versions."+version.group(1)+"_"+version.group(2)) == "FULL") {
+                        supported = true;
+                        javaPlugin.getLogger().info("FULL SUPPORT");
+                        return;
                     }
-                    javaPlugin.getLogger().info("LOG: "+ rawja.toString());
-                } catch (final IOException | ParseException e) {
-                    e.printStackTrace();
-                    Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "[ChatFeelings] Unable to check repository for version support.");
-                    return;
                 }
-            });
-        } catch(Exception err) {
-            javaPlugin.getLogger().warning("Error. There was a problem checking for supported versions.");
-        }
+                javaPlugin.getLogger().info("NO SUPPORT FOR ");
+                supported = false;
+            } catch (final Exception e) {
+                e.printStackTrace();
+                Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ChatFeelings] Unable to check repository for version support.");
+                return;
+            }
+        });
     }
 
     public static boolean isSupported() {

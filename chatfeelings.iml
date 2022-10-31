@@ -53,11 +53,11 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.DevLeoko.AdvancedBan:AdvancedBan-Bungee:2.3.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.bstats:bstats-bungeecord:1.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.github.DevLeoko.AdvancedBan:AdvancedBan-Core:2.3.0" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: commons-io:commons-io:2.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.apache.commons:commons-lang3:3.8.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hsqldb:hsqldb:2.4.0" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.zaxxer:HikariCP:3.4.5" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.slf4j:slf4j-jdk14:1.7.25" level="project" />
+    <orderEntry type="library" name="Maven: commons-io:commons-io:2.7" level="project" />
   </component>
 </module>

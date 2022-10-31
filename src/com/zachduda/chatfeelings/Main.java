@@ -82,10 +82,6 @@ public class Main extends JavaPlugin implements Listener {
 
     private long lastreload = 0;
     private long lastmutelist = 0;
-
-    public static final String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
-    private final boolean supported = version.contains("1.19") || version.contains("1.18") || version.contains("1.17") || version.contains("1.16") || version.contains("1.13") || version.contains("1.14") || version.contains("1.15");
-
     private final List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private final List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
@@ -1715,8 +1711,6 @@ public class Main extends JavaPlugin implements Listener {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Emote-Disabled"));
                     return;
-                } else {
-                    getLogger().info("Allowing" + cmdconfig);
                 }
 
                 if (args.length < 1) {
