@@ -1,3 +1,5 @@
+[![Build Status](https://app.travis-ci.com/zachduda/ChatFeelings.svg?branch=master)](https://app.travis-ci.com/zachduda/ChatFeelings)
+
 ![Alt text](Images/chatfeelingsbanner.png?raw=true "ChatFeelings Banner")
 The GitHub open source page for the original feeling's Minecraft plugin.
 
@@ -18,3 +20,8 @@ The most important parts of the license:
 
 # Contact Me
 If you have any questions or inquiries, you can reach me at https://zachduda.com/contact
+
+
+
+# Metrics
+[![ChatFeelings bStats Graph](https://bstats.org/signatures/bukkit/ChatFeelings.svg)](https://bstats.org/plugin/bukkit/ChatFeelings/1376)
