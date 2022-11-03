@@ -11,7 +11,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -68,11 +67,11 @@ public class Main extends JavaPlugin implements Listener {
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
 
-    private boolean usevanishcheck = false;
+    private static boolean usevanishcheck = false;
 
     protected static boolean particles = true;
 
-    private boolean useperms = false;
+    private static boolean useperms = false;
 
     protected static boolean multiversion = false;
     protected static boolean debug = false;
@@ -219,17 +218,51 @@ public class Main extends JavaPlugin implements Listener {
         }); // End of Async;
     }
 
-    private void updateConfig() {
-        boolean confdebug = getConfig().getBoolean("Other.Debug");
+    public static void updateConfigHeaders(JavaPlugin pl, final boolean supported) {
+        final String confgreeting = "Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n";
+        final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.\n";
+        try {
+            List < String > confighead = new ArrayList < String > ();
+            confighead.add(confgreeting);
+            if (supported) {
+                confighead.add("# Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
+                pl.getConfig().options().setHeader(confighead);
+                debug("Setting 'supported' header in the config. Using 1.13+");
+            } else {
+                confighead.add(nosupport);
+                debug("Setting 'unsupported' header in the config. Using below 1.13.");
+                pl.getConfig().options().setHeader(confighead);
+            }
+        } catch (NoSuchMethodError e) {
+            // Using less than Java 18 will use this method instead.
+            try {
+                if (supported) {
+                    pl.getConfig().options().header(confgreeting);
+                } else {
+                    pl.getConfig().options().header(confgreeting + nosupport);
+                }
+                debug("Using older java that doesn't support non deprecated method. Use old file method.");
+            } catch (Exception giveup) {
+                debug("Unable to set configuration greeting. Method removed: " + giveup.getMessage());
+            }
+        }
+        pl.saveConfig();
+        configChecks(pl);
+        if (supported) {
+            pl.getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
+        } else {
+            debug("Not showing support discord link. They are using a version that's not supported :(");
+        }
+    }
+
+    public static void updateConfig(JavaPlugin pl, final boolean supported) {
+        boolean confdebug = pl.getConfig().getBoolean("Other.Debug");
         debug = confdebug;
+        sounds = pl.getConfig().getBoolean("General.Sounds");
 
-        String version = Bukkit.getBukkitVersion().replace("-SNAPSHOT", "");
-
-        sounds = getConfig().getBoolean("General.Sounds");
-
-        if (getConfig().getBoolean("General.Particles")) {
-            if (!supported && !version.contains("1.12")) {
-                getLogger().warning("Particles were disabled. You're using " + version + " and not 1.12.X or higher.");
+        if (pl.getConfig().getBoolean("General.Particles")) {
+            if (!supported && !Supports.getMCVersion().equals("1.12")) {
+                pl.getLogger().warning("Particles were disabled. You're using " + Supports.getMCVersion() + " and not 1.12 or higher.");
                 particles = false;
             } else {
                 debug("Using 1.12+, Particles have been enabled.");
@@ -239,16 +272,16 @@ public class Main extends JavaPlugin implements Listener {
             particles = false;
         }
 
-        usevanishcheck = getConfig().getBoolean("Other.Vanished-Players.Check");
+        usevanishcheck = pl.getConfig().getBoolean("Other.Vanished-Players.Check");
 
-        if (getConfig().contains("General.Use-Feeling-Permissions")) {
-            useperms = getConfig().getBoolean("General.Use-Feeling-Permissions");
+        if (pl.getConfig().contains("General.Use-Feeling-Permissions")) {
+            useperms = pl.getConfig().getBoolean("General.Use-Feeling-Permissions");
         } else {
             useperms = false;
         }
 
-        if (getConfig().contains("General.Multi-Version-Support")) {
-            multiversion = getConfig().getBoolean("General.Multi-Version-Support");
+        if (pl.getConfig().contains("General.Multi-Version-Support")) {
+            multiversion = pl.getConfig().getBoolean("General.Multi-Version-Support");
         } else {
             multiversion = false;
         }
@@ -371,46 +404,46 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-    public void configChecks() {
-        if (getConfig().getBoolean("General.Radius.Enabled")) {
-            if (getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
-                getLogger().warning("Feeling radius cannot be 0, disabling the radius.");
-                getConfig().set("General.Radius.Radius-In-Blocks", 35);
-                getConfig().set("General.Radius.Enabled", false);
-                saveConfig();
-                reloadConfig();
+        public static void configChecks(JavaPlugin pl) {
+        if (pl.getConfig().getBoolean("General.Radius.Enabled")) {
+            if (pl.getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
+                pl.getLogger().warning("Feeling radius cannot be 0, disabling the radius.");
+                pl.getConfig().set("General.Radius.Radius-In-Blocks", 35);
+                pl.getConfig().set("General.Radius.Enabled", false);
+                pl.saveConfig();
+                pl.reloadConfig();
             }
         }
 
-        if (getConfig().contains("Version")) {
-            int ver = getConfig().getInt("Version");
+        if (pl.getConfig().contains("Version")) {
+            int ver = pl.getConfig().getInt("Version");
 
             if (ver != 7) {
 
                 if (ver <= 4)
-                    if (getConfig().contains("Other.Bypass-Version-Block")) {
-                        getConfig().set("Other.Bypass-Version-Block", null);
+                    if (pl.getConfig().contains("Other.Bypass-Version-Block")) {
+                        pl.getConfig().set("Other.Bypass-Version-Block", null);
                     }
 
-                getConfig().set("General.Use-Feeling-Permissions", true);
-                getConfig().set("General.Multi-Version-Support", false);
+                pl.getConfig().set("General.Use-Feeling-Permissions", true);
+                pl.getConfig().set("General.Multi-Version-Support", false);
 
                 if (ver < 6) {
-                    getConfig().set("General.No-Violent-Cmds-When-Sleeping", null);
-                    getConfig().set("General.Use-Feeling-Permissions", true);
-                    getConfig().set("General.Multi-Version-Support", false);
-                    getConfig().set("General.Cooldowns.Ignore-List.Enabled", true);
-                    getConfig().set("General.Cooldowns.Ignore-List.Seconds", 10);
+                    pl.getConfig().set("General.No-Violent-Cmds-When-Sleeping", null);
+                    pl.getConfig().set("General.Use-Feeling-Permissions", true);
+                    pl.getConfig().set("General.Multi-Version-Support", false);
+                    pl.getConfig().set("General.Cooldowns.Ignore-List.Enabled", true);
+                    pl.getConfig().set("General.Cooldowns.Ignore-List.Seconds", 10);
                 }
 
                 if (ver < 7) {
-                    getConfig().set("Cooldowns.Ignore-List.Enabled", null);
-                    getConfig().set("Cooldowns.Ignore-List.Seconds", null);
+                    pl.getConfig().set("Cooldowns.Ignore-List.Enabled", null);
+                    pl.getConfig().set("Cooldowns.Ignore-List.Seconds", null);
                 }
 
-                getConfig().set("Version", 7);
-                saveConfig();
-                reloadConfig();
+                pl.getConfig().set("Version", 7);
+                pl.saveConfig();
+                pl.reloadConfig();
             }
         }
     }
@@ -576,57 +609,11 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         long start = System.currentTimeMillis();
-
-        //if (!supported) {
-        //    getLogger().info("---------------------------------------------------");
-        //    getLogger().info("This version of ChatFeelings is only compatible with: 1.19-1.13");
-        //    getLogger().info("While ChatFeelings may work with " + version + ", it is not supported.");
-        //    getLogger().info(" ");
-        //    getLogger().info("If you continue, you understand that you will get no support, and");
-        //    getLogger().info("that some features, such as sounds, may disable to continue working.");
-        //    getLogger().info("");
-        //    getLogger().info("");
-        //    getLogger().warning("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
-        //    getLogger().info("---------------------------------------------------");
-        //}
-
-        if (version.contains("1.8") || version.contains("1.7") || version.contains("1.6") || version.contains("1.5") || version.contains("1.4")) {
-            getLogger().warning("1.8 or below may have severe issues with this version of ChatFeelings, please use this version (v2):");
-            getLogger().warning("https://www.spigotmc.org/resources/chatfeelings.12987/download?version=208840");
-        }
+        getLogger().info("Checking repository to maximize support...");
 
         api = new ChatFeelingsAPI();
 
         getConfig().options().copyDefaults(true);
-        saveConfig();
-
-        final String confgreeting = "Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n";
-        final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.\n";
-        try {
-            List < String > confighead = new ArrayList < String > ();
-            confighead.add(confgreeting);
-            if (supported) {
-                confighead.add("# Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
-                getConfig().options().setHeader(confighead);
-                debug("Setting 'supported' header in the config. Using 1.13+");
-            } else {
-                confighead.add(nosupport);
-                debug("Setting 'unsupported' header in the config. Using below 1.13.");
-                getConfig().options().setHeader(confighead);
-            }
-        } catch (NoSuchMethodError e) {
-            // Using less than Java 18 will use this method instead.
-            try {
-                if (supported) {
-                    getConfig().options().header(confgreeting);
-                } else {
-                    getConfig().options().header(confgreeting + nosupport);
-                }
-                debug("Using older java that doesn't support non deprecated method. Use old file method.");
-            } catch (Exception giveup) {
-                debug("Unable to set configuration greeting. Method removed: " + giveup.getMessage());
-            }
-        }
         saveConfig();
 
         disabledsendingworlds.clear();
@@ -653,6 +640,8 @@ public class Main extends JavaPlugin implements Listener {
                 getLogger().info("[!] Update checking has been disabled in the config.yml");
             }
         } else {
+            updateConfig(this, true);
+            updateConfigHeaders(this, true);
             debug("Using a pre-release of ChatFeelings. Update/Support checking & metrics have been disabled!");
         }
 
@@ -668,13 +657,6 @@ public class Main extends JavaPlugin implements Listener {
             debug("Reloaded with " + onlinecount + " players online... Skipping purge.");
         } else {
             purgeOldFiles();
-        }
-
-        configChecks();
-        if (supported) {
-            getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
-        } else {
-            debug("Not showing support discord link. They are using " + version + " :(");
         }
 
         if (this.getServer().getPluginManager().isPluginEnabled("LiteBans") &&
@@ -705,7 +687,6 @@ public class Main extends JavaPlugin implements Listener {
         } else
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
 
-        updateConfig();
         if(beta) {
             getLogger().warning("You're using a beta update, so update checking is off!");
             getLogger().warning("Check for updates daily at https://github.com/zachduda/ChatFeelings/releases");
@@ -1055,7 +1036,7 @@ public class Main extends JavaPlugin implements Listener {
                 disabledreceivingworlds.addAll(getConfig().getStringList("General.Disabled-Receiving-Worlds"));
 
                 FileSetup.enableFiles();
-                configChecks();
+                configChecks(this);
 
             } catch (Exception err2) {
                 if (debug) {
@@ -1071,7 +1052,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            updateConfig();
+            updateConfig(this, Supports.isSupported());
 
             int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
             if (onlinecount == 0) {
@@ -1839,7 +1820,6 @@ public class Main extends JavaPlugin implements Listener {
                     FeelingRecieveEvent fre = new FeelingRecieveEvent(target, sender, cmdconfig);
                     Bukkit.getPluginManager().callEvent(fre);
                     if (fre.isCancelled()) {
-                        return;
                     }
                 });
 
@@ -2069,7 +2049,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
                 Msgs.send(p, "&7This server is running &fChatFeelings &6v" + getDescription().getVersion() +
-                        " &7for " + version);
+                        " &7for " + Supports.getMCVersion());
             }
         });
     }
