@@ -33,7 +33,7 @@ public class Supports {
                 final String dottedver = getMCVersion();
                 final String this_version = getMCVersion("_");
                 JSONParser reader = new JSONParser();
-                JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"+javaPlugin.getDescription().getVersion().replaceAll("\\.", "_")).openStream(), StandardCharsets.UTF_8)));
+                JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"+javaPlugin.getDescription().getVersion().replaceAll("\\.", "_")+".json").openStream(), StandardCharsets.UTF_8)));
                 JSONObject versions = (JSONObject) json.get("Versions");
                 if(versions.get(this_version) != null) {
                     final String support = versions.get(this_version).toString();
