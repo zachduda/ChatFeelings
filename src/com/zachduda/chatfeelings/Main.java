@@ -3,6 +3,18 @@ package com.zachduda.chatfeelings;
 import com.earth2me.essentials.Essentials;
 import com.zachduda.chatfeelings.api.*;
 import com.zachduda.chatfeelings.other.Supports;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.logging.Logger;
+
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import com.zachduda.chatfeelings.other.Updater;
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
@@ -63,6 +75,7 @@ public class Main extends JavaPlugin implements Listener {
             "sus"
         );
 
+    private boolean mysql = false;
     private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
@@ -284,6 +297,12 @@ public class Main extends JavaPlugin implements Listener {
             multiversion = pl.getConfig().getBoolean("General.Multi-Version-Support");
         } else {
             multiversion = false;
+        }
+        
+        if (getConfig().contains("Other.Player-Files.MySQL.Enabled")) {
+            mysql = true;
+        } else {
+            mysql = false;
         }
     }
 
@@ -684,14 +703,58 @@ public class Main extends JavaPlugin implements Listener {
 
             // enable nickname placeholders if placehodler api is present
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, true);
-        } else
+        } else {
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
+        }
+
+        updateConfig(); // update cached config settings ex: mysql
+
 
         if(beta) {
             getLogger().warning("You're using a beta update, so update checking is off!");
             getLogger().warning("Check for updates daily at https://github.com/zachduda/ChatFeelings/releases");
         }
         debug("Finished! ChatFeelings was loaded in " + (System.currentTimeMillis() - start) + "ms");
+
+        if (mysql) {
+            debug("MySQL mode has been enabled in the config... Attempting to connect.");
+            MysqlDataSource source = new MysqlConnectionPoolDataSource();
+            final String path = "Other.Player-Files.MySQL.Credentials.";
+            source.setServerName(getConfig().getString(path + "host"));
+            source.setPortNumber(getConfig().getInt(path + "port"));
+            source.setDatabaseName(getConfig().getString(path + "database"));
+            source.setUser(getConfig().getString(path + "user"));
+            source.setPassword(getConfig().getString(path + "password"));
+
+            try (Connection conn = source.getConnection()) {
+                if (!conn.isValid(5)) { // 5s timeout until give up
+                    mysql = false;
+                    getLogger().warning("Unable to reach the mySQL database in time. Wrong password or unresponsive database.");
+                } else {
+                    getLogger().info("Successfully connected to the mySQL database...");
+                    try (PreparedStatement stmt = conn.prepareStatement(
+                            "CREATE TABLE IF NOT EXISTS `ChatFeelings` (`UUID` String NOT NULL, `Allow-Feelings` Boolean NOT NULL, `Muted` Boolean NOT NULL);"
+                    )) {
+                        stmt.execute();
+                    } catch (SQLException e) {
+                        getLogger().warning("Error trying to create the default ChatFeelings SQL Table.");
+                        if (debug) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                mysql = false;
+                getLogger().severe("Failed to established mySQL connection. Falling back to file system.");
+                debug("----- mySQL Connection Error: -----");
+                if (debug) {
+                    e.printStackTrace();
+                }
+                debug("------------------------------------");
+            }
+        }
+
+        debug("Finished! ChatFeelings was loaded in " + Long.toString(System.currentTimeMillis() - start) + "ms");
 
         lastreload = System.currentTimeMillis();
 
