@@ -9,8 +9,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.lang3.EnumUtils.isValidEnum;
-
 public class FileSetup {
 	private static final Main plugin = Main.getPlugin(Main.class);
 
@@ -552,20 +550,24 @@ public class FileSetup {
 		setEmotes("Feelings.Sus.Msgs.Target", "&e&l%player% &r&7suspiciously looks at your single-boned body.");
 		setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
 
-		if (isValidEnum(Sound.class, "AMBIENT_NETHER_WASTES_MOOD")) {
+		try {
+			Sound.valueOf("AMBIENT_NETHER_WASTES_MOOD");
 			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
-		} else {
+		} catch (Exception e) {
 			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
 		}
+
 		setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
 		setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 
-		if (isValidEnum(Sound.class, "BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
+		try {
+			Sound.valueOf("BLOCK_RESPAWN_ANCHOR_DEPLETE");
 			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
-		} else {
+		} catch (Exception e) {
 			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
+		} finally {
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.0);
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.0);
 		}
