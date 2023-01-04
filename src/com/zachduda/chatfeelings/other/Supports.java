@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 public class Supports {
 
+    private final String support_v = "4_11_0";
     private final JavaPlugin javaPlugin;
 
     static boolean supported;
@@ -33,19 +34,22 @@ public class Supports {
                 final String dottedver = getMCVersion();
                 final String this_version = getMCVersion("_");
                 JSONParser reader = new JSONParser();
-                JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"+javaPlugin.getDescription().getVersion().replaceAll("\\.", "_")+".json").openStream(), StandardCharsets.UTF_8)));
+                JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
+                        +support_v+".json").openStream(),
+                        StandardCharsets.UTF_8)));
                 JSONObject versions = (JSONObject) json.get("Versions");
                 if(versions.get(this_version) != null) {
                     final String support = versions.get(this_version).toString().toLowerCase();
-                    if(support.equals("full")) {
-                        supported = true;
-                        return;
-                    } else if(support.equals("partial")) {
-                        l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
-                        return;
-                    } else if(support.equals("not_tested")) {
-                        l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
-                        return;
+                    switch (support) {
+                        case "full":
+                            supported = true;
+                            return;
+                        case "partial":
+                            l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
+                            return;
+                        case "not_tested":
+                            l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
+                            return;
                     }
                 }
                 if (!supported) {
