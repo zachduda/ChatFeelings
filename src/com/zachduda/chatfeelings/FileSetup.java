@@ -1,6 +1,5 @@
 package com.zachduda.chatfeelings;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -9,6 +8,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.apache.commons.lang3.EnumUtils.isValidEnum;
 
 public class FileSetup {
 	private static final Main plugin = Main.getPlugin(Main.class);
@@ -551,7 +552,7 @@ public class FileSetup {
 		setEmotes("Feelings.Sus.Msgs.Target", "&e&l%player% &r&7suspiciously looks at your single-boned body.");
 		setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
 
-		if (EnumUtils.isValidEnum(Sound.class, "AMBIENT_NETHER_WASTES_MOOD")) {
+		if (isValidEnum(Sound.class, "AMBIENT_NETHER_WASTES_MOOD")) {
 			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
 		} else {
 			setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
@@ -559,7 +560,7 @@ public class FileSetup {
 		setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
 		setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 
-		if (EnumUtils.isValidEnum(Sound.class, "BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
+		if (isValidEnum(Sound.class, "BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
 			setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
 			setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
