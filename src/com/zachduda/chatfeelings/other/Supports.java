@@ -37,7 +37,7 @@ public class Supports {
                 JSONObject json = new JSONObject((JSONObject)reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
                         +support_v+".json").openStream(),
                         StandardCharsets.UTF_8)));
-                l.info(json.toString());
+                // debug: l.info(json.toString());
                 JSONObject versions = (JSONObject) json.get("Versions");
                 if(versions.get(this_version) != null) {
                     final String support = versions.get(this_version).toString().toLowerCase();
