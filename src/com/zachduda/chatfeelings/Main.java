@@ -6,7 +6,6 @@ import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
-import org.apache.commons.lang3.StringUtils;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
@@ -116,6 +115,20 @@ public class Main extends JavaPlugin implements Listener {
                 removeAll(online.getPlayer());
             }
         }
+    }
+
+    public static String capitalizeString(String string) {
+        char[] chars = string.toLowerCase().toCharArray();
+        boolean found = false;
+        for (int i = 0; i < chars.length; i++) {
+            if (!found && Character.isLetter(chars[i])) {
+                chars[i] = Character.toUpperCase(chars[i]);
+                found = true;
+            } else if (Character.isWhitespace(chars[i]) || chars[i]=='.' || chars[i]=='\'') { // You can add other chars here
+                found = false;
+            }
+        }
+        return String.valueOf(chars);
     }
 
     private void purgeOldFiles() {
@@ -350,7 +363,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 Map<String, Integer> map = new HashMap<>();
                 for (String fl: feelings) {
-                    final String flc = StringUtils.capitalize(fl);
+                    final String flc = capitalizeString(fl);
                     map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
                 }
                 return map;
@@ -764,7 +777,7 @@ public class Main extends JavaPlugin implements Listener {
         }
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-        return setcache.getInt("Stats.Sent." + StringUtils.capitalize(feeling.toLowerCase()));
+        return setcache.getInt("Stats.Sent." + capitalizeString(feeling.toLowerCase()));
     }
 
     public List < String > APIgetFeelings() {
@@ -935,7 +948,7 @@ public class Main extends JavaPlugin implements Listener {
             your = "&7";
         }
         for (String fl: feelings) {
-            final String flcap = StringUtils.capitalize(fl);
+            final String flcap = capitalizeString(fl);
             Msgs.send(p, "&f   &8&l> " + your + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
         }
         Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
@@ -1600,7 +1613,7 @@ public class Main extends JavaPlugin implements Listener {
 
             List<String> enabledfeelings = new ArrayList<>();
             for(String fl : feelings) {
-                if (emotes.getBoolean("Feelings." + StringUtils.capitalize(fl) + ".Enable")) {
+                if (emotes.getBoolean("Feelings." + capitalizeString(fl) + ".Enable")) {
                     enabledfeelings.add(fl);
                 }
             }
@@ -1627,7 +1640,7 @@ public class Main extends JavaPlugin implements Listener {
                     msg.getString("Feelings-Help-Page").replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
             for (int i = start; i < end; i++) {
                 if(i < enabledfeelings.size()) {
-                    final String flcap = StringUtils.capitalize(enabledfeelings.get(i));
+                    final String flcap = capitalizeString(enabledfeelings.get(i));
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
                         if (hasPerm(sender, "chatfeelings." + cmdlr)) {
                             Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
@@ -1677,7 +1690,7 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
 
-                final String cmdconfig = (StringUtils.capitalize(cmd.getName()));
+                final String cmdconfig = (capitalizeString(cmd.getName()));
 
                 if (sender instanceof Player) {
                     Player p = (Player) sender;

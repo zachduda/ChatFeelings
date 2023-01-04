@@ -1,7 +1,6 @@
 package com.zachduda.chatfeelings.other;
 
 import com.zachduda.chatfeelings.Main;
-import org.apache.commons.io.IOUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,6 +8,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Logger;
@@ -34,9 +34,10 @@ public class Supports {
                 final String dottedver = getMCVersion();
                 final String this_version = getMCVersion("_");
                 JSONParser reader = new JSONParser();
-                JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
+                JSONObject json = new JSONObject((JSONObject)reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
                         +support_v+".json").openStream(),
                         StandardCharsets.UTF_8)));
+                l.info(json.toString());
                 JSONObject versions = (JSONObject) json.get("Versions");
                 if(versions.get(this_version) != null) {
                     final String support = versions.get(this_version).toString().toLowerCase();
@@ -51,6 +52,8 @@ public class Supports {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
                             return;
                     }
+                } else {
+                    l.warning("An empty object was returned from the repository.");
                 }
                 if (!supported) {
                     l.info("---------------------------------------------------");
