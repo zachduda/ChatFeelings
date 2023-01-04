@@ -36,14 +36,14 @@ public class Supports {
                 JSONObject json = new JSONObject((JSONObject)reader.parse(IOUtils.toString(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"+javaPlugin.getDescription().getVersion().replaceAll("\\.", "_")+".json").openStream(), StandardCharsets.UTF_8)));
                 JSONObject versions = (JSONObject) json.get("Versions");
                 if(versions.get(this_version) != null) {
-                    final String support = versions.get(this_version).toString();
-                    if(support.equalsIgnoreCase("full")) {
+                    final String support = versions.get(this_version).toString().toLowerCase();
+                    if(support.equals("full")) {
                         supported = true;
                         return;
-                    } else if(support.equalsIgnoreCase("partial")) {
+                    } else if(support.equals("partial")) {
                         l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
                         return;
-                    } else if(support.equalsIgnoreCase("not_tested")) {
+                    } else if(support.equals("not_tested")) {
                         l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
                         return;
                     }
