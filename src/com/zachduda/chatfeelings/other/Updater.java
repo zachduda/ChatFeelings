@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import com.zachduda.chatfeelings.Main;
+import me.dave.chatcolorhandler.ChatColorHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -67,7 +67,7 @@ public class Updater {
                         return;
                     }
                     if(outdated) {
-                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion + "&r, while the latest is &av" + postedver));
+                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColorHandler.translateAlternateColorCodes("&r[ChatFeelings] &e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion + "&r, while the latest is &av" + postedver));
                         cancel(); //Cancel the runnable as an update has been found.
                     }
                 });
