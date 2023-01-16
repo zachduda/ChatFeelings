@@ -145,5 +145,10 @@
             <version>2.3.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.github.CoolDCB</groupId>
+            <artifactId>ChatColorHandler</artifactId>
+            <version>v0.9.9</version>
+        </dependency>
     </dependencies>
 </project>
