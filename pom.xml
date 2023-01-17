@@ -14,7 +14,7 @@
     </properties>
     <licenses>
         <license>
-            <name>GNU General Public License v3.0</name>
+            <name>GPL-3.0</name>
             <url>https://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
         </license>
     </licenses>
@@ -139,4 +139,11 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>ChatFeelings</name>
+            <url>https://maven.pkg.github.com/zachduda/ChatFeelings</url>
+        </repository>
+    </distributionManagement>
 </project>
