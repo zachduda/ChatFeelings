@@ -40,8 +40,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>17</source>
+                    <target>17</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -144,6 +144,11 @@
             <artifactId>AdvancedBan</artifactId>
             <version>2.3.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.CoolDCB</groupId>
+            <artifactId>ChatColorHandler</artifactId>
+            <version>v0.9.9</version>
         </dependency>
     </dependencies>
 </project>
