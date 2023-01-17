@@ -148,7 +148,7 @@
         <dependency>
             <groupId>com.github.CoolDCB</groupId>
             <artifactId>ChatColorHandler</artifactId>
-            <version>v0.9.9</version>
+            <version>v1.1</version>
         </dependency>
     </dependencies>
 </project>

@@ -4,9 +4,15 @@
   <groupId>com.zach_attack</groupId>
   <artifactId>chatfeelings</artifactId>
   <name>ChatFeelings</name>
-  <version>4.11.1</version>
+  <version>4.11.2</version>
   <description>Show your feelings in Minecraft with this lightweight Java plugin!</description>
   <url>https://zachduda.com/chatfeelings</url>
+  <licenses>
+    <license>
+      <name>GPL-3.0</name>
+      <url>https://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
+    </license>
+  </licenses>
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
@@ -121,8 +127,14 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>ChatFeelings</name>
+      <url>https://maven.pkg.github.com/zachduda/ChatFeelings</url>
+    </repository>
+  </distributionManagement>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <dir>${env.PLUGINFOLDER}</dir>
   </properties>
 </project>
