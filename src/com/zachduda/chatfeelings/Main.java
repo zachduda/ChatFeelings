@@ -2,8 +2,10 @@ package com.zachduda.chatfeelings;
 
 import com.earth2me.essentials.Essentials;
 import com.zachduda.chatfeelings.api.*;
+import com.zachduda.chatfeelings.other.DiscordSRVHooks;
 import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
+import github.scarsz.discordsrv.util.DiscordUtil;
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
 import org.bstats.bukkit.Metrics;
@@ -34,11 +36,11 @@ import java.util.logging.Logger;
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
-    public final static boolean beta = false;
+    public final static boolean beta = true;
 
     public ChatFeelingsAPI api;
 
-    final static List< String > feelings = Arrays.asList(
+    public final static List< String > feelings = Arrays.asList(
             "hug",
             "slap",
             "poke",
@@ -62,6 +64,7 @@ public class Main extends JavaPlugin implements Listener {
             "sus"
         );
 
+    private boolean hasdisrv = false;
     private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
@@ -83,12 +86,14 @@ public class Main extends JavaPlugin implements Listener {
     private final List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private final List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
-    protected File folder;
-    protected File msgsfile;
-    protected FileConfiguration msg;
+    final static String discord_link = "https://discord.com/invite/6ugXPfX";
+    File folder;
+    File msgsfile;
+    public FileConfiguration msg;
 
-    protected File emotesfile;
-    protected FileConfiguration emotes;
+    File emotesfile;
+    public FileConfiguration emotes;
+
 
     private void removeAll(Player p) {
         Cooldowns.removeAll(p);
@@ -96,7 +101,7 @@ public class Main extends JavaPlugin implements Listener {
 
     static Logger log = Bukkit.getLogger();
 
-    static void debug(String msg) {
+    public static void debug(String msg) {
         if (debug) {
             log.info("[ChatFeelings] [Debug] " + msg);
         }
@@ -143,7 +148,7 @@ public class Main extends JavaPlugin implements Listener {
 
             int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
 
-            for (File cachefile: folder.listFiles()) {
+            for (File cachefile: Objects.requireNonNull(folder.listFiles())) {
                 File f = new File(cachefile.getPath());
 
                 if (!f.getName().equalsIgnoreCase("global.yml")) {
@@ -238,7 +243,7 @@ public class Main extends JavaPlugin implements Listener {
             List < String > confighead = new ArrayList < String > ();
             confighead.add(confgreeting);
             if (supported) {
-                confighead.add("# Having trouble? Join our support discord: https://discord.gg/6ugXPfX");
+                confighead.add("# Having trouble? Join our support discord: " + discord_link);
                 pl.getConfig().options().setHeader(confighead);
                 debug("Setting 'supported' header in the config. Using 1.13+");
             } else {
@@ -262,7 +267,7 @@ public class Main extends JavaPlugin implements Listener {
         pl.saveConfig();
         configChecks(pl);
         if (supported) {
-            pl.getLogger().info("Having issues? Got a question? Join our support discord: https://discord.gg/6ugXPfX");
+            pl.getLogger().info("Having issues? Got a question? Join our support discord: " + discord_link);
         } else {
             debug("Not showing support discord link. They are using a version that's not supported :(");
         }
@@ -354,7 +359,7 @@ public class Main extends JavaPlugin implements Listener {
             }
         }));
 
-        metrics.addCustomChart(new SimpleBarChart("feeling_usage", new Callable<Map<String, Integer>>() {
+        metrics.addCustomChart(new SimpleBarChart("feeling_usage", new Callable<>() {
             @Override
             public Map<String, Integer> call() throws Exception {
                 File folder = new File(getDataFolder(), File.separator + "Data");
@@ -362,7 +367,7 @@ public class Main extends JavaPlugin implements Listener {
                 FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
 
                 Map<String, Integer> map = new HashMap<>();
-                for (String fl: feelings) {
+                for (String fl : feelings) {
                     final String flc = capitalizeString(fl);
                     map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
                 }
@@ -377,8 +382,7 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
+        if (sender instanceof Player p) {
             try {
                 p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 2.0F, 2.0F);
             } catch (Exception err) {
@@ -392,8 +396,7 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
+        if (sender instanceof Player p) {
             try {
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
             } catch (Exception err) {
@@ -407,8 +410,7 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
+        if (sender instanceof Player p) {
             try {
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 2.0F);
             } catch (Exception err) {
@@ -619,6 +621,20 @@ public class Main extends JavaPlugin implements Listener {
         return setcache.getString("Username", "0");
     }
 
+    public boolean hasPlugin(String plugin) {
+        try {
+            if (getServer().getPluginManager().isPluginEnabled(plugin) &&
+                    getServer().getPluginManager().getPlugin(plugin) != null) {
+                getLogger().info("Hooking into " + plugin + "...");
+                return true;
+            }
+        } catch (Exception err) {
+            debug("Unable to check for " + plugin + ":");
+            err.printStackTrace();
+        }
+        return false;
+    }
+
     @Override
     public void onEnable() {
         long start = System.currentTimeMillis();
@@ -672,33 +688,31 @@ public class Main extends JavaPlugin implements Listener {
             purgeOldFiles();
         }
 
-        if (this.getServer().getPluginManager().isPluginEnabled("LiteBans") &&
-                this.getServer().getPluginManager().getPlugin("LiteBans") != null) {
-            getLogger().info("Hooking into LiteBans...");
+        if (hasPlugin("LiteBans")) {
             haslitebans = true;
         }
 
-        if (this.getServer().getPluginManager().isPluginEnabled("AdvancedBan") &&
-                this.getServer().getPluginManager().getPlugin("AdvancedBan") != null) {
-            getLogger().info("Hooking into AdvancedBans...");
+        if (hasPlugin("AdvancedBan")) {
             hasadvancedban = true;
         }
 
-        if (this.getServer().getPluginManager().isPluginEnabled("Essentials") &&
-                this.getServer().getPluginManager().getPlugin("Essentials") != null) {
+        if (hasPlugin("Essentials")) {
             hasess = true;
-            getLogger().info("Hooking into Essentials...");
         }
 
-        if (this.getServer().getPluginManager().isPluginEnabled("PlaceholderAPI") &&
-                this.getServer().getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            getLogger().info("Hooking into PlaceholderAPI...");
+        if (hasPlugin("PlaceholderAPI")) {
             new Placeholders(this).register();
 
             // enable nickname placeholders if placehodler api is present
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, true);
-        } else
+        } else {
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
+        }
+
+        if (hasPlugin("DiscordSRV")) {
+            hasdisrv = true;
+            Bukkit.getServer().getPluginManager().registerEvents(this, new DiscordSRVHooks());
+        }
 
         if(beta) {
             getLogger().warning("You're using a beta update, so update checking is off!");
@@ -986,12 +1000,11 @@ public class Main extends JavaPlugin implements Listener {
             }
 
             if (args.length == 1) {
-                if (!(sender instanceof Player)) {
+                if (!(sender instanceof final Player p)) {
                     Msgs.sendPrefix(sender, msg.getString("No-Player"));
                     return true;
                 }
 
-                final Player p = (Player) sender;
                 getStats(sender, p.getUniqueId(), true);
                 pop(sender);
                 return true;
@@ -1247,7 +1260,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("unmute")) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("unmute")) {
             if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
@@ -1437,12 +1450,10 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (!(sender instanceof Player)) {
+            if (!(sender instanceof Player p)) {
                 Msgs.sendPrefix(sender, "&c&lSorry. &fOnly players can ignore other players.");
                 return true;
             }
-
-            Player p = (Player) sender;
 
             if (args.length == 1) {
                 if (Cooldowns.ignorelistcooldown.containsKey(p)) {
@@ -1669,8 +1680,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !hasPerm(sender,"chatfeelings.bypasscooldowns", true)) {
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
+                    if (sender instanceof Player p) {
                         if (Cooldowns.cooldown.containsKey(p.getPlayer())) {
                             int cooldownTime = getConfig().getInt("General.Cooldowns.Feelings.Seconds");
                             long secondsLeft = ((Cooldowns.cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
@@ -1692,8 +1702,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 final String cmdconfig = (capitalizeString(cmd.getName()));
 
-                if (sender instanceof Player) {
-                    Player p = (Player) sender;
+                if (sender instanceof Player p) {
                     if (disabledsendingworlds.contains(p.getWorld().getName())) {
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Sending-World-Disabled"));
@@ -1742,8 +1751,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 // Radius & Sleeping Check ---------------------------
-                if (sender instanceof Player) {
-                    final Player p = (Player) sender;
+                if (sender instanceof final Player p) {
                     if (getConfig().getBoolean("General.Radius.Enabled")) {
                         final String omsg = msg.getString("Outside-Of-Radius").replace("%player%", target.getName()).replace("%command%", cmd.getName());
                         if (target.getWorld() != p.getWorld()) {
@@ -1766,8 +1774,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 File playerfiles = new File(this.getDataFolder(), File.separator + "Data");
 
-                if (sender instanceof Player) {
-                    final Player p = (Player) sender;
+                if (sender instanceof final Player p) {
 
                     File myf = new File(playerfiles, File.separator + "" + p.getUniqueId() + ".yml");
                     FileConfiguration me = YamlConfiguration.loadConfiguration(myf);
@@ -1851,8 +1858,7 @@ public class Main extends JavaPlugin implements Listener {
                         if (!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
                             debug("" + online.getName() + " is blocking all feelings. Skipping Global Msg!");
                         } else { // else NOT ignoring ALL
-                            if (sender instanceof Player) {
-                                Player p = (Player) sender;
+                            if (sender instanceof Player p) {
                                 if (isTargetIgnoringSender(target, p)) {
                                     // Player is Ignoring from sender but is not target. (GlobaL)
 
@@ -1867,8 +1873,7 @@ public class Main extends JavaPlugin implements Listener {
                                 Msgs.send(online.getPlayer(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
                             } else {
                                 // Global for PLAYER below
-                                if (sender instanceof Player) {
-                                    Player p = (Player) sender;
+                                if (sender instanceof Player p) {
                                     if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
                                         Bukkit.getScheduler().runTask(this, () -> {
                                             FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
@@ -1922,8 +1927,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 // Cooldown Handler ------------------------------------
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled")) {
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
+                    if (sender instanceof Player p) {
                         Cooldowns.putCooldown(p);
                     }
                 }
@@ -1947,17 +1951,13 @@ public class Main extends JavaPlugin implements Listener {
                 if (sounds) {
                     try {
                         String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
-                        if (!sound1.equalsIgnoreCase("none") &&
-                                !sound1.equalsIgnoreCase("off") &&
-                                sound1 != null &&
-                                sound1 != "null") {
+                        if (!sound1.equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && sound1 != "null") {
 
                             target.playSound(target.getPlayer().getLocation(),
                                     Sound.valueOf(sound1),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
-                            if (sender instanceof Player) {
-                                Player p = (Player) sender;
+                            if (sender instanceof Player p) {
                                 p.playSound(p.getLocation(),
                                         Sound.valueOf(sound1),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
@@ -1982,8 +1982,7 @@ public class Main extends JavaPlugin implements Listener {
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
-                                if (sender instanceof Player && !sound2.contains("DISC")) {
-                                    Player p = (Player) sender;
+                                if (sender instanceof Player p && !sound2.contains("DISC")) {
                                     p.playSound(p.getLocation(),
                                             Sound.valueOf(sound2),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
@@ -2001,8 +2000,7 @@ public class Main extends JavaPlugin implements Listener {
                 // ---------- End of Sounds
 
                 // Add Stats
-                if (sender instanceof Player) {
-                    Player p = (Player) sender;
+                if (sender instanceof Player p) {
                     statsAdd(p, cmdconfig);
                 }
             });
@@ -2015,8 +2013,7 @@ public class Main extends JavaPlugin implements Listener {
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
             Msgs.send(sender, "");
-            if (sender instanceof Player) {
-                Player p = (Player) sender;
+            if (sender instanceof Player p) {
                 bass(p.getPlayer());
             }
         }

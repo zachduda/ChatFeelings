@@ -4,7 +4,7 @@ website: https://zachduda.com/chatfeelings
 authors: [zach_attack]
 version: 4.11.2
 api-version: 1.13
-softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
+softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI, DiscordSRV]
 description: Allow your players to show their love, or hatred, with unique emotes!
 commands:
   chatfeelings:

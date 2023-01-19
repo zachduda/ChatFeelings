@@ -17,6 +17,11 @@
       <option name="url" value="https://jitpack.io" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="Scarsz-Nexus" />
+      <option name="name" value="Scarsz-Nexus" />
+      <option name="url" value="https://nexus.scarsz.me/content/groups/public/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="spigot-repo" />
       <option name="name" value="spigot-repo" />
       <option name="url" value="https://hub.spigotmc.org/nexus/content/repositories/snapshots/" />
