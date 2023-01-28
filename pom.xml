@@ -145,7 +145,7 @@
         <dependency>
             <groupId>com.github.CoolDCB</groupId>
             <artifactId>ChatColorHandler</artifactId>
-            <version>v1.1</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>com.discordsrv</groupId>
