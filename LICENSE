@@ -6,8 +6,8 @@ Thank you for downloading the software I made. Please be reminded of the followi
 
 1. Anyone can copy, modify and distribute this software.
 2. You have to include the license and copyright notice with each and every distribution.
-3. You can use this software privately.
-4. You can use this software for commercial purposes.
+3. You can use this software privately so long as it is not sold.
+4. You can use this software for commercial purposes as long as it is open source AND free.
 5. If you dare build your business solely from this code, you risk open-sourcing the whole code base.
 6. If you modify it, you have to indicate changes made to the code.
 7. Any modifications of this code base MUST be distributed with the same license, GPLv3.
@@ -670,7 +670,7 @@ Also add information on how to contact you by electronic and paper mail.
   If the program does terminal interaction, make it output a short
 notice like this when it starts in an interactive mode:
 
-    ChatFeelings Copyright (C) 2015-2023 Zachary
+    ChatFeelings Copyright (C) Zach Duda -- zachduda.com
     This program comes with ABSOLUTELY NO WARRANTY.
     This is free software, and you are welcome to redistribute it
     under certain conditions.
