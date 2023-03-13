@@ -75,5 +75,4 @@ public class DiscordSRVHooks implements Listener, SlashCommandProvider {
                             msg.replaceAll("❤", "") + " " + getEmoji(feeling))) + "**");
         });
     }
-
 }

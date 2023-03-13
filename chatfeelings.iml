@@ -31,8 +31,8 @@
     <orderEntry type="library" scope="PROVIDED" name="Maven: com.googlecode.json-simple:json-simple:1.1.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: junit:junit:4.10" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: org.hamcrest:hamcrest-core:1.1" level="project" />
-    <orderEntry type="library" name="Maven: org.bstats:bstats-bukkit:3.0.0" level="project" />
-    <orderEntry type="library" name="Maven: org.bstats:bstats-base:3.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.bstats:bstats-bukkit:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.bstats:bstats-base:3.0.1" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.essentialsx:EssentialsX:2.19.7" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: io.papermc:paperlib:1.0.6" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="Maven: net.essentialsx:BaseProviders:2.19.7" level="project" />
