@@ -79,6 +79,7 @@ public class Main extends JavaPlugin implements Listener {
 
     private static boolean sounds = false;
     private static boolean punishmentError = false;
+    private Metrics metrics;
 
     private long lastreload = 0;
     private long lastmutelist = 0;
@@ -118,6 +119,11 @@ public class Main extends JavaPlugin implements Listener {
             for (final Player online: Bukkit.getServer().getOnlinePlayers()) {
                 removeAll(online.getPlayer());
             }
+        }
+        if(metrics != null) {
+            metrics.shutdown();
+        } else {
+            debug("Metrics were disabled or are NULL, skipping Metric shutdown call...");
         }
     }
 
@@ -317,14 +323,14 @@ public class Main extends JavaPlugin implements Listener {
         return hasPerm(p, "none", false);
     }
 
-    private void addMetrics() {
+    private Metrics addMetrics() {
         if(beta) {
             debug("Metrics were not enabled as this is a pre-release version.");
-            return;
+            return null;
         }
         if (!getConfig().getBoolean("Other.Metrics")) {
             debug("Metrics was disabled. Guess we won't support the developer today!");
-            return;
+            return null;
         }
 
         double version = Double.parseDouble(System.getProperty("java.specification.version"));
@@ -332,7 +338,7 @@ public class Main extends JavaPlugin implements Listener {
             getLogger().warning(
                     "Java " + Double.toString(version).replace("1.", "") + " detected. ChatFeelings requires Java 8 or higher to fully function.");
             getLogger().info("TIP: Use version v2.0.1 or below for legacy Java support.");
-            return;
+            return null;
         }
 
         Metrics metrics = new Metrics(this, 1376);
@@ -370,6 +376,8 @@ public class Main extends JavaPlugin implements Listener {
             }
             return map;
         }));
+
+        return metrics;
 
     } // End Metrics
 
@@ -656,7 +664,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if(!beta) {
             new Supports(this).fetch();
-            addMetrics();
+            metrics = addMetrics();
 
             if (getConfig().getBoolean("Other.Updates.Check")) {
                 try {
