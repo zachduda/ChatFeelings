@@ -143,11 +143,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.CoolDCB</groupId>
-            <artifactId>ChatColorHandler</artifactId>
-            <version>1.2</version>
-        </dependency>
-        <dependency>
             <groupId>com.discordsrv</groupId>
             <artifactId>discordsrv</artifactId>
             <version>1.26.0</version>

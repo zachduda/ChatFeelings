@@ -12,5 +12,6 @@
         "1_12": "PARTIAL"
     },
     "Latest": "1.19",
-    "Oldest": "1.13"
+    "Oldest": "1.13",
+    "Console_Message": ""
 }

@@ -37,20 +37,28 @@ public class Supports {
                 JSONObject json = new JSONObject((JSONObject)reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
                         +support_v+".json").openStream(),
                         StandardCharsets.UTF_8)));
-                // debug: l.info(json.toString());
+
+                if(json.get("Console_Message") != null && json.get("Console_Message") != "") {
+                    l.info("[ChatFeelings] " + json.get("Console_Message"));
+                }
+
                 JSONObject versions = (JSONObject) json.get("Versions");
+
                 if(versions.get(this_version) != null) {
                     final String support = versions.get(this_version).toString().toLowerCase();
                     switch (support) {
-                        case "full":
+                        case "full" -> {
                             supported = true;
                             return;
-                        case "partial":
+                        }
+                        case "partial" -> {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
                             return;
-                        case "not_tested":
+                        }
+                        case "not_tested" -> {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
                             return;
+                        }
                     }
                 } else {
                     l.warning("An empty object was returned from the repository.");

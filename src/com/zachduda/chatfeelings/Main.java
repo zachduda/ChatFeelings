@@ -5,7 +5,6 @@ import com.zachduda.chatfeelings.api.*;
 import com.zachduda.chatfeelings.other.DiscordSRVHooks;
 import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
-import github.scarsz.discordsrv.util.DiscordUtil;
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
 import org.bstats.bukkit.Metrics;
@@ -30,9 +29,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
+@SuppressWarnings("ResultOfMethodCallIgnored")
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
@@ -64,10 +63,10 @@ public class Main extends JavaPlugin implements Listener {
             "sus"
         );
 
-    private boolean hasdisrv = false;
     private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
+    private boolean has_discord = false;
 
     private static boolean usevanishcheck = false;
 
@@ -169,6 +168,7 @@ public class Main extends JavaPlugin implements Listener {
                             String playername = setcache.getString("Username");
                             String uuid = setcache.getString("UUID");
                             String IPAdd = setcache.getString("IP");
+                            assert uuid != null;
                             UUID puuid = UUID.fromString(uuid);
 
                             int banInt;
@@ -240,7 +240,7 @@ public class Main extends JavaPlugin implements Listener {
         final String confgreeting = "Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n";
         final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.\n";
         try {
-            List < String > confighead = new ArrayList < String > ();
+            List < String > confighead = new ArrayList<>();
             confighead.add(confgreeting);
             if (supported) {
                 confighead.add("# Having trouble? Join our support discord: " + discord_link);
@@ -274,8 +274,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public static void updateConfig(JavaPlugin pl, final boolean supported) {
-        boolean confdebug = pl.getConfig().getBoolean("Other.Debug");
-        debug = confdebug;
+        debug = pl.getConfig().getBoolean("Other.Debug");
         sounds = pl.getConfig().getBoolean("General.Sounds");
 
         if (pl.getConfig().getBoolean("General.Particles")) {
@@ -359,20 +358,17 @@ public class Main extends JavaPlugin implements Listener {
             }
         }));
 
-        metrics.addCustomChart(new SimpleBarChart("feeling_usage", new Callable<>() {
-            @Override
-            public Map<String, Integer> call() throws Exception {
-                File folder = new File(getDataFolder(), File.separator + "Data");
-                File fstats = new File(folder, File.separator + "global.yml");
-                FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
+        metrics.addCustomChart(new SimpleBarChart("feeling_usage", () -> {
+            File folder = new File(getDataFolder(), File.separator + "Data");
+            File fstats = new File(folder, File.separator + "global.yml");
+            FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
 
-                Map<String, Integer> map = new HashMap<>();
-                for (String fl : feelings) {
-                    final String flc = capitalizeString(fl);
-                    map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
-                }
-                return map;
+            Map<String, Integer> map = new HashMap<>();
+            for (String fl : feelings) {
+                final String flc = capitalizeString(fl);
+                map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
             }
+            return map;
         }));
 
     } // End Metrics
@@ -595,7 +591,7 @@ public class Main extends JavaPlugin implements Listener {
         File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-        List < String > ignoredplayers = new ArrayList< String >();
+        List < String > ignoredplayers = new ArrayList<>();
         ignoredplayers.clear();
         ignoredplayers.addAll(setcache.getStringList("Ignoring"));
 
@@ -623,17 +619,20 @@ public class Main extends JavaPlugin implements Listener {
 
     public boolean hasPlugin(String plugin) {
         try {
-            if (getServer().getPluginManager().isPluginEnabled(plugin) &&
-                    getServer().getPluginManager().getPlugin(plugin) != null) {
+            if (this.getServer().getPluginManager().isPluginEnabled(plugin) &&
+                    this.getServer().getPluginManager().getPlugin(plugin) != null) {
                 getLogger().info("Hooking into " + plugin + "...");
                 return true;
             }
+            debug("Skipping hooks for " + plugin + " (Not Found)");
+            return false;
         } catch (Exception err) {
             debug("Unable to check for " + plugin + ":");
             err.printStackTrace();
         }
         return false;
     }
+
 
     @Override
     public void onEnable() {
@@ -664,6 +663,9 @@ public class Main extends JavaPlugin implements Listener {
                     new Updater(this).checkForUpdate();
                 } catch (Exception e) {
                     getLogger().warning("There was an issue while trying to check for updates.");
+                    if(debug) {
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 getLogger().info("[!] Update checking has been disabled in the config.yml");
@@ -696,7 +698,7 @@ public class Main extends JavaPlugin implements Listener {
             hasadvancedban = true;
         }
 
-        if (hasPlugin("Essentials")) {
+        if (hasPlugin("Essentials") || hasPlugin("EssentialsX")) {
             hasess = true;
         }
 
@@ -710,8 +712,15 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (hasPlugin("DiscordSRV")) {
-            hasdisrv = true;
-            Bukkit.getServer().getPluginManager().registerEvents(this, new DiscordSRVHooks());
+            has_discord = true;
+            try {
+                new DiscordSRVHooks();
+            } catch (Exception e) {
+                getLogger().info("Failed to initiate DiscordSRV hooks.");
+                if (debug) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         if(beta) {
@@ -874,6 +883,7 @@ public class Main extends JavaPlugin implements Listener {
         try {
             if (hasess) {
                 Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+                assert ess != null;
                 return ess.getUser(uuid).getBase().isBanned();
             }
             return false;
@@ -924,6 +934,7 @@ public class Main extends JavaPlugin implements Listener {
             try {
                 if (hasess) {
                     Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+                    assert ess != null;
                     if (ess.getVanishedPlayers().contains(player.getName())) {
                         return true;
                     }
@@ -1905,6 +1916,12 @@ public class Main extends JavaPlugin implements Listener {
                     // send to cmd sender
                     Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender"), target));
                 } // end of global else
+
+                // If DiscordSRV is present, treat the broadcast as a global.
+                if(has_discord) {
+                    final String discord_msg = NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target);
+                    DiscordSRVHooks.broadcast(cmd.getName().toLowerCase(), discord_msg);
+                }
 
                 // Special Effect Command Handlers -----------------------------
                 if (getConfig().getBoolean("General.Violent-Command-Harm")) {
