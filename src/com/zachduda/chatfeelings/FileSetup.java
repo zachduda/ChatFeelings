@@ -143,6 +143,7 @@ public class FileSetup {
 		saveFile(emotes, emotesfile);
 	}
 
+	@SuppressWarnings("SpellCheckingInspection")
 	static void enableFiles() {
 		File folder = getFolder();
 
@@ -217,8 +218,32 @@ public class FileSetup {
 				forceMsgs("No-Player-Ignore", null); // removed in v7
 			}
 
-			if(currentmsgv < 10) {
+			if (currentmsgv < 10) {
 				forceMsgs("Prefix", msgs.getString("Prefix") + " &f"); // removed space in prefix internally in v10
+			}
+
+			if (currentmsgv < 11) {
+				// Typo in file, move old variables to correctly spelled one.
+
+				if (plugin.msg.getString("Ingoring-On-Player") != null) {
+					setMsgs("Ignoring-On-Player", plugin.msg.getString("Ingoring-On-Player"));
+					forceMsgs("Ingoring-On-Player", null);
+				}
+				if (plugin.msg.getString("Ingoring-Off-Player") != null) {
+					setMsgs("Ignoring-Off-Player", plugin.msg.getString("Ingoring-Off-Player"));
+					forceMsgs("Ingoring-Off-Player", null);
+				}
+
+				if (plugin.msg.getString("Ingoring-On-All") != null) {
+					setMsgs("Ignoring-On-All", plugin.msg.getString("Ingoring-Off-Player"));
+					forceMsgs("Ingoring-On-Player", null);
+				}
+
+				if (plugin.msg.getString("Ingoring-Off-All") != null) {
+					setMsgs("Ignoring-Off-All", plugin.msg.getString("Ingoring-Off-Player"));
+					forceMsgs("Ingoring-Off-Player", null);
+				}
+
 			}
 		}
 
@@ -267,10 +292,10 @@ public class FileSetup {
 		setMsgs("Already-Mute-Unmute-Suggestion", "&7&oCould you have meant &e&o/cf unmute"); // added in version 3
 		setMsgs("No-Perm-Mute-Suggestion", "&7&oCould you have meant &e&o/cf ignore&7&o?");
 		setMsgs("Emote-Disabled", "&cEmote Disabled. &fThis emotion has been disabled by the server.");
-		setMsgs("Ingoring-On-Player", "&7You've now &c&lBLOCKED &r&7feelings from: &f%player%");
-		setMsgs("Ingoring-Off-Player", "&7Now &a&lALLOWING &7feelings from: &f%player%");
-		setMsgs("Ingoring-On-All", "&7You've now &c&lBLOCKED &r&7feelings from all players.");
-		setMsgs("Ingoring-Off-All", "&7Now &a&lALLOWING &7feelings from all players.");
+		setMsgs("Ignoring-On-Player", "&7You've now &c&lBLOCKED &r&7feelings from: &f%player%");
+		setMsgs("Ignoring-Off-Player", "&7Now &a&lALLOWING &7feelings from: &f%player%");
+		setMsgs("Ignoring-On-All", "&7You've now &c&lBLOCKED &r&7feelings from all players.");
+		setMsgs("Ignoring-Off-All", "&7Now &a&lALLOWING &7feelings from all players.");
 		setMsgs("Cant-Ignore-Self", "&cYou Silly! &fYou can't ignore yourself.");
 		setMsgs("Target-Is-Ignoring", "&cBummer! &fThis player has blocked you.");
 		setMsgs("Target-Is-Ignoring-All", "&cBummer! &fThis player is not accepting feelings.");
@@ -298,7 +323,7 @@ public class FileSetup {
 		setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
 		setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
 		setMsgs("Command_Descriptions.Sus", "Pure single-boned suspicion.");
-		setMsgsVersion(10);
+		setMsgsVersion(11);
 
 		if (!emotesfile.exists() || !emotes.contains("Version")) {
 			if (saveFile(emotes, emotesfile)) {
