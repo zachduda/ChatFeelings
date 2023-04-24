@@ -1,21 +1,3 @@
---------------------------------------------------------------------------------------------------------
-Zachary Duda
-hello@zachduda.com
-
-Thank you for downloading the software I made. Please be reminded of the following:
-
-1. Anyone can copy, modify and distribute this software.
-2. You have to include the license and copyright notice with each and every distribution.
-3. You can use this software privately so long as it is not sold.
-4. You can use this software for commercial purposes as long as it is open source AND free.
-5. If you dare build your business solely from this code, you risk open-sourcing the whole code base.
-6. If you modify it, you have to indicate changes made to the code.
-7. Any modifications of this code base MUST be distributed with the same license, GPLv3.
-8. This software is provided without warranty.
-9. The software author or license can not be held liable for any damages inflicted by the software.
-
---------------------------------------------------------------------------------------------------------
-
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -670,12 +652,16 @@ Also add information on how to contact you by electronic and paper mail.
   If the program does terminal interaction, make it output a short
 notice like this when it starts in an interactive mode:
 
-    ChatFeelings Copyright (C) Zach Duda -- zachduda.com
-    This program comes with ABSOLUTELY NO WARRANTY.
+    ChatFeelings  Copyright (C) 2023  Zach Duda
+    This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
     This is free software, and you are welcome to redistribute it
-    under certain conditions.
+    under certain conditions; type `show c' for details.
 
-You should also get your employer (if you work as a programmer) or school,
+The hypothetical commands `show w' and `show c' should show the appropriate
+parts of the General Public License.  Of course, your program's commands
+might be different; for a GUI interface, you would use an "about box".
+
+  You should also get your employer (if you work as a programmer) or school,
 if any, to sign a "copyright disclaimer" for the program, if necessary.
 For more information on this, and how to apply and follow the GNU GPL, see
 <https://www.gnu.org/licenses/>.
