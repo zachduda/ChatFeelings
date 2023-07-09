@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zachduda.chatfeelings.Main
 website: https://zachduda.com/chatfeelings
 authors: [zach_attack]
-version: 4.11.2-BETA-3
+version: 4.11.2-BETA-5
 api-version: 1.13
 softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI, DiscordSRV]
 description: Allow your players to show their love, or hatred, with unique emotes!
@@ -55,3 +55,5 @@ commands:
     description: Stalk a player carefully... carefully.
   sus:
     description: Pure single-boned suspicion.
+  wave:
+    description: Say farewell, and wave aideu. How elegant!

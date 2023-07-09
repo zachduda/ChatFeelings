@@ -60,7 +60,8 @@ public class Main extends JavaPlugin implements Listener {
             "scorn",
             "pat",
             "stalk",
-            "sus"
+            "sus",
+            "wave"
         );
 
     private boolean hasess = false;
@@ -472,7 +473,7 @@ public class Main extends JavaPlugin implements Listener {
             final String UUID = p.getUniqueId().toString();
 
             File cache = new File(this.getDataFolder(), File.separator + "Data");
-            File f = new File(cache, File.separator + "" + UUID + ".yml");
+            File f = new File(cache, File.separator + UUID + ".yml");
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
@@ -486,7 +487,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
             }
 
-            String IPAdd = p.getAddress().getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
+            String IPAdd = Objects.requireNonNull(p.getAddress()).getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
             int fileversion = setcache.getInt("Version");
             int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
 
@@ -543,7 +544,7 @@ public class Main extends JavaPlugin implements Listener {
 
             final String UUID = p.getUniqueId().toString();
 
-            File f = new File(folder, File.separator + "" + UUID + ".yml");
+            File f = new File(folder, File.separator + UUID + ".yml");
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
@@ -568,7 +569,7 @@ public class Main extends JavaPlugin implements Listener {
             return null;
         }
         try {
-            for (File AllData : folder.listFiles()) {
+            for (File AllData : Objects.requireNonNull(folder.listFiles())) {
                 File f = new File(AllData.getPath());
 
                 if (!f.getName().equalsIgnoreCase("global.yml")) {
@@ -579,7 +580,7 @@ public class Main extends JavaPlugin implements Listener {
                     String u = setcache.getString("UUID");
 
                     if (inputsearch.equalsIgnoreCase(playername)) {
-                        return UUID.fromString(u);
+                        return UUID.fromString(Objects.requireNonNull(u));
                     }
                 }
             }
@@ -596,7 +597,7 @@ public class Main extends JavaPlugin implements Listener {
         if(!cache.exists()) {
             return false;
         }
-        File f = new File(cache, File.separator + "" + target.getUniqueId() + ".yml");
+        File f = new File(cache, File.separator + target.getUniqueId() + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
         List < String > ignoredplayers = new ArrayList<>();
@@ -617,7 +618,7 @@ public class Main extends JavaPlugin implements Listener {
         if(!cache.exists()) {
             return "0";
         }
-        File f = new File(cache, File.separator + "" + uuid + ".yml");
+        File f = new File(cache, File.separator + uuid + ".yml");
         if (!f.exists()) {
             return "0";
         }
@@ -802,7 +803,7 @@ public class Main extends JavaPlugin implements Listener {
             return 0;
         }
         File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + "" + u + ".yml");
+        File f = new File(cache, File.separator + u + ".yml");
         if (!f.exists()) {
             return 0;
         }
@@ -817,7 +818,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public int APIgetTotalSent(UUID u) {
         File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + "" + u + ".yml");
+        File f = new File(cache, File.separator + u + ".yml");
         if (!f.exists()) {
             return 0;
         }
@@ -827,7 +828,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public boolean APIisAcceptingFeelings(UUID u) {
         File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + "" + u + ".yml");
+        File f = new File(cache, File.separator + u + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
         return setcache.getBoolean("Allow-Feelings");
     }
@@ -970,14 +971,14 @@ public class Main extends JavaPlugin implements Listener {
         String your;
 
         File cache = new File(folder, File.separator + "Data");
-        File f = new File(cache, File.separator + "" + uuid + ".yml");
+        File f = new File(cache, File.separator + uuid + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
         final String name = setcache.getString("Username");
         if (isown) {
-            Msgs.send(p, msg.getString("Stats-Header-Own").replace("%player%", name));
+            Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Own")).replace("%player%", Objects.requireNonNull(name)));
             your = "&7Your ";
         } else {
-            Msgs.send(p, msg.getString("Stats-Header-Other").replace("%player%", name));
+            Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Other")).replace("%player%", Objects.requireNonNull(name)));
             your = "&7";
         }
         for (String fl: feelings) {
@@ -1044,7 +1045,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 bass(sender);
-                Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
@@ -1116,12 +1117,12 @@ public class Main extends JavaPlugin implements Listener {
                 if (reloadtime >= 1000) {
                     double reloadsec = reloadtime / 1000;
                     // Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
-                    Msgs.send(sender, msg.getString("Reload").replace("%time%", reloadsec + "s"));
+                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
                         getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s");
                     }
                 } else {
-                    Msgs.send(sender, msg.getString("Reload").replace("%time%", reloadtime + "ms"));
+                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadtime + "ms"));
                     if (sender instanceof Player) {
                         getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
                     }
@@ -1186,7 +1187,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 bass(sender);
-                Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
@@ -1224,7 +1225,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 int totalmuted = 0;
 
-                for (File cachefile: datafolder.listFiles()) {
+                for (File cachefile: Objects.requireNonNull(datafolder.listFiles())) {
                     File f = new File(cachefile.getPath());
 
                     if (!f.getName().equalsIgnoreCase("global.yml")) {
@@ -1232,7 +1233,7 @@ public class Main extends JavaPlugin implements Listener {
 
                         String uuid = setcache.getString("UUID");
                         String IPAdd = setcache.getString("IP");
-                        UUID puuid = UUID.fromString(uuid);
+                        UUID puuid = UUID.fromString(Objects.requireNonNull(uuid));
 
                         int muteInt = isMuted(puuid, IPAdd);
 
@@ -1240,26 +1241,26 @@ public class Main extends JavaPlugin implements Listener {
                             if (setcache.getBoolean("Muted")) {
                                 totalmuted++;
                                 if (muteInt == 3) {
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")) + " &c(AdvancedBan & CF)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(AdvancedBan & CF)");
                                 } else if (muteInt == 2) {
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")) + " &c(LiteBans & CF)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(LiteBans & CF)");
                                 } else if (muteInt == 1) {
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")) + " &c(Essentials & CF)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(Essentials & CF)");
                                 } else {
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")));
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))));
                                 }
                             } else {
                                 if (muteInt == 3) {
                                     totalmuted++;
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")) + " &c(AdvancedBan)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(AdvancedBan)");
                                 } else
                                 if (muteInt == 2) {
                                     totalmuted++;
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")) + " &c(LiteBans)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(LiteBans)");
                                 } else
                                 if (muteInt == 1) {
                                     totalmuted++;
-                                    Msgs.send(sender, msg.getString("Mute-List-Player").replace("%player%", (String) setcache.get("Username")) + " &c(Essentials)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(Essentials)");
                                 }
                             }
                         }
@@ -1267,11 +1268,11 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 if (totalmuted == 1) {
-                    Msgs.send(sender, msg.getString("Mute-List-Total-One").replace("%total%", "1"));
+                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Total-One")).replace("%total%", "1"));
                 } else if (totalmuted == 0) {
-                    Msgs.send(sender, msg.getString("Mute-List-Total-Zero").replace("%total%", "0"));
+                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Total-Zero")).replace("%total%", "0"));
                 } else {
-                    Msgs.send(sender, msg.getString("Mute-List-Total-Many").replace("%total%", Integer.toString(totalmuted)));
+                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Total-Many")).replace("%total%", Integer.toString(totalmuted)));
                 }
                 Msgs.send(sender, "");
             });
@@ -1300,7 +1301,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if (muteUUID == null) {
                 bass(sender);
-                Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
@@ -1312,7 +1313,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            File f = new File(datafolder, File.separator + "" + muteUUID + ".yml");
+            File f = new File(datafolder, File.separator + muteUUID + ".yml");
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
@@ -1330,7 +1331,7 @@ public class Main extends JavaPlugin implements Listener {
             final String playername = setcache.getString("Username");
             final String uuid = setcache.getString("UUID");
             final String IPAdd = setcache.getString("IP");
-            final UUID puuid = UUID.fromString(uuid);
+            final UUID puuid = UUID.fromString(Objects.requireNonNull(uuid));
 
             if (setcache.getBoolean("Muted")) {
                 setcache.set("Muted", false);
@@ -1344,7 +1345,7 @@ public class Main extends JavaPlugin implements Listener {
                     getLogger().warning("Please message us on discord or spigot about this error.");
                 }
 
-                Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Unmuted").replace("%player%", playername));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Unmuted")).replace("%player%", Objects.requireNonNull(playername)));
                 pop(sender);
             } else if (!setcache.getBoolean("Muted")) {
                 bass(sender);
@@ -1392,7 +1393,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if (muteUUID == null) {
                 bass(sender);
-                Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
@@ -1404,7 +1405,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            File f = new File(datafolder, File.separator + "" + hasPlayedNameGetUUID(args[1]).toString() + ".yml");
+            File f = new File(datafolder, File.separator + hasPlayedNameGetUUID(args[1]).toString() + ".yml");
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
@@ -1420,7 +1421,7 @@ public class Main extends JavaPlugin implements Listener {
             final String playername = setcache.getString("Username");
             final String uuid = setcache.getString("UUID");
             final String IPAdd = setcache.getString("IP");
-            final UUID puuid = UUID.fromString(uuid);
+            final UUID puuid = UUID.fromString(Objects.requireNonNull(uuid));
 
             if (args[1].equalsIgnoreCase(sender.getName())) {
                 bass(sender);
@@ -1438,11 +1439,11 @@ public class Main extends JavaPlugin implements Listener {
                     getLogger().warning("-----------------------------------------------------");
                     getLogger().warning("Please message us on discord or spigot about this error.");
                 }
-                Msgs.sendPrefix(sender, msg.getString("Player-Has-Been-Muted").replace("%player%", playername));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Muted")).replace("%player%", Objects.requireNonNull(playername)));
                 Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
                     final int muteInt = isMuted(puuid, IPAdd);
                     if (muteInt != 0) {
-                        Msgs.sendPrefix(sender, msg.getString("Extra-Mute-Present").replace("%player%", playername));
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Extra-Mute-Present")).replace("%player%", playername));
                     }
                 });
                 pop(sender);
@@ -1491,7 +1492,7 @@ public class Main extends JavaPlugin implements Listener {
                     return true;
                 }
 
-                File f = new File(datafolder, File.separator + "" + p.getUniqueId() + ".yml");
+                File f = new File(datafolder, File.separator + p.getUniqueId() + ".yml");
                 FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
                 List < String > ignoredplayers = new ArrayList < String > ();
@@ -1544,7 +1545,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            File f = new File(datafolder, File.separator + "" + p.getUniqueId() + ".yml");
+            File f = new File(datafolder, File.separator + p.getUniqueId() + ".yml");
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
@@ -1586,7 +1587,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 bass(sender);
-                Msgs.sendPrefix(sender, msg.getString("Player-Never-Joined").replace("%player%", args[1]));
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
@@ -1594,7 +1595,7 @@ public class Main extends JavaPlugin implements Listener {
 
             try {
                 if (ignoredplayers.contains(iuuids)) {
-                    Msgs.sendPrefix(sender, msg.getString("Ingoring-Off-Player").replace("%player%", args[1]));
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ingoring-Off-Player")).replace("%player%", args[1]));
 
                     ignoredplayers.remove(iuuids);
                     setcache.set("Ignoring", ignoredplayers);
@@ -1615,7 +1616,7 @@ public class Main extends JavaPlugin implements Listener {
             try {
                 setcache.save(f);
             } catch (Exception err) {}
-            Msgs.sendPrefix(sender, msg.getString("Ingoring-On-Player").replace("%player%", args[1]));
+            Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ingoring-On-Player")).replace("%player%", args[1]));
             pop(sender);
             ignoredplayers.clear();
             return true;
@@ -1667,7 +1668,7 @@ public class Main extends JavaPlugin implements Listener {
 
             Msgs.send(sender, "");
             Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
-                    msg.getString("Feelings-Help-Page").replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
+                    Objects.requireNonNull(msg.getString("Feelings-Help-Page")).replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
             for (int i = start; i < end; i++) {
                 if(i < enabledfeelings.size()) {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
@@ -1681,7 +1682,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
             }
             if(totalpages > 1 && ((page+1) <= totalpages)) {
-                Msgs.send(sender, msg.getString("Command-List-Page").replaceAll("%page%", Integer.toString(page + 1)));
+                Msgs.send(sender, Objects.requireNonNull(msg.getString("Command-List-Page")).replaceAll("%page%", Integer.toString(page + 1)));
             }
             pop(sender);
             Msgs.send(sender, "");
@@ -1704,7 +1705,7 @@ public class Main extends JavaPlugin implements Listener {
                             int cooldownTime = getConfig().getInt("General.Cooldowns.Feelings.Seconds");
                             long secondsLeft = ((Cooldowns.cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
                             if (secondsLeft > 0) {
-                                Msgs.sendPrefix(sender, msg.getString("Cooldown-Active").replace("%time%",
+                                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Cooldown-Active")).replace("%time%",
                                         secondsLeft + "s"));
                                 bass(sender);
                                 return;
@@ -1751,14 +1752,14 @@ public class Main extends JavaPlugin implements Listener {
 
                 if (target == null || isVanished(target)) {
                     bass(sender);
-                    Msgs.sendPrefix(sender, msg.getString("Player-Offline").replace("%player%", args[0]));
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
                     return;
                 }
 
                 if (target.getName().equalsIgnoreCase(sender.getName())) {
                     if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
                         bass(sender);
-                        Msgs.sendPrefix(sender, msg.getString("Sender-Is-Target").replace("%command%", cmdconfig));
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Sender-Is-Target")).replace("%command%", cmdconfig));
                         return;
                     }
                 }
@@ -1772,7 +1773,7 @@ public class Main extends JavaPlugin implements Listener {
                 // Radius & Sleeping Check ---------------------------
                 if (sender instanceof final Player p) {
                     if (getConfig().getBoolean("General.Radius.Enabled")) {
-                        final String omsg = msg.getString("Outside-Of-Radius").replace("%player%", target.getName()).replace("%command%", cmd.getName());
+                        final String omsg = Objects.requireNonNull(msg.getString("Outside-Of-Radius")).replace("%player%", target.getName()).replace("%command%", cmd.getName());
                         if (target.getWorld() != p.getWorld()) {
                             Msgs.sendPrefix(sender, omsg);
                             bass(sender);
@@ -1795,20 +1796,20 @@ public class Main extends JavaPlugin implements Listener {
 
                 if (sender instanceof final Player p) {
 
-                    File myf = new File(playerfiles, File.separator + "" + p.getUniqueId() + ".yml");
+                    File myf = new File(playerfiles, File.separator + p.getUniqueId() + ".yml");
                     FileConfiguration me = YamlConfiguration.loadConfiguration(myf);
 
                     final int muteInt = isMuted(p.getUniqueId(), null);
 
                     if (muteInt != 0) {
                         if (muteInt == 3) {
-                            debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by AdvancedBan.");
+                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by AdvancedBan.");
                         }
                         if (muteInt == 2) {
-                            debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by LiteBans.");
+                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by LiteBans.");
                         }
                         if (muteInt == 1) {
-                            debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but is muted by Essentials.");
+                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by Essentials.");
                         }
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
@@ -1817,7 +1818,7 @@ public class Main extends JavaPlugin implements Listener {
 
                     if (myf.exists()) {
                         if (me.getBoolean("Muted")) {
-                            debug("" + sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
+                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
                             bass(sender);
                             Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
                             return;
@@ -1826,7 +1827,7 @@ public class Main extends JavaPlugin implements Listener {
                         if (isTargetIgnoringSender(target, p)) {
                             bass(sender);
                             Msgs.sendPrefix(sender,
-                                    msg.getString("Target-Is-Ignoring").replace("%player%", target.getName()));
+                                    Objects.requireNonNull(msg.getString("Target-Is-Ignoring")).replace("%player%", target.getName()));
 
                             debug("Not sending feeling to " + target.getName() + " because they are ignoring " + p.getName());
                             return;
@@ -1834,7 +1835,7 @@ public class Main extends JavaPlugin implements Listener {
                     }
                 }
 
-                File tfraw = new File(playerfiles, File.separator + "" + target.getUniqueId() + ".yml");
+                File tfraw = new File(playerfiles, File.separator + target.getUniqueId() + ".yml");
                 FileConfiguration targetfile = YamlConfiguration.loadConfiguration(tfraw);
 
                 if (tfraw.exists()) {
@@ -1871,25 +1872,25 @@ public class Main extends JavaPlugin implements Listener {
 
                         // Global Ignoring Checks -----------------
                         File cache = new File(this.getDataFolder(), File.separator + "Data");
-                        File f = new File(cache, File.separator + "" + online.getUniqueId() + ".yml");
+                        File f = new File(cache, File.separator + online.getUniqueId() + ".yml");
                         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
                         if (!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
-                            debug("" + online.getName() + " is blocking all feelings. Skipping Global Msg!");
+                            debug(online.getName() + " is blocking all feelings. Skipping Global Msg!");
                         } else { // else NOT ignoring ALL
                             if (sender instanceof Player p) {
                                 if (isTargetIgnoringSender(target, p)) {
                                     // Player is Ignoring from sender but is not target. (GlobaL)
 
                                     // This works but is unused. Need to remove later.
-                                    debug("" + online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
+                                    debug(online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
                                 }
                             }
                             // End of Global ignoring Checks -------------------
 
                             if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player)) {
                                 // ONLY for CONSOLE Global notify here.
-                                Msgs.send(online.getPlayer(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
+                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
                             } else {
                                 // Global for PLAYER below
                                 if (sender instanceof Player p) {
@@ -1899,7 +1900,7 @@ public class Main extends JavaPlugin implements Listener {
                                             Bukkit.getPluginManager().callEvent(fgne);
 
                                             if (!fgne.isCancelled()) {
-                                                Msgs.send(online.getPlayer(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
+                                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
                                             }
                                         });
 
@@ -1920,7 +1921,7 @@ public class Main extends JavaPlugin implements Listener {
                 } else {
                     // if not global (normal)
                     // send to target
-                    Msgs.send(target.getPlayer(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Target"), sender));
+                    Msgs.send(Objects.requireNonNull(target.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Target"), sender));
                     // send to cmd sender
                     Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender"), target));
                 } // end of global else
@@ -1976,9 +1977,9 @@ public class Main extends JavaPlugin implements Listener {
                 if (sounds) {
                     try {
                         String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
-                        if (!sound1.equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && sound1 != "null") {
+                        if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && sound1 != "null") {
 
-                            target.playSound(target.getPlayer().getLocation(),
+                            target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                     Sound.valueOf(sound1),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
@@ -1991,18 +1992,18 @@ public class Main extends JavaPlugin implements Listener {
                         }
 
                         String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
-                        if (!sound2.equalsIgnoreCase("none") &&
+                        if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") &&
                                 !sound2.equalsIgnoreCase("off") &&
                                 sound2 != null &&
                                 sound2 != "null") {
 
                             if (sound2.contains("DISC") && !multiversion) {
                                 // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
-                                target.playSound(target.getPlayer().getLocation(),
+                                target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                         Sound.AMBIENT_CAVE,
                                         2.0F, 0.5F);
                             } else {
-                                target.playSound(target.getPlayer().getLocation(),
+                                target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                         Sound.valueOf(sound2),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));

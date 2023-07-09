@@ -8,6 +8,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FileSetup {
     private static final Main plugin = Main.getPlugin(Main.class);
@@ -24,7 +25,7 @@ public class FileSetup {
     }
 
     private static File getFolder() {
-        return Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings").getDataFolder();
+        return Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings")).getDataFolder();
     }
 
     private static void setMsgs(String configpath, String msg) {
@@ -188,7 +189,7 @@ public class FileSetup {
         final int msgfilever = 10;
         if (!msgsfile.exists() || !msgs.contains("Version")) {
 
-            List<String> confighead = new ArrayList<String>();
+            List<String> confighead = new ArrayList<>();
             confighead.add("Looking for the messages used for feelings?");
             confighead.add("Check inside your emotes.yml!");
 
@@ -324,6 +325,7 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
         setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
         setMsgs("Command_Descriptions.Sus", "Pure single-boned suspicion.");
+        setMsgs("Command_Descriptions.Wave", "Say frewell, and wave aideu. How elegant!");
         setMsgsVersion(11);
 
         if (!emotesfile.exists() || !emotes.contains("Version")) {
@@ -337,7 +339,7 @@ public class FileSetup {
             if (emotes.getInt("Version") != 4) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if (emotes.getInt("Version") <= 3) {
-                    if (emotes.getString("Feelings.Bite.Msgs.Sender").contains("info")) {
+                    if (Objects.requireNonNull(emotes.getString("Feelings.Bite.Msgs.Sender")).contains("info")) {
                         forceEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin");
                         plugin.getLogger().info("Fixing a typo in the the '/bite' command for sender...");
                     }
@@ -589,14 +591,30 @@ public class FileSetup {
         try {
             Sound.valueOf("BLOCK_RESPAWN_ANCHOR_DEPLETE");
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
-            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
-            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
         } catch (Exception e) {
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
         } finally {
-            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.0);
-            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.0);
+            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
+            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
         }
+
+        setEmotesBoolean("Feelings.Wave.Enable", true);
+        setEmotes("Feelings.Wave.Msgs.Sender", "&7You wave adieu to &a&l%player%&r&7!");
+        setEmotes("Feelings.Wave.Msgs.Target", "&a&l%player% &r&7waves adieu to you.");
+        setEmotes("Feelings.Wave.Msgs.Global", "&a&l%sender% &r&7waves adieu to &a&l%target%.");
+
+        try {
+            Sound.valueOf("BLOCK_AMETHYST_BLOCK_RESONATE");
+            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_AMETHYST_BLOCK_RESONATE");
+        } catch (Exception e) {
+            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_NOTE_BLOCK_BELL");
+        } finally {
+            setEmotesDouble("Feelings.Wave.Sounds.Sound1.Volume", 2.0);
+            setEmotesDouble("Feelings.Wave.Sounds.Sound1.Pitch", 2.0);
+        }
+        setEmotes("Feelings.Wave.Sounds.Sound2.Name", "None");
+        setEmotesDouble("Feelings.Wave.Sounds.Sound2.Volume", 0.0);
+        setEmotesDouble("Feelings.Wave.Sounds.Sound2.Pitch", 0.0);
 
         setEmotesVersion(4);
         reloadFiles();
