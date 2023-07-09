@@ -1748,12 +1748,16 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
 
-                final Player target = Bukkit.getServer().getPlayer(args[0]);
+                Player target = Bukkit.getServer().getPlayer(args[0]);
 
                 if (target == null || isVanished(target)) {
-                    bass(sender);
-                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
-                    return;
+                    if(Cooldowns.nicknames.containsKey(args[0])) {
+                        target = Cooldowns.nicknames.get(args[0]);
+                    } else {
+                        bass(sender);
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
+                        return;
+                    }
                 }
 
                 if (target.getName().equalsIgnoreCase(sender.getName())) {
@@ -1850,14 +1854,15 @@ public class Main extends JavaPlugin implements Listener {
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
 
                 // API Events ----------------------------
+                final Player finalTarget = target;
                 Bukkit.getScheduler().runTask(this, () -> {
-                    FeelingSendEvent fse = new FeelingSendEvent(sender, target, cmdconfig);
+                    FeelingSendEvent fse = new FeelingSendEvent(sender, finalTarget, cmdconfig);
                     Bukkit.getPluginManager().callEvent(fse);
                     if (fse.isCancelled()) {
                         return;
                     }
 
-                    FeelingRecieveEvent fre = new FeelingRecieveEvent(target, sender, cmdconfig);
+                    FeelingRecieveEvent fre = new FeelingRecieveEvent(finalTarget, sender, cmdconfig);
                     Bukkit.getPluginManager().callEvent(fre);
                     if (fre.isCancelled()) {
                     }
@@ -1893,19 +1898,18 @@ public class Main extends JavaPlugin implements Listener {
                                 Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
                             } else {
                                 // Global for PLAYER below
-                                if (sender instanceof Player p) {
-                                    if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
-                                        Bukkit.getScheduler().runTask(this, () -> {
-                                            FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, target, cmdconfig);
-                                            Bukkit.getPluginManager().callEvent(fgne);
+                                Player p = (Player) sender;
+                                if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
+                                    Bukkit.getScheduler().runTask(this, () -> {
+                                        FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, finalTarget, cmdconfig);
+                                        Bukkit.getPluginManager().callEvent(fgne);
 
-                                            if (!fgne.isCancelled()) {
-                                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
-                                            }
-                                        });
+                                        if (!fgne.isCancelled()) {
+                                            Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, finalTarget));
+                                        }
+                                    });
 
-                                    } // end of check to make sure message is sent to those NOT ignoring the player
-                                } // end of if player confirmation (just a safeguard)
+                                } // end of check to make sure message is sent to those NOT ignoring the player
                             }
                         } // end of else for ignore global check
                     } // end of for(online)
@@ -2066,6 +2070,8 @@ public class Main extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             Player p = e.getPlayer();
             String name = p.getName();
+
+            Cooldowns.saveNickname(p);
 
             try {
                 if (getConfig().getBoolean("Other.Updates.Check")) {
