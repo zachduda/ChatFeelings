@@ -11,6 +11,7 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -64,7 +65,7 @@ public class Main extends JavaPlugin implements Listener {
             "wave"
         );
 
-    private boolean hasess = false;
+    private static boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
     private boolean has_discord = false;
@@ -967,6 +968,24 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
 
+    static String getEssNick(UUID uuid) {
+        try {
+            if (hasess) {
+                Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
+                if (ess == null) {
+                    return null;
+                }
+                return ess.getUser(uuid).getNick();
+            }
+            return null;
+        } catch (Exception err) {
+            if (debug) {
+                err.printStackTrace();
+            }
+            return null;
+        }
+    }
+
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
         String your;
 
@@ -1748,11 +1767,13 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
 
-                Player target = Bukkit.getServer().getPlayer(args[0]);
+                String query = ChatColor.stripColor(args[0]);
+                Player target = Bukkit.getServer().getPlayer(query);
 
                 if (target == null || isVanished(target)) {
-                    if(Cooldowns.nicknames.containsKey(args[0])) {
-                        target = Cooldowns.nicknames.get(args[0]);
+                    debug("Nickname Table: " + Cooldowns.nicknames.toString());
+                    if (Cooldowns.nicknames.containsKey(query)) {
+                        target = Cooldowns.nicknames.get(query);
                     } else {
                         bass(sender);
                         Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
