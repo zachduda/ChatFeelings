@@ -116,7 +116,7 @@ public class Main extends JavaPlugin implements Listener {
         lastreload = 0;
         lastmutelist = 0;
 
-        if (Bukkit.getOnlinePlayers().size() > 0) {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
             // Remove all HashMaps to prevent memory leaks if the plugin is reloaded when players are on.
             for (final Player online: Bukkit.getServer().getOnlinePlayers()) {
                 removeAll(online.getPlayer());
