@@ -1,5 +1,5 @@
 [![Build Status](https://app.travis-ci.com/zachduda/ChatFeelings.svg?branch=master)](https://app.travis-ci.com/zachduda/ChatFeelings)
-![Discord](https://img.shields.io/discord/469625341837836290?style=flat-square&logo=Discord&logoColor=bdc7fc&label=Support%20Discord)
+[![Discord](https://img.shields.io/discord/469625341837836290?style=flat-square&logo=Discord&logoColor=bdc7fc&label=Support%20Discord)](https://zachduda.com/discord?utm=github_badge)
 
 ![Alt text](Images/chatfeelingsbanner.png?raw=true "ChatFeelings Banner")
 The GitHub open source page for the original feeling's Minecraft plugin.
