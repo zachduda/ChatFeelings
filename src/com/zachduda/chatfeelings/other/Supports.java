@@ -37,7 +37,7 @@ public class Supports {
                 JSONObject json = new JSONObject((JSONObject)reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
                         +support_v+".json").openStream(),
                         StandardCharsets.UTF_8)));
-
+                l.info("DBGGG : "+ JSONObject.toJSONString(json));
                 if(json.get("Console_Message") != null && json.get("Console_Message") != "") {
                     l.info("[ChatFeelings] " + json.get("Console_Message"));
                 }
@@ -84,8 +84,8 @@ public class Supports {
                     e.printStackTrace();
                 }
             } finally {
-                Main.updateConfig(javaPlugin, supported);
-                Main.updateConfigHeaders(javaPlugin, supported);
+                Main.updateConfig(javaPlugin);
+                Main.updateConfigHeaders(javaPlugin);
             }
         });
     }

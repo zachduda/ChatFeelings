@@ -11,7 +11,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -65,7 +64,7 @@ public class Main extends JavaPlugin implements Listener {
             "wave"
         );
 
-    private static boolean hasess = false;
+    private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
     private boolean has_discord = false;
@@ -244,7 +243,8 @@ public class Main extends JavaPlugin implements Listener {
         }); // End of Async;
     }
 
-    public static void updateConfigHeaders(JavaPlugin pl, final boolean supported) {
+    public static void updateConfigHeaders(JavaPlugin pl) {
+        final boolean supported = Supports.isSupported();
         final String confgreeting = "Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n";
         final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.\n";
         try {
@@ -281,12 +281,12 @@ public class Main extends JavaPlugin implements Listener {
         }
     }
 
-    public static void updateConfig(JavaPlugin pl, final boolean supported) {
+    public static void updateConfig(JavaPlugin pl) {
         debug = pl.getConfig().getBoolean("Other.Debug");
         sounds = pl.getConfig().getBoolean("General.Sounds");
 
         if (pl.getConfig().getBoolean("General.Particles")) {
-            if (!supported && !Supports.getMCVersion().equals("1.12")) {
+            if (!Supports.isSupported()) {
                 pl.getLogger().warning("Particles were disabled. You're using " + Supports.getMCVersion() + " and not 1.12 or higher.");
                 particles = false;
             } else {
@@ -664,8 +664,9 @@ public class Main extends JavaPlugin implements Listener {
         debug("Disabled Sending Worlds: " + disabledsendingworlds);
         debug("Disabled Receiving Worlds: " + disabledreceivingworlds);
 
+        new Supports(this).fetch();
+
         if(!beta) {
-            new Supports(this).fetch();
             metrics = addMetrics();
 
             if (getConfig().getBoolean("Other.Updates.Check")) {
@@ -681,8 +682,8 @@ public class Main extends JavaPlugin implements Listener {
                 getLogger().info("[!] Update checking has been disabled in the config.yml");
             }
         } else {
-            updateConfig(this, true);
-            updateConfigHeaders(this, true);
+            updateConfig(this);
+            updateConfigHeaders(this);
             debug("Using a pre-release of ChatFeelings. Update/Support checking & metrics have been disabled!");
         }
 
@@ -968,24 +969,6 @@ public class Main extends JavaPlugin implements Listener {
         return false;
     }
 
-    static String getEssNick(UUID uuid) {
-        try {
-            if (hasess) {
-                Essentials ess = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-                if (ess == null) {
-                    return null;
-                }
-                return ess.getUser(uuid).getNick();
-            }
-            return null;
-        } catch (Exception err) {
-            if (debug) {
-                err.printStackTrace();
-            }
-            return null;
-        }
-    }
-
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
         String your;
 
@@ -1117,7 +1100,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            updateConfig(this, Supports.isSupported());
+            updateConfig(this);
 
             int onlinecount = Bukkit.getServer().getOnlinePlayers().size();
             if (onlinecount == 0) {
@@ -1767,13 +1750,11 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
 
-                String query = ChatColor.stripColor(args[0]);
-                Player target = Bukkit.getServer().getPlayer(query);
+                Player target = Bukkit.getServer().getPlayer(args[0]);
 
                 if (target == null || isVanished(target)) {
-                    debug("Nickname Table: " + Cooldowns.nicknames.toString());
-                    if (Cooldowns.nicknames.containsKey(query)) {
-                        target = Cooldowns.nicknames.get(query);
+                    if(Cooldowns.nicknames.containsKey(args[0])) {
+                        target = Cooldowns.nicknames.get(args[0]);
                     } else {
                         bass(sender);
                         Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));

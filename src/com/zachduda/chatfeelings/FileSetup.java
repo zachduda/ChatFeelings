@@ -186,7 +186,7 @@ public class FileSetup {
         }
         //------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
 
-        final int msgfilever = 10;
+        final int msgfilever = 11;
         if (!msgsfile.exists() || !msgs.contains("Version")) {
 
             List<String> confighead = new ArrayList<>();
@@ -228,21 +228,21 @@ public class FileSetup {
                 // Typo in file, move old variables to correctly spelled one.
 
                 if (msgs.getString("Ingoring-On-Player") != null) {
-                    setMsgs("Ignoring-On-Player", plugin.msg.getString("Ingoring-On-Player"));
+                    setMsgs("Ignoring-On-Player", msgs.getString("Ingoring-On-Player"));
                     forceMsgs("Ingoring-On-Player", null);
                 }
                 if (msgs.getString("Ingoring-Off-Player") != null) {
-                    setMsgs("Ignoring-Off-Player", plugin.msg.getString("Ingoring-Off-Player"));
+                    setMsgs("Ignoring-Off-Player", msgs.getString("Ingoring-Off-Player"));
                     forceMsgs("Ingoring-Off-Player", null);
                 }
 
                 if (msgs.getString("Ingoring-On-All") != null) {
-                    setMsgs("Ignoring-On-All", plugin.msg.getString("Ingoring-Off-Player"));
+                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-Off-Player"));
                     forceMsgs("Ingoring-On-Player", null);
                 }
 
                 if (msgs.getString("Ingoring-Off-All") != null) {
-                    setMsgs("Ignoring-Off-All", plugin.msg.getString("Ingoring-Off-Player"));
+                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-Player"));
                     forceMsgs("Ingoring-Off-Player", null);
                 }
 

@@ -39,7 +39,7 @@ public class Particles {
             } else if (label.equalsIgnoreCase("murder")) {
                 murderParticle(p);
             } else if (label.equalsIgnoreCase("boi")) {
-                dabParticle(p);
+                boiParticle(p);
             } else if (label.equalsIgnoreCase("cry")) {
                 cryParticle(p);
             } else if (label.equalsIgnoreCase("dab")) {
@@ -55,10 +55,8 @@ public class Particles {
                 // No particle
             } else if (label.equalsIgnoreCase("sus")) {
                 // No particle
-            } else if (label.equalsIgnoreCase("wave")) {
-                pokeParticle(p);
             } else {
-                Main.debug("Couldn't find Particle for: /" + label.toLowerCase());
+                plugin.getLogger().warning("Couldn't find Particle for: /" + label.toLowerCase());
             }
         }
 
@@ -154,6 +152,11 @@ public class Particles {
                 world.spawnParticle(Particle.LAVA, p.getLocation().add(0, 1, 0), 5, 0.0D, 0.6D, 0.0D);
             }
         }, 5L);
+    }
+
+	private static void boiParticle(Player p) {
+        World world = p.getLocation().getWorld();
+        world.spawnParticle(Particle.END_ROD, p.getLocation().add(0, 1, 0), 40, 0.0D, 0.0D, 0.0D);
     }
 
 	private static void dabParticle(Player p) {

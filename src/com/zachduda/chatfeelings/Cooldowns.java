@@ -21,7 +21,6 @@ public class Cooldowns {
 	static void removeAll(Player p) {
 		cooldown.remove(p);
 		ignorecooldown.remove(p);
-		nicknames.remove(ChatColor.stripColor(Main.getEssNick(p.getUniqueId())));
 	}
 	
 	static void putCooldown(Player p) {
@@ -37,7 +36,7 @@ public class Cooldowns {
 			public void run() {
 				ignorecooldown.remove(p);
 			}
-		}, 20L * plugin.getConfig().getInt("General.Cooldowns.Ignoring.Seconds"));
+		}, 20 * plugin.getConfig().getInt("General.Cooldowns.Ignoring.Seconds"));
 	}
 	
 	static void ignoreListCooldown(Player p) {
@@ -48,7 +47,7 @@ public class Cooldowns {
 			public void run() {
 				ignorelistcooldown.remove(p);
 			}
-		}, 20L * plugin.getConfig().getInt("General.Cooldowns.Ignore-List.Seconds"));
+		}, 20 * plugin.getConfig().getInt("General.Cooldowns.Ignore-List.Seconds"));
 	}
 	
 	static void justJoined(String p) {
@@ -66,7 +65,7 @@ public class Cooldowns {
 	}
 
 	static void saveNickname(Player p) {
-		nicknames.put(ChatColor.stripColor(Main.getEssNick(p.getUniqueId())), p);
+		nicknames.put(ChatColor.stripColor(p.getDisplayName()), p);
 	}
 
 }
