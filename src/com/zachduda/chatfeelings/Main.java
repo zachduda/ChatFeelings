@@ -2,7 +2,7 @@ package com.zachduda.chatfeelings;
 
 import com.earth2me.essentials.Essentials;
 import com.zachduda.chatfeelings.api.*;
-import com.zachduda.chatfeelings.other.DiscordSRVHooks;
+//import com.zachduda.chatfeelings.other.DiscordSRVHooks;
 import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
 import litebans.api.Database;
@@ -722,17 +722,17 @@ public class Main extends JavaPlugin implements Listener {
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
         }
 
-        if (hasPlugin("DiscordSRV")) {
-            has_discord = true;
-            try {
-                new DiscordSRVHooks();
-            } catch (Exception e) {
-                getLogger().info("Failed to initiate DiscordSRV hooks.");
-                if (debug) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        if (hasPlugin("DiscordSRV")) {
+//            has_discord = true;
+//            try {
+//                new DiscordSRVHooks();
+//            } catch (Exception e) {
+//                getLogger().info("Failed to initiate DiscordSRV hooks.");
+//                if (debug) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
 
         if(beta) {
             getLogger().warning("You're using a beta update, so update checking is off!");
@@ -1753,13 +1753,13 @@ public class Main extends JavaPlugin implements Listener {
                 Player target = Bukkit.getServer().getPlayer(args[0]);
 
                 if (target == null || isVanished(target)) {
-                    if(Cooldowns.nicknames.containsKey(args[0])) {
-                        target = Cooldowns.nicknames.get(args[0]);
-                    } else {
+                    //if(Cooldowns.nicknames.containsKey(args[0])) {
+                    //    target = Cooldowns.nicknames.get(args[0]);
+                    //} else {
                         bass(sender);
                         Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
                         return;
-                    }
+                    //}
                 }
 
                 if (target.getName().equalsIgnoreCase(sender.getName())) {
@@ -1933,10 +1933,10 @@ public class Main extends JavaPlugin implements Listener {
                 } // end of global else
 
                 // If DiscordSRV is present, treat the broadcast as a global.
-                if(has_discord) {
-                    final String discord_msg = NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target);
-                    DiscordSRVHooks.broadcast(cmd.getName().toLowerCase(), discord_msg);
-                }
+//                if(has_discord) {
+//                    final String discord_msg = NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target);
+//                    DiscordSRVHooks.broadcast(cmd.getName().toLowerCase(), discord_msg);
+//                }
 
                 // Special Effect Command Handlers -----------------------------
                 if (getConfig().getBoolean("General.Violent-Command-Harm")) {
@@ -2073,7 +2073,7 @@ public class Main extends JavaPlugin implements Listener {
             Player p = e.getPlayer();
             String name = p.getName();
 
-            Cooldowns.saveNickname(p);
+            //Cooldowns.saveNickname(p);
 
             try {
                 if (getConfig().getBoolean("Other.Updates.Check")) {
