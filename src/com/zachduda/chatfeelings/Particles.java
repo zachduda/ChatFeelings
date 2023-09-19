@@ -59,6 +59,9 @@ public class Particles {
                 // No particle
             } else if (label.equalsIgnoreCase("sus")) {
                 // No particle
+            } else if(label.equalsIgnoreCase("spook")) {
+                spookDripParticle(p);
+                spookEffects(p);
             } else {
                 plugin.getLogger().warning("Couldn't find Particle for: /" + label.toLowerCase());
             }
@@ -210,14 +213,14 @@ public class Particles {
                 p.removePotionEffect(PotionEffectType.SATURATION);
                 p.removePotionEffect(PotionEffectType.CONFUSION);
 
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 99999, 2));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 99999, 1));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 99999, 10));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 99999, 1));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 200, 2));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 200, 10));
+                p.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 1));
 
                 World world = p.getLocation().getWorld();
 
-                final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19");
+                final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19") || Bukkit.getBukkitVersion().contains("1.20");
                 if (fullSupport) {
                     ItemStack pumpkin = new ItemStack(Material.CARVED_PUMPKIN);
                     ItemMeta pmm = pumpkin.getItemMeta();

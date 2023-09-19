@@ -227,23 +227,23 @@ public class FileSetup {
             if (currentmsgv < 11) {
                 // Typo in file, move old variables to correctly spelled one.
 
-                if (msgs.getString("Ingoring-On-Player") != null) {
-                    setMsgs("Ignoring-On-Player", msgs.getString("Ingoring-On-Player"));
-                    forceMsgs("Ingoring-On-Player", null);
+                if (msgs.getString("Ignoring-On-Player") != null) {
+                    setMsgs("Ignoring-On-Player", msgs.getString("Ignoring-On-Player"));
+                    forceMsgs("Ignoring-On-Player", null);
                 }
-                if (msgs.getString("Ingoring-Off-Player") != null) {
-                    setMsgs("Ignoring-Off-Player", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-Off-Player", null);
-                }
-
-                if (msgs.getString("Ingoring-On-All") != null) {
-                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-On-Player", null);
+                if (msgs.getString("Ignoring-Off-Player") != null) {
+                    setMsgs("Ignoring-Off-Player", msgs.getString("Ignoring-Off-Player"));
+                    forceMsgs("Ignoring-Off-Player", null);
                 }
 
-                if (msgs.getString("Ingoring-Off-All") != null) {
-                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-Off-Player", null);
+                if (msgs.getString("Ignoring-On-All") != null) {
+                    setMsgs("Ignoring-On-All", msgs.getString("Ignoring-Off-Player"));
+                    forceMsgs("Ignoring-On-Player", null);
+                }
+
+                if (msgs.getString("Ignoring-Off-All") != null) {
+                    setMsgs("Ignoring-Off-All", msgs.getString("Ignoring-Off-Player"));
+                    forceMsgs("Ignoring-Off-Player", null);
                 }
 
             }

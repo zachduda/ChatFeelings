@@ -1574,10 +1574,10 @@ public class Main extends JavaPlugin implements Listener {
             if (args[1].equalsIgnoreCase("all")) {
                 if (setcache.getBoolean("Allow-Feelings")) {
                     setcache.set("Allow-Feelings", false);
-                    Msgs.sendPrefix(sender, msg.getString("Ingoring-On-All"));
+                    Msgs.sendPrefix(sender, msg.getString("Ignoring-On-All"));
                 } else {
                     setcache.set("Allow-Feelings", true);
-                    Msgs.sendPrefix(sender, msg.getString("Ingoring-Off-All"));
+                    Msgs.sendPrefix(sender, msg.getString("Ignoring-Off-All"));
                 }
 
                 pop(sender);
@@ -1610,7 +1610,7 @@ public class Main extends JavaPlugin implements Listener {
 
             try {
                 if (ignoredplayers.contains(iuuids)) {
-                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ingoring-Off-Player")).replace("%player%", args[1]));
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ignoring-Off-Player")).replace("%player%", args[1]));
 
                     ignoredplayers.remove(iuuids);
                     setcache.set("Ignoring", ignoredplayers);
@@ -1631,7 +1631,7 @@ public class Main extends JavaPlugin implements Listener {
             try {
                 setcache.save(f);
             } catch (Exception err) {}
-            Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ingoring-On-Player")).replace("%player%", args[1]));
+            Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ignoring-On-Player")).replace("%player%", args[1]));
             pop(sender);
             ignoredplayers.clear();
             return true;
