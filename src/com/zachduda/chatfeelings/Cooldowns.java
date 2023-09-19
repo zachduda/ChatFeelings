@@ -14,7 +14,6 @@ import java.util.HashMap;
 public class Cooldowns {
 	private static final Main plugin = Main.getPlugin(Main.class);
 
-	//static HashMap<String, Player> nicknames = new HashMap<String, Player>();
 	static HashMap<Player, Long> cooldown = new HashMap<Player, Long>();
 	static HashMap<String, Integer> spook = new HashMap<String, Integer>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<Player, String>();
@@ -118,9 +117,5 @@ public class Cooldowns {
 			}
 		}, 20 * 10);
 	}
-
-	//static void saveNickname(Player p) {
-	//	nicknames.put(ChatColor.stripColor(p.getDisplayName()), p);
-	//}
 
 }

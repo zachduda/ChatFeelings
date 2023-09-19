@@ -2,7 +2,6 @@ package com.zachduda.chatfeelings;
 
 import com.earth2me.essentials.Essentials;
 import com.zachduda.chatfeelings.api.*;
-//import com.zachduda.chatfeelings.other.DiscordSRVHooks;
 import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
 import litebans.api.Database;
@@ -73,8 +72,6 @@ public class Main extends JavaPlugin implements Listener {
     private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
-    //private boolean has_discord = false;
-
     private static boolean usevanishcheck = false;
 
     protected static boolean particles = true;
@@ -732,18 +729,6 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
         }
-
-//        if (hasPlugin("DiscordSRV")) {
-//            has_discord = true;
-//            try {
-//                new DiscordSRVHooks();
-//            } catch (Exception e) {
-//                getLogger().info("Failed to initiate DiscordSRV hooks.");
-//                if (debug) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
 
         if(beta) {
             getLogger().warning("You're using a beta update, so update checking is off!");
@@ -1990,11 +1975,6 @@ public class Main extends JavaPlugin implements Listener {
                     Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender"), target));
                 } // end of global else
 
-                // If DiscordSRV is present, treat the broadcast as a global.
-//                if(has_discord) {
-//                    final String discord_msg = NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target);
-//                    DiscordSRVHooks.broadcast(cmd.getName().toLowerCase(), discord_msg);
-//                }
 
                 // Special Effect Command Handlers -----------------------------
                 if (getConfig().getBoolean("General.Violent-Command-Harm")) {

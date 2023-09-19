@@ -142,12 +142,6 @@
             <version>2.3.0</version>
             <scope>provided</scope>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.discordsrv</groupId>-->
-<!--            <artifactId>discordsrv</artifactId>-->
-<!--            <version>1.26.0</version>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
     </dependencies>
     <distributionManagement>
         <repository>
