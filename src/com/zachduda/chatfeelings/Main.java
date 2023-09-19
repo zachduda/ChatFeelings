@@ -11,6 +11,7 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,14 +21,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -35,7 +40,7 @@ import java.util.logging.Logger;
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
-    public final static boolean beta = true;
+    public final static boolean beta = false;
 
     public ChatFeelingsAPI api;
 
@@ -61,13 +66,14 @@ public class Main extends JavaPlugin implements Listener {
             "pat",
             "stalk",
             "sus",
-            "wave"
+            "wave",
+            "spook"
         );
 
     private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
-    private boolean has_discord = false;
+    //private boolean has_discord = false;
 
     private static boolean usevanishcheck = false;
 
@@ -388,7 +394,8 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        if (sender instanceof Player p) {
+        if (sender instanceof Player) {
+            final Player p = (Player)sender;
             try {
                 p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 2.0F, 2.0F);
             } catch (Exception err) {
@@ -402,8 +409,9 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        if (sender instanceof Player p) {
+        if (sender instanceof Player) {
             try {
+                final Player p = (Player)sender;
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
             } catch (Exception err) {
                 sounds = false;
@@ -416,8 +424,9 @@ public class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        if (sender instanceof Player p) {
+        if (sender instanceof Player) {
             try {
+                final Player p = (Player)sender;
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 2.0F);
             } catch (Exception err) {
                 sounds = false;
@@ -1022,11 +1031,11 @@ public class Main extends JavaPlugin implements Listener {
             }
 
             if (args.length == 1) {
-                if (!(sender instanceof final Player p)) {
+                if (!(sender instanceof Player)) {
                     Msgs.sendPrefix(sender, msg.getString("No-Player"));
                     return true;
                 }
-
+                final Player p = (Player)sender;
                 getStats(sender, p.getUniqueId(), true);
                 pop(sender);
                 return true;
@@ -1472,10 +1481,12 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            if (!(sender instanceof Player p)) {
+            if (!(sender instanceof Player)) {
                 Msgs.sendPrefix(sender, "&c&lSorry. &fOnly players can ignore other players.");
                 return true;
             }
+
+            final Player p = (Player)sender;
 
             if (args.length == 1) {
                 if (Cooldowns.ignorelistcooldown.containsKey(p)) {
@@ -1675,10 +1686,25 @@ public class Main extends JavaPlugin implements Listener {
                 if(i < enabledfeelings.size()) {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-                        if (hasPerm(sender, "chatfeelings." + cmdlr)) {
-                            Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
+                        if(enabledfeelings.get(i).toLowerCase() == "spook") { // test if spook
+                            Date now = new Date();
+                            SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                            if (format.format(now).equals("10") || format.format(now).equals("09")) {
+                                if (hasPerm(sender, "chatfeelings." + cmdlr)) {
+                                    Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+                                } else {
+                                    Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                                }
+                            } else {
+                                Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+                            }
                         } else {
-                            Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            if (hasPerm(sender, "chatfeelings." + cmdlr)) {
+                                Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
+                            } else {
+                                Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            }
                         }
                     }
                 }
@@ -1702,7 +1728,8 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !hasPerm(sender,"chatfeelings.bypasscooldowns", true)) {
-                    if (sender instanceof Player p) {
+                    if (sender instanceof Player) {
+                        final Player p = (Player)sender;
                         if (Cooldowns.cooldown.containsKey(p.getPlayer())) {
                             int cooldownTime = getConfig().getInt("General.Cooldowns.Feelings.Seconds");
                             long secondsLeft = ((Cooldowns.cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
@@ -1724,7 +1751,8 @@ public class Main extends JavaPlugin implements Listener {
 
                 final String cmdconfig = (capitalizeString(cmd.getName()));
 
-                if (sender instanceof Player p) {
+                if (sender instanceof Player) {
+                    final Player p = (Player)sender;
                     if (disabledsendingworlds.contains(p.getWorld().getName())) {
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Sending-World-Disabled"));
@@ -1777,7 +1805,8 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 // Radius & Sleeping Check ---------------------------
-                if (sender instanceof final Player p) {
+                if (sender instanceof Player) {
+                    final Player p = (Player)sender;
                     if (getConfig().getBoolean("General.Radius.Enabled")) {
                         final String omsg = Objects.requireNonNull(msg.getString("Outside-Of-Radius")).replace("%player%", target.getName()).replace("%command%", cmd.getName());
                         if (target.getWorld() != p.getWorld()) {
@@ -1800,8 +1829,8 @@ public class Main extends JavaPlugin implements Listener {
 
                 File playerfiles = new File(this.getDataFolder(), File.separator + "Data");
 
-                if (sender instanceof final Player p) {
-
+                if (sender instanceof Player) {
+                    final Player p = (Player)sender;
                     File myf = new File(playerfiles, File.separator + p.getUniqueId() + ".yml");
                     FileConfiguration me = YamlConfiguration.loadConfiguration(myf);
 
@@ -1855,6 +1884,32 @@ public class Main extends JavaPlugin implements Listener {
 
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
 
+
+                if(cmdlr.equals("spook")) {
+                    Date now = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                    if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
+                        Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
+                        bass(sender);
+                        return;
+                    }
+
+                    if(Cooldowns.spook.containsKey(target.getName())) {
+                        Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
+                        bass(sender);
+                        return;
+                    }
+
+                    if(!(Objects.equals(target.getInventory().getHelmet(), new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
+                        Msgs.sendPrefix(sender, "&cSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
+                        bass(sender);
+                        return;
+                    }
+
+                    Cooldowns.spookHash(target);
+                }
+
                 // API Events ----------------------------
                 final Player finalTarget = target;
                 Bukkit.getScheduler().runTask(this, () -> {
@@ -1885,7 +1940,8 @@ public class Main extends JavaPlugin implements Listener {
                         if (!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
                             debug(online.getName() + " is blocking all feelings. Skipping Global Msg!");
                         } else { // else NOT ignoring ALL
-                            if (sender instanceof Player p) {
+                            if (sender instanceof Player) {
+                                final Player p = (Player)sender;
                                 if (isTargetIgnoringSender(target, p)) {
                                     // Player is Ignoring from sender but is not target. (GlobaL)
 
@@ -1959,7 +2015,8 @@ public class Main extends JavaPlugin implements Listener {
 
                 // Cooldown Handler ------------------------------------
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled")) {
-                    if (sender instanceof Player p) {
+                    if (sender instanceof Player) {
+                        final Player p = (Player)sender;
                         Cooldowns.putCooldown(p);
                     }
                 }
@@ -1989,7 +2046,8 @@ public class Main extends JavaPlugin implements Listener {
                                     Sound.valueOf(sound1),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
-                            if (sender instanceof Player p) {
+                            if (sender instanceof Player) {
+                                final Player p = (Player)sender;
                                 p.playSound(p.getLocation(),
                                         Sound.valueOf(sound1),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
@@ -2014,7 +2072,8 @@ public class Main extends JavaPlugin implements Listener {
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
-                                if (sender instanceof Player p && !sound2.contains("DISC")) {
+                                if (sender instanceof Player && !sound2.contains("DISC")) {
+                                    final Player p = (Player)sender;
                                     p.playSound(p.getLocation(),
                                             Sound.valueOf(sound2),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
@@ -2032,8 +2091,11 @@ public class Main extends JavaPlugin implements Listener {
                 // ---------- End of Sounds
 
                 // Add Stats
-                if (sender instanceof Player p) {
-                    statsAdd(p, cmdconfig);
+                if(!cmdlr.equals("Spook")) {
+                    if (sender instanceof Player) {
+                        final Player p = (Player)sender;
+                        statsAdd(p, cmdconfig);
+                    }
                 }
             });
             // End Stats
@@ -2045,7 +2107,8 @@ public class Main extends JavaPlugin implements Listener {
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
             Msgs.send(sender, "");
-            if (sender instanceof Player p) {
+            if (sender instanceof Player) {
+                final Player p = (Player)sender;
                 bass(p.getPlayer());
             }
         }
@@ -2064,7 +2127,37 @@ public class Main extends JavaPlugin implements Listener {
             debug("Skipped updating " + name + "'s file, they joined less than 60s ago.");
         }
 
+        if(Cooldowns.spook.containsKey(name)) {
+            Cooldowns.spookStop(p);
+        }
+
         removeAll(p);
+    }
+
+
+    @EventHandler
+    public void onChestEvent(InventoryClickEvent event) {
+        Player p = (Player)event.getWhoClicked();
+
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onTP(PlayerTeleportEvent e) {
+        if(e.isCancelled()) {
+            return;
+        }
+
+        Player p = e.getPlayer();
+
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            e.setCancelled(true);
+            bass(p);
+            Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
+            Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

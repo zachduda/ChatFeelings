@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class Supports {
 
-    private final String support_v = "4_11_0";
+    private final String support_v = "4_12_0";
     private final JavaPlugin javaPlugin;
 
     static boolean supported;
@@ -47,15 +47,15 @@ public class Supports {
                 if(versions.get(this_version) != null) {
                     final String support = versions.get(this_version).toString().toLowerCase();
                     switch (support) {
-                        case "full" -> {
+                        case "full": {
                             supported = true;
                             return;
                         }
-                        case "partial" -> {
+                        case "partial": {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
                             return;
                         }
-                        case "not_tested" -> {
+                        case "not_tested": {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
                             return;
                         }
