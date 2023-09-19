@@ -238,8 +238,8 @@ public class Particles {
                 }
             });
         } catch(Exception e) {
-            plugin.getLogger().info("Error! Couldn't display spooky particles.");
-            e.printStackTrace();
+           // plugin.getLogger().info("Error! Couldn't display spooky particles.");
+            //e.printStackTrace();
         }
     }
 
@@ -249,7 +249,7 @@ public class Particles {
             World world = p.getLocation().getWorld();
             world.spawnParticle(Particle.DRIP_LAVA, p.getLocation(), 2, 0.1D, 0.2D, 0.1D);
         } catch(Exception e) {
-            plugin.getLogger().info("Error! Couldn't display spooky particles.");
+            //plugin.getLogger().info("Error! Couldn't display spooky particles.");
         }
     }
 

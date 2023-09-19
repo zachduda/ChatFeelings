@@ -82,6 +82,9 @@ public class Cooldowns {
 	}
 
 	static int spookTimer(Player p) {
+		if(Main.particles) {
+			return 0;
+		}
 		int timerid = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
 			@Override
 			public void run() {

@@ -37,7 +37,6 @@ public class Supports {
                 JSONObject json = new JSONObject((JSONObject)reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
                         +support_v+".json").openStream(),
                         StandardCharsets.UTF_8)));
-                l.info("DBGGG : "+ JSONObject.toJSONString(json));
                 if(json.get("Console_Message") != null && json.get("Console_Message") != "") {
                     l.info("[ChatFeelings] " + json.get("Console_Message"));
                 }
@@ -60,9 +59,7 @@ public class Supports {
                             return;
                         }
                     }
-                } else {
-                    l.warning("An empty object was returned from the repository.");
-                }
+                } // else this for any version not specifically listed
                 if (!supported) {
                     l.info("---------------------------------------------------");
                     l.info("This version of ChatFeelings is only compatible with: "+json.get("Latest")+"-"+json.get("Oldest"));

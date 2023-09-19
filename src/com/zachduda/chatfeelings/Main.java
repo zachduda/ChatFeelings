@@ -412,7 +412,9 @@ public class Main extends JavaPlugin implements Listener {
         if (sender instanceof Player) {
             try {
                 final Player p = (Player)sender;
-                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
+                Bukkit.getScheduler().runTask(this, () -> {
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
+                });
             } catch (Exception err) {
                 sounds = false;
             }
