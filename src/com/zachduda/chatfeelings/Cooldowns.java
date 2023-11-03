@@ -15,7 +15,6 @@ public class Cooldowns {
 	private static final Main plugin = Main.getPlugin(Main.class);
 
 	static HashMap<Player, Long> cooldown = new HashMap<Player, Long>();
-	static HashMap<String, Integer> spook = new HashMap<String, Integer>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<Player, String>();
 	static HashMap<Player, String> ignorelistcooldown = new HashMap<Player, String>();
 	
@@ -65,57 +64,6 @@ public class Cooldowns {
 				playerFileUpdate.remove(p);
 			}
 		}, 1200L); // 1 minute
-	}
-
-	static void spookStop(Player p) {
-		p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-
-		if(Cooldowns.spook.containsKey(p.getName())) {
-			p.removePotionEffect(PotionEffectType.SLOW);
-			p.removePotionEffect(PotionEffectType.BLINDNESS);
-			p.removePotionEffect(PotionEffectType.SATURATION);
-			p.removePotionEffect(PotionEffectType.CONFUSION);
-			Bukkit.getScheduler().cancelTask(Cooldowns.spook.get(p.getName()));
-			Cooldowns.spook.remove(p.getName());
-		}
-	}
-
-	static int spookTimer(Player p) {
-		if(!Main.particles) {
-			return 0;
-		}
-		int timerid = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable(){
-			@Override
-			public void run() {
-				if(!p.isOnline()) {
-					if(spook.containsKey(p.getName())) {
-						spookStop(p);
-					}
-					return;
-				}
-				Particles.spookDripParticle(p);
-			}}, 5, 5);
-		return timerid;
-	}
-
-	static void spookHash(Player p) {
-		spook.put(p.getName(), spookTimer(p));
-
-		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-			public void run() {
-				spookStop(p);
-
-				if(p.isOnline()) {
-					plugin.pop(p);
-
-					if(!Main.multiversion) {
-						p.stopSound(Sound.MUSIC_DISC_13);
-					}
-
-					Msgs.send(p, "&e" + p.getName() + "&7, your spooky days are finally over.");
-				}
-			}
-		}, 20 * 10);
 	}
 
 }
