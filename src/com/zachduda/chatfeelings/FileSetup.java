@@ -326,6 +326,7 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
         setMsgs("Command_Descriptions.Sus", "Pure single-boned suspicion.");
         setMsgs("Command_Descriptions.Wave", "Say frewell, and wave aideu. How elegant!");
+        setMsgs("Command_Descriptions.Wb", "Give a warm welcome-back to returning players!");
         setMsgsVersion(11);
 
         if (!emotesfile.exists() || !emotes.contains("Version")) {
@@ -601,7 +602,7 @@ public class FileSetup {
         setEmotesBoolean("Feelings.Wave.Enable", true);
         setEmotes("Feelings.Wave.Msgs.Sender", "&7You wave adieu to &a&l%player%&r&7!");
         setEmotes("Feelings.Wave.Msgs.Target", "&a&l%player% &r&7waves adieu to you.");
-        setEmotes("Feelings.Wave.Msgs.Global", "&a&l%sender% &r&7waves adieu to &a&l%target%.");
+        setEmotes("Feelings.Wave.Msgs.Global", "&a&l%sender% &r&7waves adieu to &2&l%target%.");
 
         try {
             Sound.valueOf("BLOCK_AMETHYST_BLOCK_RESONATE");
@@ -616,16 +617,10 @@ public class FileSetup {
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Pitch", 0.0);
 
-        setEmotesBoolean("Feelings.Spook.Enable", true);
-        setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
-        setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
-        setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
-        setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY_WITCH_AMBIENT");
-        setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
-        setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC_13");
-        setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
-        setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
+        setEmotesBoolean("Feelings.Wb.Enable", true);
+        setEmotes("Feelings.Wb.Msgs.Sender", "&7You told &a&l%player% welcome back!");
+        setEmotes("Feelings.Wb.Msgs.Target", "&a&l%player% &r&7gave you a warm welcome back!");
+        setEmotes("Feelings.Wb.Msgs.Global", "&a&l%sender% &r&7welcomed &2&l%target% &r&7back.");
 
         setEmotesVersion(4);
         reloadFiles();

@@ -10,7 +10,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -20,18 +19,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -65,7 +60,8 @@ public class Main extends JavaPlugin implements Listener {
             "pat",
             "stalk",
             "sus",
-            "wave"
+            "wave",
+            "wb"
         );
 
     private boolean hasess = false;
@@ -408,9 +404,7 @@ public class Main extends JavaPlugin implements Listener {
         if (sender instanceof Player) {
             try {
                 final Player p = (Player)sender;
-                Bukkit.getScheduler().runTask(this, () -> {
-                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
-                });
+                Bukkit.getScheduler().runTask(this, () -> p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F));
             } catch (Exception err) {
                 sounds = false;
             }
@@ -609,7 +603,6 @@ public class Main extends JavaPlugin implements Listener {
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
         List < String > ignoredplayers = new ArrayList<>();
-        ignoredplayers.clear();
         ignoredplayers.addAll(setcache.getStringList("Ignoring"));
 
         if (ignoredplayers.contains(sender.getUniqueId().toString())) {
@@ -1112,7 +1105,7 @@ public class Main extends JavaPlugin implements Listener {
             try {
                 long reloadtime = System.currentTimeMillis() - starttime;
                 if (reloadtime >= 1000) {
-                    double reloadsec = reloadtime / 1000;
+                    double reloadsec = (double) reloadtime / 1000;
                     // Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
@@ -1369,7 +1362,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("mute")) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("mute")) {
             if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
@@ -1461,7 +1454,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1 && args[0].equalsIgnoreCase("ignore")) {
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("ignore")) {
             if (!hasPerm(sender, "chatfeelings.ignore")) {
                 noPermission(sender);
                 return true;
@@ -1499,7 +1492,7 @@ public class Main extends JavaPlugin implements Listener {
 
                 Msgs.send(sender, " ");
                 Msgs.send(sender, msg.getString("Ignore-List-Header"));
-                if (ignoredplayers.size() == 0) {
+                if (ignoredplayers.isEmpty()) {
                     if (setcache.getBoolean("Allow-Feelings")) {
                         Msgs.send(sender, msg.getString("Ignore-List-None"));
                     } else {
@@ -1573,7 +1566,6 @@ public class Main extends JavaPlugin implements Listener {
             }
 
             List < String > ignoredplayers = new ArrayList < String > ();
-            ignoredplayers.clear();
             ignoredplayers.addAll(setcache.getStringList("Ignoring"));
 
             final UUID ignoreUUID = hasPlayedNameGetUUID(args[1]);
@@ -1737,12 +1729,6 @@ public class Main extends JavaPlugin implements Listener {
                     return;
                 }
 
-                if (args.length < 1) {
-                    Msgs.sendPrefix(sender, msg.getString("No-Player"));
-                    bass(sender);
-                    return;
-                }
-
                 if (args[0].equalsIgnoreCase("console")) {
                     Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
                     bass(sender);
@@ -1785,8 +1771,8 @@ public class Main extends JavaPlugin implements Listener {
                             bass(sender);
                             return;
                         }
-                        Double distance = p.getLocation().distance(target.getLocation());
-                        Double radius = getConfig().getDouble("General.Radius.Radius-In-Blocks");
+                        double distance = p.getLocation().distance(target.getLocation());
+                        double radius = getConfig().getDouble("General.Radius.Radius-In-Blocks");
                         if (distance > radius) {
                             debug(sender.getName() + " was outside the radius of " + radius + ". (They're " + distance + ")");
                             Msgs.sendPrefix(sender, omsg);
@@ -1865,8 +1851,6 @@ public class Main extends JavaPlugin implements Listener {
 
                     FeelingRecieveEvent fre = new FeelingRecieveEvent(finalTarget, sender, cmdconfig);
                     Bukkit.getPluginManager().callEvent(fre);
-                    if (fre.isCancelled()) {
-                    }
                 });
 
                 // End of API events (Except for Global event below ---------------------
@@ -1979,7 +1963,7 @@ public class Main extends JavaPlugin implements Listener {
                 if (sounds) {
                     try {
                         String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
-                        if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && sound1 != "null") {
+                        if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
 
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                     Sound.valueOf(sound1),
@@ -1995,10 +1979,7 @@ public class Main extends JavaPlugin implements Listener {
                         }
 
                         String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
-                        if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") &&
-                                !sound2.equalsIgnoreCase("off") &&
-                                sound2 != null &&
-                                sound2 != "null") {
+                        if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") && !sound2.equalsIgnoreCase("off") && !sound2.equals("null")) {
 
                             if (sound2.contains("DISC") && !multiversion) {
                                 // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
@@ -2039,7 +2020,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args.length >= 1) {
+        if (cmdlr.equals("chatfeelings")) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
             Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
