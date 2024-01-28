@@ -44,7 +44,7 @@ commands:
   cry:
     description: Real sad hours? Cry at a player.
   dab:
-    description: Cash me outside. How bout dab?
+    description: Freshly dab on someone.
   lick:
     description: Lick someone like an ice-cream sundae!
   scorn:
@@ -59,3 +59,5 @@ commands:
     description: Say farewell, and wave aideu. How elegant!
   spook:
     description: Give your friends some festive fright!
+  wb:
+    description: Give a warm welcome-back to returning players!
