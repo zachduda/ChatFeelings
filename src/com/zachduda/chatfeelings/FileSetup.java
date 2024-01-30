@@ -621,6 +621,12 @@ public class FileSetup {
         setEmotes("Feelings.Wb.Msgs.Sender", "&7You told &a&l%player% welcome back!");
         setEmotes("Feelings.Wb.Msgs.Target", "&a&l%player% &r&7gave you a warm welcome back!");
         setEmotes("Feelings.Wb.Msgs.Global", "&a&l%sender% &r&7welcomed &2&l%target% &r&7back.");
+        setEmotes("Feelings.Wb.Sounds.Sound1.Name", "BLOCK_BEACON_POWER_SELECT");
+        setEmotesDouble("Feelings.Wb.Sounds.Sound1.Volume", 2.0);
+        setEmotesDouble("Feelings.Wb.Sounds.Sound1.Pitch", 2.0);
+        setEmotes("Feelings.Wb.Sounds.Sound2.Name", "None");
+        setEmotesDouble("Feelings.Wb.Sounds.Sound2.Volume", 0.0);
+        setEmotesDouble("Feelings.Wb.Sounds.Sound2.Pitch", 0.0);
 
         setEmotesVersion(4);
         reloadFiles();
