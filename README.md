@@ -11,8 +11,8 @@ ChatFeelings is a Minecraft plugin (supporting 1.13 up to 1.20).
 Please check out the [Spigot Page](https://www.spigotmc.org/resources/chatfeelings.12987/). for full documentation.
 
 # License
-This project is licensed under [Creative Commons (CC-BY-NC-4)](https://creativecommons.org/licenses/by-nc/4.0/)
-You can do whatever you want as long as you give credit and it's not commerical.
+This project is licensed under [Creative Commons (CC-BY-NC-4)](https://creativecommons.org/licenses/by-nc/4.0/).
+You can do whatever you'd like: just give credit and make sure it's non-commerical.
 
 # Contact Me
 If you have any questions or inquiries, you can reach me at https://zachduda.com/contact
