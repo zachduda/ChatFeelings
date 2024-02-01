@@ -40,4 +40,5 @@ Other:
     Check: true
   Metrics: true
   Debug: false
+  Reduce-Console-Msgs: false
 Version: 7
