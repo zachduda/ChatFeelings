@@ -74,6 +74,7 @@ public class Main extends JavaPlugin implements Listener {
     private static boolean useperms = false;
 
     protected static boolean multiversion = false;
+    public static boolean reducemsgs = false;
     protected static boolean debug = false;
 
     private static boolean sounds = false;
@@ -99,10 +100,21 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     static Logger log = Bukkit.getLogger();
+    private static String logtag = "[ChatFeelings] ";
+
+    public static void log(String msg, Boolean critical, Boolean warning) {
+        if (critical || !reducemsgs) {
+            if(warning) {
+                log.warning("[!] " + logtag + msg);
+                return;
+            }
+            log.info( logtag + msg);
+        }
+    }
 
     public static void debug(String msg) {
         if (debug) {
-            log.info("[ChatFeelings] [Debug] " + msg);
+            log("[Debug] " + msg, true, false);
         }
     }
 
@@ -213,7 +225,7 @@ public class Main extends JavaPlugin implements Listener {
                                             setcache.save(f);
                                         } catch (Exception err) {
                                             if(debug) {
-                                                getLogger().warning("Unable to update file:");
+                                                log("Unable to update file:", true, true);
                                                 err.printStackTrace();
                                             }
                                         }
@@ -272,9 +284,9 @@ public class Main extends JavaPlugin implements Listener {
         }
         pl.saveConfig();
         configChecks(pl);
-        if (supported) {
-            pl.getLogger().info("Having issues? Got a question? Join our support discord: " + discord_link);
-        } else {
+        if (supported && !reducemsgs) {
+            log("Having issues? Got a question? Join our support discord: " + discord_link, false, false);
+        } else if(!supported) {
             debug("Not showing support discord link. They are using a version that's not supported :(");
         }
     }
@@ -285,7 +297,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if (pl.getConfig().getBoolean("General.Particles")) {
             if (!Supports.isSupported()) {
-                pl.getLogger().warning("Particles were disabled. You're using " + Supports.getMCVersion() + " and not 1.12 or higher.");
+                log("Particles were disabled. You're using " + Supports.getMCVersion() + " and not 1.12 or higher.", false, true);
                 particles = false;
             } else {
                 debug("Using 1.12+, Particles have been enabled.");
@@ -329,15 +341,14 @@ public class Main extends JavaPlugin implements Listener {
             return null;
         }
         if (!getConfig().getBoolean("Other.Metrics")) {
-            debug("Metrics was disabled. Guess we won't support the developer today!");
+            debug("Metrics was disabled. Guess we won't support Zach today. :(");
             return null;
         }
 
         double version = Double.parseDouble(System.getProperty("java.specification.version"));
         if (version < 1.8) {
-            getLogger().warning(
-                    "Java " + Double.toString(version).replace("1.", "") + " detected. ChatFeelings requires Java 8 or higher to fully function.");
-            getLogger().info("TIP: Use version v2.0.1 or below for legacy Java support.");
+            log("Java " + Double.toString(version).replace("1.", "") + " detected. ChatFeelings requires Java 8 or higher to fully function.", true, true);
+            log("TIP: Use version v2.0.1 or below for legacy Java support.", false, false);
             return null;
         }
 
@@ -429,7 +440,7 @@ public class Main extends JavaPlugin implements Listener {
         public static void configChecks(JavaPlugin pl) {
         if (pl.getConfig().getBoolean("General.Radius.Enabled")) {
             if (pl.getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
-                pl.getLogger().warning("Feeling radius cannot be 0, disabling the radius.");
+                log("Feeling radius cannot be 0, disabling the radius.", true, true);
                 pl.getConfig().set("General.Radius.Radius-In-Blocks", 35);
                 pl.getConfig().set("General.Radius.Enabled", false);
                 pl.saveConfig();
@@ -483,7 +494,7 @@ public class Main extends JavaPlugin implements Listener {
                     setcache.save(f);
                 } catch (Exception err) {
                     if(debug) {
-                        getLogger().warning("Unable to update last seen var in player file:");
+                        log("Unable to update last seen var in player file:",true,true);
                         err.printStackTrace();
                     }
                 }
@@ -510,7 +521,7 @@ public class Main extends JavaPlugin implements Listener {
                 setcache.save(f);
             } catch (Exception err) {
                 if(debug) {
-                    getLogger().warning("Unable to update player file:");
+                    log("Unable to update player file:", true, true);
                     err.printStackTrace();
                 }
             }
@@ -531,7 +542,7 @@ public class Main extends JavaPlugin implements Listener {
                     setstats.save(fstats);
                 } catch (Exception err) {
                     if(debug) {
-                        getLogger().warning("Unable to create or save global stats file:");
+                        log("Unable to create or save global stats file:", true, true);
                         err.printStackTrace();
                     }
                 }
@@ -631,7 +642,7 @@ public class Main extends JavaPlugin implements Listener {
         try {
             if (this.getServer().getPluginManager().isPluginEnabled(plugin) &&
                     this.getServer().getPluginManager().getPlugin(plugin) != null) {
-                getLogger().info("Hooking into " + plugin + "...");
+                    log("Hooking into " + plugin + "...", false, false);
                 return true;
             }
             debug("Skipping hooks for " + plugin + " (Not Found)");
@@ -647,7 +658,14 @@ public class Main extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
         long start = System.currentTimeMillis();
-        getLogger().info("Checking repository to maximize support...");
+
+        if (getConfig().contains("Other.Reduce-Console-Msgs")) {
+            reducemsgs = getConfig().getBoolean("Other.Reduce-Console-Msgs");
+        } else {
+            reducemsgs = false;
+        }
+
+        log("Checking repository to maximize support...", false, false);
 
         api = new ChatFeelingsAPI();
 
@@ -673,13 +691,11 @@ public class Main extends JavaPlugin implements Listener {
                 try {
                     new Updater(this).checkForUpdate();
                 } catch (Exception e) {
-                    getLogger().warning("There was an issue while trying to check for updates.");
+                    log("There was an issue while trying to check for updates.", false, true);
                     if(debug) {
                         e.printStackTrace();
                     }
                 }
-            } else {
-                getLogger().info("[!] Update checking has been disabled in the config.yml");
             }
         } else {
             updateConfig(this);
@@ -723,8 +739,8 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if(beta) {
-            getLogger().warning("You're using a beta update, so update checking is off!");
-            getLogger().warning("Check for updates daily at https://github.com/zachduda/ChatFeelings/releases");
+                log("[!] This is a BETA version. Check for updates manually on Github/Discord!", true, true);
+                log("Check for updates daily at https://github.com/zachduda/ChatFeelings/releases", false, true);
         }
         debug("Finished! ChatFeelings was loaded in " + (System.currentTimeMillis() - start) + "ms");
 
@@ -945,7 +961,7 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
             } catch (Exception err) {
-                getLogger().warning("Couldn't check for vanished players. Disabling this check until next restart.");
+                log("Couldn't check for vanished players. Disabling this check until next restart.", false, true);
                 usevanishcheck = false;
             }
 
@@ -1076,9 +1092,9 @@ public class Main extends JavaPlugin implements Listener {
 
             } catch (Exception err2) {
                 if (debug) {
-                    getLogger().info("Error occured when trying to reload your config: ----------");
+                    log("Error occured when trying to reload your config: ----------", false, false);
                     err2.printStackTrace();
-                    getLogger().info("-----------------------[End of Error]-----------------------");
+                    log("-----------------------[End of Error]-----------------------", false, false);
                     Msgs.send(sender, "&8&l> &4&lError! &fSomething in your config isn't right. Check console!");
                 } else {
                     Msgs.send(sender, "&8&l> &4&lError! &fSomething in your ChatFeelings files is wrong.");
@@ -1109,12 +1125,12 @@ public class Main extends JavaPlugin implements Listener {
                     // Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
-                        getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s");
+                        log("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s", false, false);
                     }
                 } else {
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadtime + "ms"));
                     if (sender instanceof Player) {
-                        getLogger().info("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms");
+                        log("Configuration & Files reloaded by " + sender.getName() + " in " + reloadtime + "ms", false, false);
                     }
                 }
             } catch (Exception err) {
@@ -1329,10 +1345,10 @@ public class Main extends JavaPlugin implements Listener {
                 try {
                     setcache.save(f);
                 } catch (Exception err) {
-                    getLogger().warning("Unable to save " + playername + "'s data file:");
+                    log("Unable to save " + playername + "'s data file:", true, true);
                     err.printStackTrace();
-                    getLogger().warning("-----------------------------------------------------");
-                    getLogger().warning("Please message us on discord or spigot about this error.");
+                    log("-----------------------------------------------------",false, true);
+                    log("Please message us on discord or spigot about this error.", false, true);
                 }
 
                 Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Unmuted")).replace("%player%", Objects.requireNonNull(playername)));
@@ -1356,7 +1372,7 @@ public class Main extends JavaPlugin implements Listener {
             } else {
                 bass(sender);
                 Msgs.sendPrefix(sender, "&c&lError. &fWe couldn't find mute status in your data files.");
-                getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.");
+                log("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.", false, true);
             }
 
             return true;
@@ -1424,10 +1440,10 @@ public class Main extends JavaPlugin implements Listener {
                 try {
                     setcache.save(f);
                 } catch (Exception err) {
-                    getLogger().warning("Unable to save " + playername + "'s data file:");
+                    log("Unable to save " + playername + "'s data file:", true, true);
                     err.printStackTrace();
-                    getLogger().warning("-----------------------------------------------------");
-                    getLogger().warning("Please message us on discord or spigot about this error.");
+                    log("-----------------------------------------------------", false, true);
+                    log("Please message us on discord or spigot about this error.", false, true);
                 }
                 Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Muted")).replace("%player%", Objects.requireNonNull(playername)));
                 Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
@@ -1448,7 +1464,7 @@ public class Main extends JavaPlugin implements Listener {
             } else {
                 bass(sender);
                 Msgs.sendPrefix(sender, "&cError. &fWe couldn't find your mute status in your data file.");
-                getLogger().warning("Something went wrong when trying to get " + sender.getName() + "'s mute status in the player file.");
+                log("Something went wrong when trying to get " + sender.getName() + "'s mute status in the player file.", false, true);
             }
 
             return true;
@@ -1599,7 +1615,7 @@ public class Main extends JavaPlugin implements Listener {
                     return true;
                 }
             } catch (Exception searcherr) {
-                getLogger().warning("Error trying to search for: " + args[1] + " in the Data folder.");
+                log("Error trying to search for: " + args[1] + " in the Data folder.", false, true);
             }
 
             ignoredplayers.add(ignoreUUID.toString());
@@ -1954,7 +1970,7 @@ public class Main extends JavaPlugin implements Listener {
                             parterr.printStackTrace();
                         }
                         particles = false;
-                        getLogger().warning("Couldn't display '" + cmd.getName().toUpperCase() + "' particles to " + target.getName() + ". Make sure you use 1.12 or higher.");
+                        log("Couldn't display '" + cmd.getName().toUpperCase() + "' particles to " + target.getName() + ". Make sure you use 1.12 or higher.", false, true);
                     }
                 }
                 // -----------------------------------------------------
@@ -2002,9 +2018,10 @@ public class Main extends JavaPlugin implements Listener {
                             }
                         }
                     } catch (Exception sounderr) { // err test for sounds
-                        getLogger().warning("One or more of your sounds for /" + cmdconfig + " are incorrect. See below:");
-                        sounderr.printStackTrace();
-                        getLogger().info("This happens when the sound values don't match the version of MC. This is not a bug. Sounds will now disable.");
+                        log("One or more of your sounds for /" + cmdconfig + " are incorrect! Sounds are disabling...", true, true);
+                        if(debug) {
+                            sounderr.printStackTrace();
+                        }
                         sounds = false;
                     }
                 } // end of config sound check

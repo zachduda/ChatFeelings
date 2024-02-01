@@ -1,5 +1,6 @@
 package com.zachduda.chatfeelings.other;
 
+import com.zachduda.chatfeelings.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -68,7 +69,9 @@ public class Updater {
             }
         }.runTaskTimer(javaPlugin, 0, CHECK_INTERVAL);
     	}catch(Exception err) {
-    		javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
+            if(!Main.reducemsgs) {
+                javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
+            }
     	}
     }
 

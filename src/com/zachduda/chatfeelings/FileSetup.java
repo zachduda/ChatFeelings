@@ -203,7 +203,9 @@ public class FileSetup {
             }
 
             if (saveFile(msgs, msgsfile)) {
-                plugin.getLogger().info("Created new messages.yml file...");
+                if(!Main.reducemsgs) {
+                    plugin.getLogger().info("Created new messages.yml file...");
+                }
             }
 
         } else {
@@ -331,7 +333,9 @@ public class FileSetup {
 
         if (!emotesfile.exists() || !emotes.contains("Version")) {
             if (saveFile(emotes, emotesfile)) {
-                plugin.getLogger().info("Created new emotes.yml file...");
+                if(!Main.reducemsgs) {
+                    plugin.getLogger().info("Created new emotes.yml file...");
+                }
             }
         } else {
             if (emotes.get("Feelings.Spook") != null) {

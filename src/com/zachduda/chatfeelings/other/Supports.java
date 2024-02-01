@@ -37,8 +37,11 @@ public class Supports {
                 JSONObject json = new JSONObject((JSONObject)reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
                         +support_v+".json").openStream(),
                         StandardCharsets.UTF_8)));
-                if(json.get("Console_Message") != null && json.get("Console_Message") != "") {
-                    l.info("[ChatFeelings] " + json.get("Console_Message"));
+
+                if(!Main.reducemsgs || (json.get("Msg_Critical") != null && ((boolean) json.get("Msg_Critical")))) {
+                    if(json.get("Console_Message") != null && json.get("Console_Message") != "") {
+                        l.info((String)json.get("Console_Message"));
+                    }
                 }
 
                 JSONObject versions = (JSONObject) json.get("Versions");
@@ -61,16 +64,20 @@ public class Supports {
                     }
                 } // else this for any version not specifically listed
                 if (!supported) {
-                    l.info("---------------------------------------------------");
-                    l.info("This version of ChatFeelings is only compatible with: "+json.get("Latest")+"-"+json.get("Oldest"));
-                    l.info("While ChatFeelings may work with " + dottedver + ", it is not supported.");
-                    l.info(" ");
-                    l.info("If you continue, you understand that you will get no support, and");
-                    l.info("that some features, such as sounds, may disable to continue working.");
-                    l.info("");
-                    l.info("");
-                    l.info("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
-                    l.info("---------------------------------------------------");
+                    if(Main.reducemsgs) {
+                        l.info("This version of ChatFeelings is made for " + json.get("Latest") + "-" + json.get("Oldest") + " o");
+                    } else {
+                        l.info("---------------------------------------------------");
+                        l.info("This version of ChatFeelings is only compatible with: " + json.get("Latest") + "-" + json.get("Oldest"));
+                        l.info("While ChatFeelings may work with " + dottedver + ", it is not supported.");
+                        l.info(" ");
+                        l.info("If you continue, you understand that you will get no support, and");
+                        l.info("that some features, such as sounds, may disable to continue working.");
+                        l.info("");
+                        l.info("");
+                        l.info("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
+                        l.info("---------------------------------------------------");
+                    }
                 }
                 supported = false;
             } catch (final Exception e) {
