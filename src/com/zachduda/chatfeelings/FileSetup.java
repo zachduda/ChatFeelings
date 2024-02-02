@@ -1,11 +1,17 @@
 package com.zachduda.chatfeelings;
 
+import org.apache.commons.io.Charsets;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +36,18 @@ public class FileSetup {
 
     private static void setMsgs(String configpath, String msg) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
+        FileConfiguration msgs = null;
+        try {
+            msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            if(Main.debug) {
+                Main.debug("Unable to decode or create messages.yml file:");
+                throw new RuntimeException(e);
+            } else {
+                Main.log("There was an error when trying to modify or create your messages.yml", true, true);
+                return;
+            }
+        }
 
         if (!msgsfile.exists()) {
             saveFile(msgs, msgsfile);
@@ -48,7 +65,19 @@ public class FileSetup {
 
     private static void forceMsgs(String configpath, String msg) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
+        FileConfiguration msgs = null;
+        try {
+            msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            if(Main.debug) {
+                Main.debug("Unable to decode or create messages.yml file:");
+                throw new RuntimeException(e);
+            } else {
+                Main.log("There was an error when trying to modify or create your messages.yml", true, true);
+                return;
+            }
+        }
+
         if (!msgsfile.exists()) {
             saveFile(msgs, msgsfile);
         }
@@ -59,7 +88,18 @@ public class FileSetup {
 
     private static void setMsgsVersion(int vers) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
+        FileConfiguration msgs = null;
+        try {
+            msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            if(Main.debug) {
+                Main.debug("Unable to decode or create messages.yml file:");
+                throw new RuntimeException(e);
+            } else {
+                Main.log("There was an error when trying to modify or create your messages.yml", true, true);
+                return;
+            }
+        }
 
         if (!msgs.contains("Version") || msgs.getInt("Version") != vers) {
             msgs.set("Version", vers);
@@ -69,7 +109,18 @@ public class FileSetup {
 
     private static void forceEmotes(String configpath, String msg) {
         File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+        FileConfiguration emotes  = null;
+        try {
+            emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            if(Main.debug) {
+                Main.debug("Unable to decode or create emotes.yml file:");
+                throw new RuntimeException(e);
+            } else {
+                Main.log("There was an error when trying to modify or create your emotes.yml", true, true);
+                return;
+            }
+        }
 
         if (!emotesfile.exists()) {
             saveFile(emotes, emotesfile);
@@ -81,7 +132,18 @@ public class FileSetup {
 
     private static void setEmotes(String configpath, String msg) {
         File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+        FileConfiguration emotes  = null;
+        try {
+            emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            if(Main.debug) {
+                Main.debug("Unable to decode or create emotes.yml file:");
+                throw new RuntimeException(e);
+            } else {
+                Main.log("There was an error when trying to modify or create your emotes.yml", true, true);
+                return;
+            }
+        }
 
         if (!emotesfile.exists()) {
             saveFile(emotes, emotesfile);

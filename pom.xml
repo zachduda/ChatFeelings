@@ -7,15 +7,15 @@
     <artifactId>chatfeelings</artifactId>
     <url>https://zachduda.com/chatfeelings</url>
     <packaging>jar</packaging>
-    <version>4.12.2</version>
+    <version>4.13.0</version>
     <description>Show your feelings in Minecraft with this lightweight Java plugin!</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <licenses>
         <license>
-            <name>GPL-3.0</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0-standalone.html</url>
+            <name>CC-BY-NC-v4</name>
+            <url>https://creativecommons.org/licenses/by-nc/4.0/</url>
         </license>
     </licenses>
     <build>
