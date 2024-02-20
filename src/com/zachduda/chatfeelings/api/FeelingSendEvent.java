@@ -6,6 +6,8 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+import java.util.Objects;
+
 public class FeelingSendEvent extends Event implements Cancellable {
 	
 	private final CommandSender sender;
@@ -50,4 +52,7 @@ public class FeelingSendEvent extends Event implements Cancellable {
     	return this.target;
     }
 
+    public String getSendersMessage() { return Objects.requireNonNull(ChatFeelingsAPI.getSenderEmoteMessage(this.feeling)).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName()); }
+    public String getTargetsMessage() { return Objects.requireNonNull(ChatFeelingsAPI.getTargetEmoteMessage(this.feeling)).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName()); }
+    public String getGlobalEmoteMessage() { return Objects.requireNonNull(ChatFeelingsAPI.getGlobalEmoteMessage(this.feeling)).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName()); }
 }
