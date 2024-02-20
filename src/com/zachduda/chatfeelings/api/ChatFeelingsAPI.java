@@ -1,6 +1,7 @@
 package com.zachduda.chatfeelings.api;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -134,6 +135,48 @@ public class ChatFeelingsAPI {
 		}
 		
 		return false;
+	}
+
+	/**
+	 * Fetches a feelings message from the emotes.yml
+	 *
+	 * @param feeling The string of the feelings messages you want to get (ie: "hug")
+	 */
+	public static String getGlobalEmoteMessage(String feeling) {
+		String flc = feeling.toLowerCase();
+		if(!Main.feelings.contains(flc)) {
+			Main.log("[API] getGlobalEmoteMessage method failed. No such feeling: " + flc, true, true);
+			return null;
+		}
+		return plugin.emotes.getString("Feelings."+flc+".Msgs.Global");
+	}
+
+	/**
+	 * Fetches a feelings message from the emotes.yml
+	 *
+	 * @param feeling The string of the feelings messages you want to get (ie: "hug")
+	 */
+	public static String getSenderEmoteMessage(String feeling) {
+		String flc = feeling.toLowerCase();
+		if(!Main.feelings.contains(flc)) {
+			Main.log("[API] getSenderEmoteMessage method failed. No such feeling: " + flc, true, true);
+			return null;
+		}
+		return plugin.emotes.getString("Feelings."+flc+".Msgs.Sender");
+	}
+
+	/**
+	 * Fetches a feelings message from the emotes.yml
+	 *
+	 * @param feeling The string of the feelings messages you want to get (ie: "hug")
+	 */
+	public static String getTargetEmoteMessage(String feeling) {
+		String flc = feeling.toLowerCase();
+		if(!Main.feelings.contains(flc)) {
+			Main.log("[API] getTargetEmoteMessage method failed. No such feeling: " + flc, true, true);
+			return null;
+		}
+		return plugin.emotes.getString("Feelings."+flc+".Msgs.Target");
 	}
 	
 	public static int getSentStats(String name, String feeling) {
