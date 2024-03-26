@@ -30,7 +30,6 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
-@SuppressWarnings("ResultOfMethodCallIgnored")
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
@@ -100,7 +99,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     static Logger log = Bukkit.getLogger();
-    private static String logtag = "[ChatFeelings] ";
+    private static final String logtag = "[ChatFeelings] ";
 
     public static void log(String msg, Boolean critical, Boolean warning) {
         if (critical || !reducemsgs) {
@@ -613,8 +612,7 @@ public class Main extends JavaPlugin implements Listener {
         File f = new File(cache, File.separator + target.getUniqueId() + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-        List < String > ignoredplayers = new ArrayList<>();
-        ignoredplayers.addAll(setcache.getStringList("Ignoring"));
+        List<String> ignoredplayers = new ArrayList<>(setcache.getStringList("Ignoring"));
 
         if (ignoredplayers.contains(sender.getUniqueId().toString())) {
             ignoredplayers.clear();
@@ -1221,7 +1219,7 @@ public class Main extends JavaPlugin implements Listener {
                 Msgs.sendPrefix(sender, "&7Please wait &f&l" + secsLeft + "s &7before checking the mute list.");
                 return true;
             }
-            // We need a 60s global cooldown incase they use MySQL. Doing this command w/ MySQL can suck up LOTS of CPU.
+            // We need a 60s global cooldown in case they use MySQL. Doing this command w/ MySQL can suck up LOTS of CPU.
             if (haslitebans || hasadvancedban) {
                 lastmutelist = System.currentTimeMillis();
             }
@@ -1503,8 +1501,7 @@ public class Main extends JavaPlugin implements Listener {
                 File f = new File(datafolder, File.separator + p.getUniqueId() + ".yml");
                 FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-                List < String > ignoredplayers = new ArrayList < String > ();
-                ignoredplayers.addAll(setcache.getStringList("Ignoring"));
+                List<String> ignoredplayers = new ArrayList<>(setcache.getStringList("Ignoring"));
 
                 Msgs.send(sender, " ");
                 Msgs.send(sender, msg.getString("Ignore-List-Header"));
@@ -1517,7 +1514,7 @@ public class Main extends JavaPlugin implements Listener {
                 } else {
                     for (String ignoredUUID: ignoredplayers) {
                         String name = hasPlayedUUIDGetName(UUID.fromString(ignoredUUID));
-                        if (name != null && name != "0") {
+                        if (name != null && !name.equals("0")) {
                             Msgs.send(sender, "  &8&l> &f&l" + name);
                         }
                     }
@@ -1581,8 +1578,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            List < String > ignoredplayers = new ArrayList < String > ();
-            ignoredplayers.addAll(setcache.getStringList("Ignoring"));
+            List<String> ignoredplayers = new ArrayList<>(setcache.getStringList("Ignoring"));
 
             final UUID ignoreUUID = hasPlayedNameGetUUID(args[1]);
             if (ignoreUUID == null) {
@@ -1662,7 +1658,7 @@ public class Main extends JavaPlugin implements Listener {
                 return true;
             }
 
-            final int totalpages = Math.max(1, (int)Math.ceil(enabledfeelings.size()/page_length));
+            final int totalpages = Math.max(1, (int)Math.ceil((double) enabledfeelings.size() /page_length));
 
             if(page > totalpages) {
                 bass(sender);
@@ -1881,7 +1877,7 @@ public class Main extends JavaPlugin implements Listener {
                         File f = new File(cache, File.separator + online.getUniqueId() + ".yml");
                         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
-                        if (!setcache.getBoolean("Allow-Feelings") && (online.getName() != sender.getName())) {
+                        if (!setcache.getBoolean("Allow-Feelings") && (!online.getName().equals(sender.getName()))) {
                             debug(online.getName() + " is blocking all feelings. Skipping Global Msg!");
                         } else { // else NOT ignoring ALL
                             if (sender instanceof Player) {

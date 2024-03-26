@@ -90,26 +90,10 @@ public class Particles {
 
         world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
 
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 2L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 4L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 6L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 8L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 2L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 4L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 6L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 8L);
     }
 	
 	private static void punchParticle(final Player p) {
@@ -117,46 +101,14 @@ public class Particles {
         assert world != null;
         world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
 
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 2L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 4L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 6L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 8L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 10L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 12L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 14L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
-            }
-        }, 16L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 2L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 4L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 6L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 8L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 10L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 12L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 14L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 16L);
     }
 
 	private static void murderParticle(final Player p) {
@@ -164,11 +116,7 @@ public class Particles {
         assert world != null;
         world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.RED_CONCRETE);
 
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-            public void run() {
-                world.spawnParticle(Particle.LAVA, p.getLocation().add(0, 1, 0), 5, 0.0D, 0.6D, 0.0D);
-            }
-        }, 5L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.LAVA, p.getLocation().add(0, 1, 0), 5, 0.0D, 0.6D, 0.0D), 5L);
     }
 
 	private static void boiParticle(Player p) {

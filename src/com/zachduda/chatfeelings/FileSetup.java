@@ -1,13 +1,11 @@
 package com.zachduda.chatfeelings;
 
-import org.apache.commons.io.Charsets;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +34,7 @@ public class FileSetup {
 
     private static void setMsgs(String configpath, String msg) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs = null;
+        FileConfiguration msgs;
         try {
             msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -65,7 +63,7 @@ public class FileSetup {
 
     private static void forceMsgs(String configpath, String msg) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs = null;
+        FileConfiguration msgs;
         try {
             msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -88,7 +86,7 @@ public class FileSetup {
 
     private static void setMsgsVersion(int vers) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs = null;
+        FileConfiguration msgs;
         try {
             msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -109,7 +107,7 @@ public class FileSetup {
 
     private static void forceEmotes(String configpath, String msg) {
         File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes  = null;
+        FileConfiguration emotes;
         try {
             emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -132,7 +130,7 @@ public class FileSetup {
 
     private static void setEmotes(String configpath, String msg) {
         File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes  = null;
+        FileConfiguration emotes;
         try {
             emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
         } catch (IOException e) {

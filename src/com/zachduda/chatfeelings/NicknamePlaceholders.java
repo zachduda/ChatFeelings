@@ -7,6 +7,8 @@ import org.bukkit.entity.Player;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 
+import java.util.Objects;
+
 /**
  * Handles replacing placeholders with nicknames and playernames.
  */
@@ -31,7 +33,7 @@ public class NicknamePlaceholders {
 			console_name = "The Server";
 		}
 		
-		if(papiExists == false) {
+		if(!papiExists) {
 			use_nickname = false;
 			return false;
 		}
@@ -78,7 +80,7 @@ public class NicknamePlaceholders {
 
 		String targetNick = PlaceholderAPI.setPlaceholders(target, nickname_placeholder);
 
-		if (senderNick == nickname_placeholder || targetNick == nickname_placeholder) {
+		if (Objects.equals(senderNick, nickname_placeholder) || targetNick.equals(nickname_placeholder)) {
 			return replaceUsernames(msg, sender, target);
 		}
 
@@ -103,7 +105,7 @@ public class NicknamePlaceholders {
 
 		String playerNick = PlaceholderAPI.setPlaceholders(player, nickname_placeholder);
 
-		if (playerNick == nickname_placeholder) {
+		if (playerNick.equals(nickname_placeholder)) {
 			return replaceUsernames(msg, player);
 		}
 
@@ -132,7 +134,7 @@ public class NicknamePlaceholders {
 			senderNick = console_name;
 		}
 
-		if (senderNick == nickname_placeholder) {
+		if (Objects.equals(senderNick, nickname_placeholder)) {
 			return replaceUsernames(msg, sender);
 		}
 
@@ -175,7 +177,7 @@ public class NicknamePlaceholders {
 	 * replaces %player% with username
 	 * 
 	 * @param msg
-	 * @param CommandSender who's username to use
+	 * @param sender who's username to use
 	 * @return replaced string
 	 */
 	static String replaceUsernames(String msg, CommandSender sender) {
