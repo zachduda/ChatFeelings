@@ -25,6 +25,7 @@ import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
+import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.File;
 import java.util.*;
@@ -36,6 +37,8 @@ public class Main extends JavaPlugin implements Listener {
     public final static boolean beta = false;
 
     public ChatFeelingsAPI api;
+
+    MorePaperLib morePaperLib = new MorePaperLib(this);
 
     public final static List< String > feelings = Arrays.asList(
             "hug",
@@ -154,7 +157,7 @@ public class Main extends JavaPlugin implements Listener {
     private void purgeOldFiles() {
         boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
 
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+        morePaperLib.scheduling().asyncScheduler().run(() -> {
 
             File folder = new File(this.getDataFolder(), File.separator + "Data");
             if (!folder.exists()) {
@@ -481,7 +484,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private void updateLastOn(Player p) {
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+        morePaperLib.scheduling().asyncScheduler().run(() -> {
             final String UUID = p.getUniqueId().toString();
 
             File cache = new File(this.getDataFolder(), File.separator + "Data");
@@ -528,7 +531,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private void statsAdd(Player p, String emotion) {
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+        morePaperLib.scheduling().asyncScheduler().run(() -> {
 
             // Global Stats -------------------------------------
             File folder = new File(getDataFolder(), File.separator + "Data");
@@ -1223,7 +1226,7 @@ public class Main extends JavaPlugin implements Listener {
             if (haslitebans || hasadvancedban) {
                 lastmutelist = System.currentTimeMillis();
             }
-            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            morePaperLib.scheduling().asyncScheduler().run(() -> {
                 Msgs.send(sender, "");
                 Msgs.send(sender, msg.getString("Mute-List-Header"));
 
@@ -1353,7 +1356,7 @@ public class Main extends JavaPlugin implements Listener {
                 pop(sender);
             } else if (!setcache.getBoolean("Muted")) {
                 bass(sender);
-                Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                morePaperLib.scheduling().asyncScheduler().run(() -> {
                     final int muteInt = isMuted(puuid, IPAdd);
                     if (muteInt == 3) {
                         Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-AdvancedBan"));
@@ -1444,7 +1447,7 @@ public class Main extends JavaPlugin implements Listener {
                     log("Please message us on discord or spigot about this error.", false, true);
                 }
                 Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Muted")).replace("%player%", Objects.requireNonNull(playername)));
-                Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+                morePaperLib.scheduling().asyncScheduler().run(() -> {
                     final int muteInt = isMuted(puuid, IPAdd);
                     if (muteInt != 0) {
                         Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Extra-Mute-Present")).replace("%player%", playername));
@@ -1694,7 +1697,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if (feelings.contains(cmdlr)) {
 
-            Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+            morePaperLib.scheduling().asyncScheduler().run(() -> {
                 if (sender instanceof Player && useperms) {
                     if(!hasPerm(sender, "chatfeelings." + cmdlr) && !hasPerm(sender, "chatfeelings.all")) {
                         noPermission(sender);
@@ -2063,7 +2066,7 @@ public class Main extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
+        morePaperLib.scheduling().asyncScheduler().run(() -> {
             Player p = e.getPlayer();
             String name = p.getName();
 
