@@ -38,7 +38,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public ChatFeelingsAPI api;
 
-    MorePaperLib morePaperLib = new MorePaperLib(this);
+    public MorePaperLib morePaperLib = new MorePaperLib(this);
 
     public final static List< String > feelings = Arrays.asList(
             "hug",
@@ -683,14 +683,14 @@ public class Main extends JavaPlugin implements Listener {
         debug("Disabled Sending Worlds: " + disabledsendingworlds);
         debug("Disabled Receiving Worlds: " + disabledreceivingworlds);
 
-        new Supports(this).fetch();
+        new Supports(this, morePaperLib).fetch();
 
         if(!beta) {
             metrics = addMetrics();
 
             if (getConfig().getBoolean("Other.Updates.Check")) {
                 try {
-                    new Updater(this).checkForUpdate();
+                    new Updater(this, morePaperLib).checkForUpdate();
                 } catch (Exception e) {
                     log("There was an issue while trying to check for updates.", false, true);
                     if(debug) {

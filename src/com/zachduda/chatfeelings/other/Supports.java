@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
@@ -20,15 +21,17 @@ public class Supports {
 
     private final String support_v = "4_12_0";
     private final JavaPlugin javaPlugin;
+    private final MorePaperLib morePaperLib;
 
     static boolean supported;
 
-    public Supports(final JavaPlugin javaPlugin) {
+    public Supports(final JavaPlugin javaPlugin, final MorePaperLib morePaperLib) {
         this.javaPlugin = javaPlugin;
+        this.morePaperLib = morePaperLib;
     }
 
     public void fetch() {
-        Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, () -> {
+        morePaperLib.scheduling().asyncScheduler().run(() -> {
             try {
                 Logger l = javaPlugin.getLogger();
                 final String dottedver = getMCVersion();

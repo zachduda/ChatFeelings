@@ -9,6 +9,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,15 +23,17 @@ public class Updater {
 
     private final JavaPlugin javaPlugin;
     private final String localPluginVersion;
+    private final MorePaperLib morePaperLib;
     
     static String posted_version = "???";
     static boolean outdated = false;
 
     private static final long CHECK_INTERVAL = 1_728_000; //In ticks.
     
-    public Updater(final JavaPlugin javaPlugin) {
+    public Updater(final JavaPlugin javaPlugin, final MorePaperLib morePaperLib) {
         this.javaPlugin = javaPlugin;
         this.localPluginVersion = javaPlugin.getDescription().getVersion();
+        this.morePaperLib = morePaperLib;
     }
 
     public void checkForUpdate() {
@@ -38,7 +41,7 @@ public class Updater {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Bukkit.getScheduler().runTaskAsynchronously(javaPlugin, () -> {
+                morePaperLib.scheduling().asyncScheduler().run(() -> {
                     try {
                     	URL url = new URL("https://api.github.com/repos/zachduda/ChatFeelings/releases");
             			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
