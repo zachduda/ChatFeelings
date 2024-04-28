@@ -2091,7 +2091,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
                 Msgs.send(p, "&7This server is running &fChatFeelings &6v" + getDescription().getVersion() +
-                        " &7for " + Supports.getMCVersion());
+                        " &7for " + Supports.getMCVersion() + "." + Supports.getMcPatchVersion());
             }
         });
     }
