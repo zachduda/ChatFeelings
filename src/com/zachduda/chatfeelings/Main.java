@@ -417,7 +417,7 @@ public class Main extends JavaPlugin implements Listener {
         if (sender instanceof Player) {
             try {
                 final Player p = (Player)sender;
-                Bukkit.getScheduler().runTask(this, () -> p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F));
+                morePaperLib.scheduling().globalRegionalScheduler().run(() -> p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F);
             } catch (Exception err) {
                 sounds = false;
             }
@@ -1857,14 +1857,15 @@ public class Main extends JavaPlugin implements Listener {
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
                 // API Events ----------------------------
                 final Player finalTarget = target;
-                Bukkit.getScheduler().runTask(this, () -> {
-                    FeelingSendEvent fse = new FeelingSendEvent(sender, finalTarget, cmdconfig);
+                FeelingSendEvent fse = new FeelingSendEvent(sender, finalTarget, cmdconfig);
+                FeelingRecieveEvent fre = new FeelingRecieveEvent(finalTarget, sender, cmdconfig);
+
+                morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
                     Bukkit.getPluginManager().callEvent(fse);
                     if (fse.isCancelled()) {
                         return;
                     }
 
-                    FeelingRecieveEvent fre = new FeelingRecieveEvent(finalTarget, sender, cmdconfig);
                     Bukkit.getPluginManager().callEvent(fre);
                 });
 
@@ -1901,7 +1902,7 @@ public class Main extends JavaPlugin implements Listener {
                                 // Global for PLAYER below
                                 Player p = (Player) sender;
                                 if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
-                                    Bukkit.getScheduler().runTask(this, () -> {
+                                    morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
                                         FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, finalTarget, cmdconfig);
                                         Bukkit.getPluginManager().callEvent(fgne);
 
