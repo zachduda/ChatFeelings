@@ -59,6 +59,8 @@ public class Particles {
                 } else if (label.equalsIgnoreCase("pat")) {
                     // Use hug particle
                     hugParticle(p);
+                } else if(label.equalsIgnoreCase("wave")) {
+                    waveParticle(p);
                 } else if (label.equalsIgnoreCase("wb")) {
                     // use boi
                     boiParticle(p);
@@ -91,7 +93,7 @@ public class Particles {
         world.spawnParticle(Particle.CRIT, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 30, 0.4D, 0.4D, 0.4D);
 	}
 
-	private static void slapParticle(final Player p) {
+    private static void waveParticle(final Player p) {
         World world = p.getLocation().getWorld();
         assert world != null;
 
@@ -99,7 +101,7 @@ public class Particles {
         if(particleVersion >= 2) {
             happy = Particle.HAPPY_VILLAGER;
         } else {
-            happy = Particle.valueOf("VILLAGER_ANGRY");
+            happy = Particle.valueOf("VILLAGER_HAPPY");
         }
 
         world.spawnParticle(happy, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
@@ -107,6 +109,24 @@ public class Particles {
         plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(happy, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 4L);
         plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 6L);
         plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(happy, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 8L);
+    }
+
+	private static void slapParticle(final Player p) {
+        World world = p.getLocation().getWorld();
+        assert world != null;
+
+        Particle angry;
+        if(particleVersion >= 2) {
+            angry = Particle.ANGRY_VILLAGER;
+        } else {
+            angry = Particle.valueOf("VILLAGER_ANGRY");
+        }
+
+        world.spawnParticle(angry, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
+        plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 2L);
+        plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(angry, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 4L);
+        plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 6L);
+        plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> world.spawnParticle(angry, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 8L);
     }
 	
 	private static void punchParticle(final Player p) {
