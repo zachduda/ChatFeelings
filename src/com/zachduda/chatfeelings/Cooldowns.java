@@ -29,14 +29,14 @@ public class Cooldowns {
 		// Cooldown used when player ignores another player or all players. Helps prevent file cache spam.
 		ignorecooldown.put(p, p.getName());
 
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> ignorecooldown.remove(p), 20L * plugin.getConfig().getInt("General.Cooldowns.Ignoring.Seconds"));
+		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> ignorecooldown.remove(p), 20L * plugin.getConfig().getInt("General.Cooldowns.Ignoring.Seconds"));
 	}
 	
 	static void ignoreListCooldown(Player p) {
 		// Cooldown used when player ignores another player or all players. Helps prevent file cache spam.
 		ignorelistcooldown.put(p, p.getName());
 
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> ignorelistcooldown.remove(p), 20L * plugin.getConfig().getInt("General.Cooldowns.Ignore-List.Seconds"));
+		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> ignorelistcooldown.remove(p), 20L * plugin.getConfig().getInt("General.Cooldowns.Ignore-List.Seconds"));
 	}
 	
 	static void justJoined(String p) {
@@ -46,7 +46,7 @@ public class Cooldowns {
 			playerFileUpdate.add(p);
 		}
 
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> playerFileUpdate.remove(p), 1200L); // 1 minute
+		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> playerFileUpdate.remove(p), 1200L); // 1 minute
 	}
 
 }
