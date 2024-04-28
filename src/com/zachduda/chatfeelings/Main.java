@@ -2085,7 +2085,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if (!Cooldowns.playerFileUpdate.contains(name)) {
                 updateLastOn(p);
-fix                Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> Cooldowns.justJoined(name));
+                Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> Cooldowns.justJoined(name));
             }
 
             if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
