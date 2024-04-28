@@ -9,8 +9,5 @@
         <module name="chatfeelings" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="ChatFeelings" target="1.8" />
-    </bytecodeTargetLevel>
   </component>
 </project>
