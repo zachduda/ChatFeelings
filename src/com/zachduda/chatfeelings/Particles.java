@@ -1,17 +1,24 @@
 package com.zachduda.chatfeelings;
 
+import com.zachduda.chatfeelings.other.Supports;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("StatementWithEmptyBody")
 public class Particles {
-	
+
 	private static final Main plugin = Main.getPlugin(Main.class);
+    private static final int particleVersion = Supports.getParticleVersion();
 
 		static void show(Player p, String label) {
             if (!Main.particles) {
                 return;
             }
+
+            if(Main.debug && particleVersion <= 0) {
+                Main.debug("Particle version returned 0. Using legacy (1) as fallback.");
+            }
+
             try {
                 if (label.equalsIgnoreCase("hug")) {
                     hugParticle(p);
@@ -88,12 +95,18 @@ public class Particles {
         World world = p.getLocation().getWorld();
         assert world != null;
 
-        world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
+        Particle happy;
+        if(particleVersion >= 2) {
+            happy = Particle.HAPPY_VILLAGER;
+        } else {
+            happy = Particle.valueOf("VILLAGER_ANGRY");
+        }
 
+        world.spawnParticle(happy, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 2L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 4L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(happy, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 4L);
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.SWEEP_ATTACK, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 6L);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(Particle.VILLAGER_ANGRY, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 8L);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> world.spawnParticle(happy, p.getLocation().getX(), p.getLocation().getY() + 1.0D, p.getLocation().getZ(), 1, 0.5D, 1.0D, 0.5D), 8L);
     }
 	
 	private static void punchParticle(final Player p) {
@@ -134,7 +147,15 @@ public class Particles {
 	private static void cryParticle(Player p) {
         World world = p.getLocation().getWorld();
         assert world != null;
-        world.spawnParticle(Particle.WATER_SPLASH, p.getLocation().add(0, 1.5D, 0), 100, 0.4D, 0.4D, 0.4D);
+
+        Particle splash;
+        if(particleVersion >= 2) {
+            splash = Particle.SPLASH;
+        } else {
+            splash = Particle.valueOf("WATER_SPLASH");
+        }
+
+        world.spawnParticle(splash, p.getLocation().add(0, 1.5D, 0), 100, 0.4D, 0.4D, 0.4D);
     }
 
 	private static void facepalmParticle(Player p) {
@@ -146,27 +167,66 @@ public class Particles {
 	private static void highfiveParticle(Player p) {
         World world = p.getLocation().getWorld();
         assert world != null;
-        world.spawnParticle(Particle.CRIT_MAGIC, p.getLocation().add(0, 1, 0), 30, 0.4D, 0.4D, 0.4D);
+
+        Particle critm;
+        if(particleVersion >= 2) {
+            critm = Particle.CRIT;
+        } else {
+            critm = Particle.valueOf("CRIT_MAGIC");
+        }
+
+        world.spawnParticle(critm, p.getLocation().add(0, 1, 0), 30, 0.4D, 0.4D, 0.4D);
     }
 
 	private static void pokeParticle(Player p) {
         World world = p.getLocation().getWorld();
         assert world != null;
-        world.spawnParticle(Particle.VILLAGER_HAPPY, p.getLocation().add(0, 1, 0), 15, 0.4D, 0.4D, 0.4D);
+
+        Particle happy;
+        if(particleVersion >= 2) {
+            happy = Particle.HAPPY_VILLAGER;
+        } else {
+            happy = Particle.valueOf("VILLAGER_HAPPY");
+        }
+
+        world.spawnParticle(happy, p.getLocation().add(0, 1, 0), 15, 0.4D, 0.4D, 0.4D);
     }
 
 
 	private static void lickParticle(Player p) {
         World world = p.getLocation().getWorld();
         assert world != null;
-        world.spawnParticle(Particle.DRIP_WATER, p.getLocation().add(0, 2, 0), 10, 0.2D, 0.5D, 0.2D);
-        world.spawnParticle(Particle.WATER_DROP, p.getLocation().add(0, 1, 0), 24, 1.0D, 0.5D, 1.0D);
+
+        Particle drip;
+        if(particleVersion >= 2) {
+            drip = Particle.DRIPPING_WATER;
+        } else {
+            drip = Particle.valueOf("DRIP_WATER");
+        }
+
+        Particle drop;
+        if(particleVersion >= 2) {
+            drop = Particle.FALLING_WATER;
+        } else {
+            drop = Particle.valueOf("WATER_DROP");
+        }
+
+        world.spawnParticle(drip, p.getLocation().add(0, 2, 0), 10, 0.2D, 0.5D, 0.2D);
+        world.spawnParticle(drop, p.getLocation().add(0, 1, 0), 24, 1.0D, 0.5D, 1.0D);
     }
 
 	private static void yellParticle(Player p) {
         World world = p.getLocation().getWorld();
         assert world != null;
-        world.spawnParticle(Particle.EXPLOSION_HUGE, p.getLocation().add(0, 1, 0), 1, 0.2D, 0.5D, 0.2D);
+
+        Particle explode;
+        if(particleVersion >= 2) {
+            explode = Particle.EXPLOSION;
+        } else {
+            explode = Particle.valueOf("EXPLOSION_HUGE");
+        }
+
+        world.spawnParticle(explode, p.getLocation().add(0, 1, 0), 1, 0.2D, 0.5D, 0.2D);
     }
 
 }
