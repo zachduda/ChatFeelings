@@ -9,10 +9,10 @@
         "1_15": "FULL",
         "1_14": "FULL",
         "1_13": "FULL",
-        "1_12": "PARTIAL"
+        "1_12": "NONE"
     },
-    "Latest": "1.20.4",
+    "Latest": "1.20.5",
     "Oldest": "1.13",
-    "Console_Message": "[!] This version has bugs and isn't compatible with 1.20.5. Use the latest update on Spigot for continued support.",
-    "Msg_Critical": true
+    "Console_Message": "> Consider giving to the Palestine's children relief fund: zachduda.com/u/001d05",
+    "Msg_Critical": false
 }

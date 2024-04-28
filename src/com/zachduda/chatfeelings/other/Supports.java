@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class Supports {
 
-    private final String support_v = "4_12_0";
+    private final String support_v = "4_14_0";
     private final JavaPlugin javaPlugin;
     private final MorePaperLib morePaperLib;
     private static int mcMajorVersion = 0; // ex: the 1 in 1.20.5
