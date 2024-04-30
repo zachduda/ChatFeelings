@@ -138,6 +138,8 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             debug("Metrics were disabled or are NULL, skipping Metric shutdown call...");
         }
+
+        morePaperLib.cancelGlobalTasks();
     }
 
     public static String capitalizeString(String string) {
