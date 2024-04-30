@@ -139,7 +139,7 @@ public class Main extends JavaPlugin implements Listener {
             debug("Metrics were disabled or are NULL, skipping Metric shutdown call...");
         }
 
-        morePaperLib.cancelGlobalTasks();
+        morePaperLib.scheduling().cancelGlobalTasks();
     }
 
     public static String capitalizeString(String string) {
@@ -277,8 +277,10 @@ public class Main extends JavaPlugin implements Listener {
             // Using less than Java 18 will use this method instead.
             try {
                 if (supported) {
+                    //noinspection deprecation
                     pl.getConfig().options().header(confgreeting);
                 } else {
+                    //noinspection deprecation
                     pl.getConfig().options().header(confgreeting + nosupport);
                 }
                 debug("Using older java that doesn't support non deprecated method. Use old file method.");
