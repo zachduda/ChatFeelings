@@ -14,6 +14,6 @@
     },
     "Latest": "1.20.4",
     "Oldest": "1.13",
-    "Console_Message": "[!] This version has bugs and isn't compatible with 1.20.5. Use the latest update on Spigot for continued support.",
+    "Console_Message": "[!] Bugs are present in this version of CF. Consider updating!",
     "Msg_Critical": true
 }
