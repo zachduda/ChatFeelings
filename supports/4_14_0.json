@@ -1,7 +1,7 @@
 {
     "Legend": "FULL, PARTIAL, NONE, NOT_TESTED",
     "Versions": {
-        "1_21": "NOT_TESTED",
+        "1_21": "FULL",
         "1_20": "FULL",
         "1_19": "FULL",
         "1_18": "FULL",
@@ -12,7 +12,7 @@
         "1_13": "FULL",
         "1_12": "NONE"
     },
-    "Latest": "1.20.6",
+    "Latest": "1.21",
     "Oldest": "1.13",
     "Console_Message": "> Consider giving to the Palestine's children relief fund: zachduda.com/u/001d05",
     "Msg_Critical": false
