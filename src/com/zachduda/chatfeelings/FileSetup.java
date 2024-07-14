@@ -401,15 +401,20 @@ public class FileSetup {
             if (emotes.get("Feelings.Spook") != null) {
                 forceEmotes("Feelings.Spook", null);
             }
-            if (emotes.getInt("Version") != 4) {
+            if (emotes.getInt("Version") != 5) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
+                if(emotes.getInt("Version") <= 4) {
+                    if(Objects.requireNonNull(emotes.getString("Feelings.Wb.Msgs.Sender")).equalsIgnoreCase("&7You told &a&l%player% welcome back!")) {
+                        forceEmotes("Feelings.Wb.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
+                    }
+                }
                 if (emotes.getInt("Version") <= 3) {
                     if (Objects.requireNonNull(emotes.getString("Feelings.Bite.Msgs.Sender")).contains("info")) {
                         forceEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin");
                         plugin.getLogger().info("Fixing a typo in the the '/bite' command for sender...");
                     }
                 }
-                setEmotesVersion(4);
+                setEmotesVersion(5);
             }
         }
 
@@ -682,7 +687,7 @@ public class FileSetup {
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Pitch", 0.0);
 
         setEmotesBoolean("Feelings.Wb.Enable", true);
-        setEmotes("Feelings.Wb.Msgs.Sender", "&7You told &a&l%player% welcome back!");
+        setEmotes("Feelings.Wb.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
         setEmotes("Feelings.Wb.Msgs.Target", "&a&l%player% &r&7gave you a warm welcome back!");
         setEmotes("Feelings.Wb.Msgs.Global", "&a&l%sender% &r&7welcomed &2&l%target% &r&7back.");
         setEmotes("Feelings.Wb.Sounds.Sound1.Name", "BLOCK_BEACON_POWER_SELECT");
@@ -692,7 +697,7 @@ public class FileSetup {
         setEmotesDouble("Feelings.Wb.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Wb.Sounds.Sound2.Pitch", 0.0);
 
-        setEmotesVersion(4);
+        setEmotesVersion(5);
         reloadFiles();
     }
 
