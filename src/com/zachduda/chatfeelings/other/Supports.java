@@ -120,6 +120,11 @@ public class Supports {
 
     public static String getMCVersion(String separator) {
         String this_ver = Bukkit.getBukkitVersion().toUpperCase().replaceAll("-.+$", "");
+
+        if (!this_ver.matches("\\d+\\.\\d+\\.\\d+")) { // ex: if 1.21, will be 1.21.0
+            this_ver += ".0";
+        }
+
         if (separator == null) {
             separator = ".";
         }
