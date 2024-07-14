@@ -62,8 +62,7 @@ public class Particles {
                 } else if(label.equalsIgnoreCase("wave")) {
                     waveParticle(p);
                 } else if (label.equalsIgnoreCase("wb")) {
-                    // use boi
-                    boiParticle(p);
+                    wbParticle(p);
                 } else if (label.equalsIgnoreCase("stalk")) {
                     // No particle
                 } else if (label.equalsIgnoreCase("sus")) {
@@ -247,6 +246,17 @@ public class Particles {
         }
 
         world.spawnParticle(explode, p.getLocation().add(0, 1, 0), 1, 0.2D, 0.5D, 0.2D);
+    }
+
+    private static void wbParticle(Player p) {
+        World world = p.getLocation().getWorld();
+        assert world != null;
+        if(Supports.getMcMajorVersion() >= 1 && Supports.getMcMinorVersion() >= 17) {
+            world.spawnParticle(Particle.GLOW_SQUID_INK, p.getLocation().add(0, 1.3, 0), 20, 2.0D, 1.0D, 2.0D);
+        } else {
+            // 1.16 or older, no glow squid, just use dab/boi generic
+            boiParticle(p);
+        }
     }
 
 }
