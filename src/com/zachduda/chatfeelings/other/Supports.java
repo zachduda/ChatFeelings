@@ -119,7 +119,7 @@ public class Supports {
     static boolean invalidver = false;
 
     public static String getMCVersion(String separator) {
-        String this_ver = Bukkit.getBukkitVersion().toUpperCase();
+        String this_ver = Bukkit.getBukkitVersion().toUpperCase().replaceAll("-.+$", "");
         if (separator == null) {
             separator = ".";
         }
