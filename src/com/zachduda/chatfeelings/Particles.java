@@ -252,7 +252,7 @@ public class Particles {
         World world = p.getLocation().getWorld();
         assert world != null;
         if(Supports.getMcMajorVersion() >= 1 && Supports.getMcMinorVersion() >= 17) {
-            world.spawnParticle(Particle.GLOW_SQUID_INK, p.getLocation().add(0, 1.3, 0), 20, 2.0D, 1.0D, 2.0D);
+            world.spawnParticle(Particle.GLOW_SQUID_INK, p.getLocation().add(0, 1.3, 0), 20, 2.0D, 1.0D, 2.0D, 0.001D,0.001d);
         } else {
             // 1.16 or older, no glow squid, just use dab/boi generic
             boiParticle(p);
