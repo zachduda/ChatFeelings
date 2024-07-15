@@ -366,6 +366,19 @@ public class FileSetup {
         setMsgs("Command-List-Page", "&7To go to the next page do &a/feelings %page%");
         setMsgs("Command-List-Player", "&r &f(player)");
         setMsgs("Command-List-NoPerm", "&7You aren't able to use this feeling.");
+
+        setMsgs("Command-Help.Descriptions.Help", "&7Shows you this page.");
+        setMsgs("Command-Help.Descriptions.Ignore", "&7Toggle ignoring feelings from players");
+        setMsgs("Command-Help.Descriptions.Ignore-All", "&7Toggles everyone being able to use feelings.");
+        setMsgs("Command-Help.Descriptions.Stats", "&7Shows how many feelings you've sent.");
+        setMsgs("Command-Help.Descriptions.Stats-Others", "&7Shows another players total sent feelings.");
+        setMsgs("Command-Help.Descriptions.Mute", "&7Prevents a player from using feelings.");
+        setMsgs("Command-Help.Descriptions.Unmute", "&7Reallows feeling usage by a player.");
+        setMsgs("Command-Help.Descriptions.Mute-List", "&7Lists players that are currently muted.");
+        setMsgs("Command-Help.Descriptions.Plugin-Version", "&7Shows the current version info.");
+        setMsgs("Command-Help.Descriptions.Plugin-Reload", "&7Reload all config and message files.");
+        setMsgs("Command-Help.Descriptions.Feelings", "&7Show all feelings available for use.");
+
         setMsgs("Command_Descriptions.Hug", "Give someone a nice warm hug!");
         setMsgs("Command_Descriptions.Slap", "Slap some sense back into someone.");
         setMsgs("Command_Descriptions.Poke", "Poke someone to get their attention");

@@ -260,7 +260,7 @@ public class Main extends JavaPlugin implements Listener {
     public static void updateConfigHeaders(JavaPlugin pl) {
         final boolean supported = Supports.isSupported();
         final String confgreeting = "Thanks for downloading ChatFeelings!\n# Messages for feelings can be found in the Emotes.yml, and other message in the Messages.yml.\n";
-        final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MIENCRAFT VERSION.\n";
+        final String nosupport = "# DO NOT REPORT BUGS, YOU ARE USING AN UNSUPPORTED MINECRAFT VERSION.\n";
         try {
             List < String > confighead = new ArrayList<>();
             confighead.add(confgreeting);
@@ -1097,7 +1097,7 @@ public class Main extends JavaPlugin implements Listener {
 
             } catch (Exception err2) {
                 if (debug) {
-                    log("Error occured when trying to reload your config: ----------", false, false);
+                    log("Error occurred when trying to reload your config: ----------", false, false);
                     err2.printStackTrace();
                     log("-----------------------[End of Error]-----------------------", false, false);
                     Msgs.send(sender, "&8&l> &4&lError! &fSomething in your config isn't right. Check console!");
@@ -1150,27 +1150,27 @@ public class Main extends JavaPlugin implements Listener {
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("help")) {
             Msgs.send(sender, "");
             Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
-            Msgs.send(sender, "&8&l> &e&l/cf help &7Shows you this page.");
+            Msgs.send(sender, "&8&l> &e&l/cf help &7" + msg.getString("Command-Help.Descriptions.Help"));
             if (hasPerm(sender, "chatfeelings.ignore")) {
-                Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7Ignore/Unignore feelings from players.");
-                Msgs.send(sender, "&8&l> &e&l/cf ignore all &7Toggles everyone being able to use feelings.");
+                Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7" + msg.getString("Command-Help.Descriptions.Ignore"));
+                Msgs.send(sender, "&8&l> &e&l/cf ignore all &7" + msg.getString("Command-Help.Descriptions.Ignore-All"));
             }
             if (hasPerm(sender, "chatfeelings.stats")) {
-                Msgs.send(sender, "&8&l> &e&l/cf stats &7Shows your feeling statistics.");
+                Msgs.send(sender, "&8&l> &e&l/cf stats &7" + msg.getString("Command-Help.Descriptions.Stats"));
             }
             if (hasPerm(sender, "chatfeelings.stats.others", true)) {
-                Msgs.send(sender, "&8&l> &e&l/cf stats (player) &7Shows your a players statistics.");
+                Msgs.send(sender, "&8&l> &e&l/cf stats (player) &7" + msg.getString("Command-Help.Descriptions.Stats-Others"));
             }
             if (hasPerm(sender, "chatfeelings.mute", true)) {
-                Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7Prevents a player from using feelings.");
-                Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7Unmutes a muted player.");
-                Msgs.send(sender, "&8&l> &e&l/cf mutelist &7Shows who's currently muted.");
+                Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7" + msg.getString("Command-Help.Descriptions.Mute"));
+                Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7" + msg.getString("Command-Help.Descriptions.Unmute"));
+                Msgs.send(sender, "&8&l> &e&l/cf mutelist &7" + msg.getString("Command-Help.Descriptions.Mute-List"));
             }
             if (hasPerm(sender, "chatfeelings.admin", true)) {
-                Msgs.send(sender, "&8&l> &e&l/cf version &7Shows you the plugin version.");
-                Msgs.send(sender, "&8&l> &e&l/cf reload &7Reloads the plugin.");
+                Msgs.send(sender, "&8&l> &e&l/cf version &7" + msg.getString("Command-Help.Descriptions.Plugin-Version"));
+                Msgs.send(sender, "&8&l> &e&l/cf reload &7" + msg.getString("Command-Help.Descriptions.Plugin-Reload"));
             }
-            Msgs.send(sender, "&8&l> &6&l/feelings &7Shows a list of available feelings.");
+            Msgs.send(sender, "&8&l> &6&l/feelings &7" + msg.getString("Command-Help.Descriptions.Feelings"));
             Msgs.send(sender, "");
             pop(sender);
             return true;
