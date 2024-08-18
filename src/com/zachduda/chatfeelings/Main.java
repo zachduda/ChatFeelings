@@ -88,7 +88,7 @@ public class Main extends JavaPlugin implements Listener {
     private final List <String> disabledsendingworlds = getConfig().getStringList("General.Disable-Sending-Worlds");
     private final List <String> disabledreceivingworlds = getConfig().getStringList("General.Disable-Receiving-Worlds");
 
-    final static String discord_link = "https://zachduda.com/discord";
+    final static String discord_link = "zachduda.com/discord";
     File folder;
     File msgsfile;
     public FileConfiguration msg;
