@@ -60,5 +60,5 @@ commands:
     description: Say farewell, and wave aideu. How elegant!
   spook:
     description: Give your friends some festive fright!
-  wb:
+  welcomeback:
     description: Give a warm welcome-back to returning players!
