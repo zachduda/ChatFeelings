@@ -246,7 +246,7 @@ public class FileSetup {
         }
         //------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
 
-        final int msgfilever = 11;
+        final int msgfilever = 12;
         if (!msgsfile.exists() || !msgs.contains("Version")) {
 
             List<String> confighead = new ArrayList<>();
@@ -286,28 +286,33 @@ public class FileSetup {
                 forceMsgs("Prefix", msgs.getString("Prefix") + " &f"); // removed space in prefix internally in v10
             }
 
-            if (currentmsgv < 11) {
+            if (currentmsgv < 12) {
+                // Was also v11 but had auto correct causing upgrade issues, bump to v12 - 8/18/24
                 // Typo in file, move old variables to correctly spelled one.
-
-                if (msgs.getString("Ignoring-On-Player") != null) {
-                    setMsgs("Ignoring-On-Player", msgs.getString("Ignoring-On-Player"));
-                    forceMsgs("Ignoring-On-Player", null);
+                // INTENTIONALLY MISTYPED AS INGORING TO CORRECT TO IGNORING 
+                if (msgs.getString("Ingoring-On-Player") != null) {
+                    setMsgs("Ignoring-On-Player", msgs.getString("Ingoring-On-Player"));
+                    forceMsgs("Ingoring-On-Player", null);
                 }
-                if (msgs.getString("Ignoring-Off-Player") != null) {
-                    setMsgs("Ignoring-Off-Player", msgs.getString("Ignoring-Off-Player"));
-                    forceMsgs("Ignoring-Off-Player", null);
-                }
-
-                if (msgs.getString("Ignoring-On-All") != null) {
-                    setMsgs("Ignoring-On-All", msgs.getString("Ignoring-Off-Player"));
-                    forceMsgs("Ignoring-On-Player", null);
+                if (msgs.getString("Ingoring-Off-Player") != null) {
+                    setMsgs("Ignoring-Off-Player", msgs.getString("Ingoring-Off-Player"));
+                    forceMsgs("Ingoring-Off-Player", null);
                 }
 
-                if (msgs.getString("Ignoring-Off-All") != null) {
-                    setMsgs("Ignoring-Off-All", msgs.getString("Ignoring-Off-Player"));
-                    forceMsgs("Ignoring-Off-Player", null);
+                if (msgs.getString("Ingoring-On-All") != null) {
+                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-Off-Player"));
+                    forceMsgs("Ingoring-On-Player", null);
                 }
 
+                if (msgs.getString("Ingoring-Off-All") != null) {
+                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-Player"));
+                    forceMsgs("Ingoring-Off-Player", null);
+                }
+                // Wb -> Welcome Back
+                if (msgs.getString("Command_Descriptions.Wb") != null) {
+                    setMsgs("Command_Descriptions.Welcomeback", msgs.getString("Command_Descriptions.Wb"));
+                    forceMsgs("Command_Descriptions.Wb", null);
+                }
             }
         }
 
@@ -401,8 +406,8 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Stalk", "Stalk a player carefully... carefully.");
         setMsgs("Command_Descriptions.Sus", "Pure single-boned suspicion.");
         setMsgs("Command_Descriptions.Wave", "Say frewell, and wave aideu. How elegant!");
-        setMsgs("Command_Descriptions.Wb", "Give a warm welcome-back to returning players!");
-        setMsgsVersion(11);
+        setMsgs("Command_Descriptions.Welcomeback", "Give a warm welcome-back to returning players!");
+        setMsgsVersion(12);
 
         if (!emotesfile.exists() || !emotes.contains("Version")) {
             if (saveFile(emotes, emotesfile)) {
@@ -414,7 +419,7 @@ public class FileSetup {
             if (emotes.get("Feelings.Spook") != null) {
                 forceEmotes("Feelings.Spook", null);
             }
-            if (emotes.getInt("Version") != 5) {
+            if (emotes.getInt("Version") != 6) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
                     if(Objects.requireNonNull(emotes.getString("Feelings.Wb.Msgs.Sender")).equalsIgnoreCase("&7You told &a&l%player% welcome back!")) {
@@ -427,7 +432,21 @@ public class FileSetup {
                         plugin.getLogger().info("Fixing a typo in the the '/bite' command for sender...");
                     }
                 }
-                setEmotesVersion(5);
+                if (emotes.getInt("Version") <= 5) {
+                   setEmotesBoolean("Feelings.Welcomeback.Enable", emotes.getBoolean("Feelings.Wb.Enable"));
+                   setEmotes("Feelings.Welcomeback.Msgs.Sender", emotes.getString("Feelings.Wb.Msgs.Sender"));
+                   setEmotes("Feelings.Welcomeback.Msgs.Target", emotes.getString("Feelings.Wb.Msgs.Target"));
+                   setEmotes("Feelings.Welcomeback.Msgs.Global", emotes.getString("Feelings.Wb.Msgs.Global"));
+                   setEmotes("Feelings.Welcomeback.Sounds.Sound1.Name", emotes.getString("Feelings.Wb.Sounds.Sound1.Name"));
+                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Volume", emotes.getDouble("Feelings.Wb.Sounds.Sound1.Volume"));
+                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Pitch", emotes.getDouble("Feelings.Wb.Sounds.Sound1.Pitch"));
+                   setEmotes("Feelings.Welcomeback.Sounds.Sound2.Name", emotes.getString("Feelings.Wb.Sounds.Sound2.Name"));
+                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Volume", emotes.getDouble("Feelings.Wb.Sounds.Sound2.Volume"));
+                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Pitch", emotes.getDouble("Feelings.Wb.Sounds.Sound2.Pitch"));
+                   
+                   forceEmotes("Feelings.Wb", null);
+                }
+                setEmotesVersion(6);
             }
         }
 
@@ -699,18 +718,18 @@ public class FileSetup {
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Pitch", 0.0);
 
-        setEmotesBoolean("Feelings.Wb.Enable", true);
-        setEmotes("Feelings.Wb.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
-        setEmotes("Feelings.Wb.Msgs.Target", "&a&l%player% &r&7gave you a warm welcome back!");
-        setEmotes("Feelings.Wb.Msgs.Global", "&a&l%sender% &r&7welcomed &2&l%target% &r&7back.");
-        setEmotes("Feelings.Wb.Sounds.Sound1.Name", "BLOCK_BEACON_POWER_SELECT");
-        setEmotesDouble("Feelings.Wb.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Wb.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Wb.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Wb.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Wb.Sounds.Sound2.Pitch", 0.0);
+        setEmotesBoolean("Feelings.Welcomeback.Enable", true);
+        setEmotes("Feelings.Welcomeback.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
+        setEmotes("Feelings.Welcomeback.Msgs.Target", "&a&l%player% &r&7gave you a warm welcome back!");
+        setEmotes("Feelings.Welcomeback.Msgs.Global", "&a&l%sender% &r&7welcomed &2&l%target% &r&7back.");
+        setEmotes("Feelings.Welcomeback.Sounds.Sound1.Name", "BLOCK_BEACON_POWER_SELECT");
+        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Volume", 2.0);
+        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Pitch", 2.0);
+        setEmotes("Feelings.Welcomeback.Sounds.Sound2.Name", "None");
+        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Volume", 0.0);
+        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Pitch", 0.0);
 
-        setEmotesVersion(5);
+        setEmotesVersion(6);
         reloadFiles();
     }
 
