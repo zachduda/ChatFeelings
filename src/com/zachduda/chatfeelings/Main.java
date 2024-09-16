@@ -988,34 +988,49 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Other")).replace("%player%", Objects.requireNonNull(name)));
         }
-        for (String fl: feelings) {
-            String flcap;
-            flcap = capitalizeString(fl);
 
-            // grammatical adjustment logic
-            if(fl.equalsIgnoreCase("kiss")) {
-                flcap = "Kisse";
+        final int totalsent = setcache.getInt("Stats.Sent.Total", 0);
+
+        if(totalsent == 0) {
+            if(isown) {
+                Msgs.send(p, "&f   &8&l> &7You haven't sent anyone feelings yet!");
+            } else {
+                Msgs.send(p, "&f   &8&l> &f" + name + " &7hasn't sent feelings yet!");
             }
+        } else {
+            for (String fl : feelings) {
+                String flcap;
+                flcap = capitalizeString(fl);
 
-            if(fl.equalsIgnoreCase("cry")) {
-                flcap = "Crie";
+                final int fsent = setcache.getInt("Stats.Sent." + flcap);
+
+                if(fsent > 0) {
+                    // grammatical adjustment logic
+                    if (fl.equalsIgnoreCase("kiss")) {
+                        flcap = "Kisse";
+                    }
+
+                    if (fl.equalsIgnoreCase("cry")) {
+                        flcap = "Crie";
+                    }
+
+                    if (fl.equalsIgnoreCase("welcomeback")) {
+                        flcap = "Welcome";
+                    }
+
+                    if (fl.equalsIgnoreCase("punch")) {
+                        flcap = "Punche";
+                    }
+
+                    Msgs.send(p, "&f   &8&l> &7" + flcap + "s: &f&l" + fsent);
+                }
             }
-
-            if(fl.equalsIgnoreCase("welcomeback")) {
-                flcap = "Welcome";
+            String you = "You've";
+            if (!isown) {
+                you = "They've";
             }
-
-            if(fl.equalsIgnoreCase("punch")) {
-                flcap = "Punche";
-            }
-
-            Msgs.send(p, "&f   &8&l> &7" + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
+            Msgs.send(p, "&f   &8&l> &e" + you + " Sent: &f&l" + totalsent);
         }
-        String you = "You've";
-        if(!isown) {
-            you = "They've";
-        }
-        Msgs.send(p, "&f   &8&l> &e" + you + " Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
     }
 
     private void noPermission(CommandSender sender) {
