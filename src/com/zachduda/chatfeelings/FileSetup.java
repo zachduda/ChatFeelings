@@ -317,6 +317,7 @@ public class FileSetup {
         }
 
         setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃ &f");
+        setMsgs("Prefix-Header", "&a&lC&r&ahat &f&lF&r&feelings");
         setMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%"); // updated in version 5
         setMsgs("Console-Name", "The Server");
         setMsgs("No-Permission", "&cSorry. &fYou don't have permission for that.");

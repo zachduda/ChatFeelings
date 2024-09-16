@@ -989,7 +989,7 @@ public class Main extends JavaPlugin implements Listener {
             Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Other")).replace("%player%", Objects.requireNonNull(name)));
         }
         for (String fl: feelings) {
-            String flcap = "";
+            String flcap;
             flcap = capitalizeString(fl);
 
             // grammatical adjustment logic
@@ -1011,9 +1011,9 @@ public class Main extends JavaPlugin implements Listener {
 
             Msgs.send(p, "&f   &8&l> &7" + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
         }
-        String you = "You";
+        String you = "You've";
         if(!isown) {
-            you = "They";
+            you = "They've";
         }
         Msgs.send(p, "&f   &8&l> &e" + you + " Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
     }
@@ -1027,7 +1027,7 @@ public class Main extends JavaPlugin implements Listener {
         final String cmdlr = cmd.getName().toLowerCase();
         if (cmdlr.equals("chatfeelings") && args.length == 0) {
             Msgs.send(sender, "");
-            Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
+            Msgs.send(sender, msg.getString("Prefix-Header"));
             Msgs.send(sender, "&8&l> &7/cf help &7&ofor commands & settings.");
             Msgs.send(sender, "");
             pop(sender);
@@ -1036,7 +1036,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("version")) {
             Msgs.send(sender, "");
-            Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
+            Msgs.send(sender, msg.getString("Prefix-Header"));
             Msgs.send(sender, "&8&l> &7You are currently running &f&lv" + getDescription().getVersion());
             Msgs.send(sender, "");
             pop(sender);
@@ -1101,7 +1101,7 @@ public class Main extends JavaPlugin implements Listener {
             final long starttime = System.currentTimeMillis();
 
             Msgs.send(sender, "");
-            Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
+            Msgs.send(sender, msg.getString("Prefix-Header"));
 
             try {
                 reloadConfig();
@@ -1146,7 +1146,7 @@ public class Main extends JavaPlugin implements Listener {
                 long reloadtime = System.currentTimeMillis() - starttime;
                 if (reloadtime >= 1000) {
                     double reloadsec = (double) reloadtime / 1000;
-                    // Lets hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
+                    // Let's hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
                         log("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s", false, false);
@@ -1168,7 +1168,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("help")) {
             Msgs.send(sender, "");
-            Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
+            Msgs.send(sender, msg.getString("Prefix-Header"));
             Msgs.send(sender, "&8&l> &e&l/cf help &7" + msg.getString("Command-Help.Descriptions.Help"));
             if (hasPerm(sender, "chatfeelings.ignore")) {
                 Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7" + msg.getString("Command-Help.Descriptions.Ignore"));
@@ -2062,7 +2062,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if (cmdlr.equals("chatfeelings")) {
             Msgs.send(sender, "");
-            Msgs.send(sender, "&a&lC&r&ahat &f&lF&r&feelings");
+            Msgs.send(sender, msg.getString("Prefix-Header"));
             Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
             Msgs.send(sender, "");
             if (sender instanceof Player) {
