@@ -994,19 +994,19 @@ public class Main extends JavaPlugin implements Listener {
 
             // grammatical adjustment logic
             if(fl.equalsIgnoreCase("kiss")) {
-                flcap = "Kisses";
+                flcap = "Kisse";
             }
 
             if(fl.equalsIgnoreCase("cry")) {
-                flcap = "Cries";
+                flcap = "Crie";
             }
 
             if(fl.equalsIgnoreCase("welcomeback")) {
-                flcap = "Welcomes";
+                flcap = "Welcome";
             }
 
             if(fl.equalsIgnoreCase("punch")) {
-                flcap = "Punches";
+                flcap = "Punche";
             }
 
             Msgs.send(p, "&f   &8&l> &7" + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
