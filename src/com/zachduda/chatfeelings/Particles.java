@@ -61,7 +61,7 @@ public class Particles {
                     hugParticle(p);
                 } else if(label.equalsIgnoreCase("wave")) {
                     waveParticle(p);
-                } else if (label.equalsIgnoreCase("wb")) {
+                } else if (label.equalsIgnoreCase("welcomeback")) {
                     wbParticle(p);
                 } else if (label.equalsIgnoreCase("stalk")) {
                     // No particle
