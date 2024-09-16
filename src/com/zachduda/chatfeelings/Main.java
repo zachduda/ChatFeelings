@@ -1866,13 +1866,21 @@ public class Main extends JavaPlugin implements Listener {
                 }
 
                 File tfraw = new File(playerfiles, File.separator + target.getUniqueId() + ".yml");
-                FileConfiguration targetfile = YamlConfiguration.loadConfiguration(tfraw);
+                try {
+                    FileConfiguration targetfile = YamlConfiguration.loadConfiguration(tfraw);
 
-                if (tfraw.exists()) {
-                    if (!targetfile.getBoolean("Allow-Feelings")) {
-                        Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-                        debug("Blocking feeling because " + target.getName() + " is blocking ALL.");
-                        return;
+                    if (tfraw.exists()) {
+                        if (!targetfile.getBoolean("Allow-Feelings")) {
+                            Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
+                            debug("Blocking feeling because " + target.getName() + " is blocking ALL.");
+                            return;
+                        }
+                    }
+                } catch (Exception tfe) {
+                    if(tfraw.delete()) {
+                        log.warning("Corruption in " + target.getName() + "'s data file. Deleted it!");
+                    } else {
+                        log.warning("Corruption in " + target.getName() + "'s data file. You should delete it!");
                     }
                 }
                 // ------------------------------------------------
