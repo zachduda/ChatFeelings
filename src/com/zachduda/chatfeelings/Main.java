@@ -1009,7 +1009,7 @@ public class Main extends JavaPlugin implements Listener {
                 flcap = "Punches";
             }
 
-            Msgs.send(p, "&f   &8&l> " + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
+            Msgs.send(p, "&f   &8&l> &7" + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
         }
         String you = "You";
         if(!isown) {
