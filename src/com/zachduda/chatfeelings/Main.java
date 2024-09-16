@@ -979,24 +979,43 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
-        String your;
-
         File cache = new File(folder, File.separator + "Data");
         File f = new File(cache, File.separator + uuid + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
         final String name = setcache.getString("Username");
         if (isown) {
             Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Own")).replace("%player%", Objects.requireNonNull(name)));
-            your = "&7Your ";
         } else {
             Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Other")).replace("%player%", Objects.requireNonNull(name)));
-            your = "&7";
         }
         for (String fl: feelings) {
-            final String flcap = capitalizeString(fl);
-            Msgs.send(p, "&f   &8&l> " + your + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
+            String flcap = "";
+            flcap = capitalizeString(fl);
+
+            // grammatical adjustment logic
+            if(fl.equalsIgnoreCase("kiss")) {
+                flcap = "Kisses";
+            }
+
+            if(fl.equalsIgnoreCase("cry")) {
+                flcap = "Cries";
+            }
+
+            if(fl.equalsIgnoreCase("welcomeback")) {
+                flcap = "Welcomes";
+            }
+
+            if(fl.equalsIgnoreCase("punch")) {
+                flcap = "Punches";
+            }
+
+            Msgs.send(p, "&f   &8&l> " + flcap + "s: &f&l" + setcache.getInt("Stats.Sent." + flcap));
         }
-        Msgs.send(p, "&f   &8&l> &eTotal Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
+        String you = "You";
+        if(!isown) {
+            you = "They";
+        }
+        Msgs.send(p, "&f   &8&l> &e" + you + " Sent: &f&l" + setcache.getInt("Stats.Sent.Total"));
     }
 
     private void noPermission(CommandSender sender) {
