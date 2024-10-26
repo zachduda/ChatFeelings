@@ -283,7 +283,7 @@ public class Particles {
 
                 World world = p.getLocation().getWorld();
 
-                final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19") || Bukkit.getBukkitVersion().contains("1.20");
+                final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19") || Bukkit.getBukkitVersion().contains("1.20") || Bukkit.getBukkitVersion().contains("1.21");
                 if (fullSupport) {
                     ItemStack pumpkin = new ItemStack(Material.CARVED_PUMPKIN);
                     ItemMeta pmm = pumpkin.getItemMeta();
@@ -299,11 +299,10 @@ public class Particles {
                     pumpkin.setItemMeta(pmm);
                     p.getInventory().setHelmet(pumpkin);
                 }
+                assert world != null;
                 if (fullSupport) {
-                    assert world != null;
                     world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.ORANGE_WOOL);
                 } else {
-                    assert world != null;
                     world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.valueOf("WOOL"), (byte) 1);
                 }
             });
