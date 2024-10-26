@@ -20,8 +20,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -2156,7 +2158,7 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             debug("Skipped updating " + name + "'s file, they joined less than 60s ago.");
         }
-
+        Cooldowns.spookStop(p);
         removeAll(p);
     }
 
@@ -2189,5 +2191,27 @@ public class Main extends JavaPlugin implements Listener {
                         " &7for " + Supports.getMCVersion() + "." + Supports.getMcPatchVersion());
             }
         });
+    }
+
+    // spook listeners
+    @EventHandler
+    public void onChestEvent(InventoryClickEvent event) {
+        Player p = (Player)event.getWhoClicked();
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onTP(PlayerTeleportEvent e) {
+        if(e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            e.setCancelled(true);
+            bass(p);
+            Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
+            Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
+        }
     }
 }
