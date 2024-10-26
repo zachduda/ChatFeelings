@@ -732,16 +732,16 @@ public class FileSetup {
         setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Pitch", 0.0);
 
 
-        setEmotesBoolean("Feelings.Poke.Enable", true);
-        setEmotes("Feelings.Poke.Msgs.Sender", "&7You boop &a&l%player%&7 right on their nose!");
-        setEmotes("Feelings.Poke.Msgs.Target", "&a&l%player% &r&7boops you right on your nose!");
-        setEmotes("Feelings.Poke.Msgs.Global", "&a&l%target% &r&7was booped on their nose by &a&l%sender%&r&7!");
-        setEmotes("Feelings.Poke.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
-        setEmotesDouble("Feelings.Poke.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Poke.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Poke.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Poke.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Poke.Sounds.Sound2.Pitch", 0.0);
+        setEmotesBoolean("Feelings.Boop.Enable", true);
+        setEmotes("Feelings.Boop.Msgs.Sender", "&7You boop &a&l%player%&7 right on their nose!");
+        setEmotes("Feelings.Boop.Msgs.Target", "&a&l%player% &r&7boops you right on your nose!");
+        setEmotes("Feelings.Boop.Msgs.Global", "&a&l%target% &r&7was booped on their nose by &a&l%sender%&r&7!");
+        setEmotes("Feelings.Boop.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
+        setEmotesDouble("Feelings.Boop.Sounds.Sound1.Volume", 2.0);
+        setEmotesDouble("Feelings.Boop.Sounds.Sound1.Pitch", 2.0);
+        setEmotes("Feelings.Boop.Sounds.Sound2.Name", "None");
+        setEmotesDouble("Feelings.Boop.Sounds.Sound2.Volume", 0.0);
+        setEmotesDouble("Feelings.Boop.Sounds.Sound2.Pitch", 0.0);
 
         setEmotesBoolean("Feelings.Spook.Enable", true);
         setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
