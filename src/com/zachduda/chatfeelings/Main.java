@@ -67,6 +67,7 @@ public class Main extends JavaPlugin implements Listener {
             "sus",
             "wave",
             "welcomeback",
+            "boop",
             "spook"
         );
 

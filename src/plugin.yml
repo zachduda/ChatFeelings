@@ -62,5 +62,7 @@ commands:
     description: Give your friends some festive fright!
   welcomeback:
     description: Give a warm welcome-back to returning players!
+  boop:
+    description: Boop someone right on their nose!
   spook:
     description: Give your friends some festive fright!
