@@ -1908,6 +1908,7 @@ public class Main extends JavaPlugin implements Listener {
 
                     if (tfraw.exists()) {
                         if (!targetfile.getBoolean("Allow-Feelings")) {
+                            bass(sender);
                             Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
                             debug("Blocking feeling because " + target.getName() + " is blocking ALL.");
                             return;
