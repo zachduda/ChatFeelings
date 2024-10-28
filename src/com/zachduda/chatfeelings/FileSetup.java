@@ -418,9 +418,9 @@ public class FileSetup {
                 }
             }
         } else {
-            if (emotes.get("Feelings.Spook") != null) {
-                forceEmotes("Feelings.Spook", null);
-            }
+            //if (emotes.get("Feelings.Spook") != null) {
+                //forceEmotes("Feelings.Spook", null);
+            //} only when spook is removed
             if (emotes.getInt("Version") != 6) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
