@@ -58,9 +58,8 @@ public class Cooldowns {
 	}
 
 	static void spookStop(Player p) {
-		p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-
 		if(Cooldowns.spook.containsKey(p.getName())) {
+			p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
 			p.removePotionEffect(PotionEffectType.SLOWNESS);
 			p.removePotionEffect(PotionEffectType.BLINDNESS);
 			p.removePotionEffect(PotionEffectType.SATURATION);
