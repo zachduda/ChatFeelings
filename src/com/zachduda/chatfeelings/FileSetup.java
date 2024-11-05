@@ -1,7 +1,8 @@
 package com.zachduda.chatfeelings;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -683,7 +684,7 @@ public class FileSetup {
         setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
 
         try {
-            Sound.valueOf("AMBIENT_NETHER_WASTES_MOOD");
+            Registry.SOUNDS.get(NamespacedKey.minecraft("AMBIENT_NETHER_WASTES_MOOD"));
             setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
         } catch (Exception e) {
             setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
@@ -693,7 +694,7 @@ public class FileSetup {
         setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 
         try {
-            Sound.valueOf("BLOCK_RESPAWN_ANCHOR_DEPLETE");
+            Registry.SOUNDS.get(NamespacedKey.minecraft("BLOCK_RESPAWN_ANCHOR_DEPLETE"));
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
         } catch (Exception e) {
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
@@ -708,7 +709,7 @@ public class FileSetup {
         setEmotes("Feelings.Wave.Msgs.Global", "&a&l%sender% &r&7waves adieu to &2&l%target%.");
 
         try {
-            Sound.valueOf("BLOCK_AMETHYST_BLOCK_RESONATE");
+            Registry.SOUNDS.get(NamespacedKey.minecraft("BLOCK_AMETHYST_BLOCK_RESONATE"));
             setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_AMETHYST_BLOCK_RESONATE");
         } catch (Exception e) {
             setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_NOTE_BLOCK_BELL");
