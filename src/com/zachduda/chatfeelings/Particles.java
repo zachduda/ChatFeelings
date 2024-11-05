@@ -3,10 +3,6 @@ package com.zachduda.chatfeelings;
 import com.zachduda.chatfeelings.other.Supports;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 @SuppressWarnings("StatementWithEmptyBody")
 public class Particles {
@@ -71,9 +67,6 @@ public class Particles {
                     // No particle
                 } else if (label.equalsIgnoreCase("sus")) {
                     // No particle
-                } else if(label.equalsIgnoreCase("spook")) {
-                    spookDripParticle(p);
-                    spookEffects(p);
                 } else {
                     plugin.getLogger().warning("Couldn't find Particle for: /" + label);
                 }
@@ -81,7 +74,7 @@ public class Particles {
                 Main.particles = false;
                 plugin.getLogger().warning("Error trying to display /" + label + " particles.");
                 if(Main.debug) {
-                    Main.debug("Particle Error Thrown:");
+                    Main.debug("Particle Error Thrown:" + err.getMessage());
                     err.printStackTrace();
                 }
             }
@@ -263,63 +256,6 @@ public class Particles {
         } else {
             // 1.16 or older, no glow squid, just use dab/boi generic
             boiParticle(p);
-        }
-    }
-
-    private static void spookEffects(Player p)
-    {
-        try {
-            plugin.morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                // MUST BE SYNC
-                p.removePotionEffect(PotionEffectType.SLOWNESS);
-                p.removePotionEffect(PotionEffectType.BLINDNESS);
-                p.removePotionEffect(PotionEffectType.SATURATION);
-                p.removePotionEffect(PotionEffectType.NAUSEA);
-
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 200, 2));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 200, 10));
-                p.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 200, 1));
-
-                World world = p.getLocation().getWorld();
-
-                final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19") || Bukkit.getBukkitVersion().contains("1.20") || Bukkit.getBukkitVersion().contains("1.21");
-                if (fullSupport) {
-                    ItemStack pumpkin = new ItemStack(Material.CARVED_PUMPKIN);
-                    ItemMeta pmm = pumpkin.getItemMeta();
-                    assert pmm != null;
-                    pmm.setDisplayName(ChatColor.GOLD + "§lSPOOKY HAT");
-                    pumpkin.setItemMeta(pmm);
-                    p.getInventory().setHelmet(pumpkin);
-                } else {
-                    ItemStack pumpkin = new ItemStack(Material.valueOf("PUMPKIN"));
-                    ItemMeta pmm = pumpkin.getItemMeta();
-                    assert pmm != null;
-                    pmm.setDisplayName(ChatColor.GOLD + "§lSPOOKY HAT");
-                    pumpkin.setItemMeta(pmm);
-                    p.getInventory().setHelmet(pumpkin);
-                }
-                assert world != null;
-                if (fullSupport) {
-                    world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.ORANGE_WOOL);
-                } else {
-                    world.playEffect(p.getLocation().add(0.04D, 0.8D, 0.04D), Effect.STEP_SOUND, Material.valueOf("WOOL"), (byte) 1);
-                }
-            });
-        } catch(Exception e) {
-            // plugin.getLogger().info("Error! Couldn't display spooky particles.");
-            //e.printStackTrace();
-        }
-    }
-
-    static void spookDripParticle(Player p)
-    {
-        try {
-            World world = p.getLocation().getWorld();
-            assert world != null;
-            world.spawnParticle(Particle.DRIPPING_LAVA, p.getLocation(), 2, 0.1D, 0.2D, 0.1D);
-        } catch(Exception e) {
-            //plugin.getLogger().info("Error! Couldn't display spooky particles.");
         }
     }
 }
