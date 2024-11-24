@@ -67,6 +67,9 @@ public class Particles {
                     // No particle
                 } else if (label.equalsIgnoreCase("sus")) {
                     // No particle
+                } else if(label.equalsIgnoreCase("boop")) {
+                    // resuse
+                    dabParticle(p);
                 } else {
                     plugin.getLogger().warning("Couldn't find Particle for: /" + label);
                 }
