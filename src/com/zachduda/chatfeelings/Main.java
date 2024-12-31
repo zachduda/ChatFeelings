@@ -10,6 +10,8 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -28,45 +30,19 @@ import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener {
+
     /* If true, metrics & update checking are skipped. */
-    public static boolean beta = false;
+    public final static boolean beta = false;
 
     public ChatFeelingsAPI api;
 
     public MorePaperLib morePaperLib = new MorePaperLib(this);
 
-    public final static List< String > feelings = Arrays.asList(
-            "hug",
-            "slap",
-            "poke",
-            "highfive",
-            "facepalm",
-            "yell",
-            "bite",
-            "snuggle",
-            "shake",
-            "stab",
-            "kiss",
-            "punch",
-            "murder",
-            "cry",
-            "boi",
-            "dab",
-            "lick",
-            "scorn",
-            "pat",
-            "stalk",
-            "sus",
-            "wave",
-            "welcomeback",
-            "boop"
-        );
+    public static List< String > feelings = Collections.emptyList();
 
     private boolean hasess = false;
     private boolean haslitebans = false;
@@ -94,10 +70,6 @@ public class Main extends JavaPlugin implements Listener {
     File folder;
     File msgsfile;
     public FileConfiguration msg;
-
-    File emotesfile;
-    public FileConfiguration emotes;
-
 
     private void removeAll(Player p) {
         Cooldowns.removeAll(p);
@@ -302,19 +274,6 @@ public class Main extends JavaPlugin implements Listener {
     public static void updateConfig(JavaPlugin pl) {
         debug = pl.getConfig().getBoolean("Other.Debug");
         sounds = pl.getConfig().getBoolean("General.Sounds");
-        final String lvu = pl.getConfig().getString("LVU");
-
-        if(lvu == null || lvu.isEmpty()) {
-            pl.getConfig().set("LVU", Supports.getMCVersion());
-        } else {
-            if(!lvu.equals(Supports.getMCVersion())) {
-                log.warning("------------ CHECK YOUR EMOTES.YML SOUNDS, RESET IT IF NECESSARY TO PREVENT ERRORS ------------ ");
-                log.warning("Your server was running " + lvu + " and is now running " + Supports.getMCVersion() + ".");
-                log.warning("Sound values may need to be changed in ChatFeeling's emotes.yml, or erasing this file altogether.");
-                log.warning("------------------------------------------------------------------");
-                pl.getConfig().set("LVU", Supports.getMCVersion());
-            }
-        }
 
         if (pl.getConfig().getBoolean("General.Particles")) {
             if (!Supports.isSupported()) {
@@ -344,9 +303,8 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public boolean hasPerm(CommandSender p, String node, Boolean admin_cmd) {
-        return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms) || (feelings.contains(node.replaceAll("chatfeelings.", "")) && p.hasPermission("chatfeelings.all"));
+        return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms);
     }
-    
     public boolean hasPerm(CommandSender p, String node) {
         return hasPerm(p, node, false);
     }
@@ -470,37 +428,13 @@ public class Main extends JavaPlugin implements Listener {
             }
         }
 
-        if (pl.getConfig().contains("Version")) {
-            int ver = pl.getConfig().getInt("Version");
-
-            if (ver != 7) {
-
-                if (ver <= 4)
-                    if (pl.getConfig().contains("Other.Bypass-Version-Block")) {
-                        pl.getConfig().set("Other.Bypass-Version-Block", null);
-                    }
-
-                pl.getConfig().set("General.Use-Feeling-Permissions", true);
-                pl.getConfig().set("General.Multi-Version-Support", false);
-
-                if (ver < 6) {
-                    pl.getConfig().set("General.No-Violent-Cmds-When-Sleeping", null);
-                    pl.getConfig().set("General.Use-Feeling-Permissions", true);
-                    pl.getConfig().set("General.Multi-Version-Support", false);
-                    pl.getConfig().set("General.Cooldowns.Ignore-List.Enabled", true);
-                    pl.getConfig().set("General.Cooldowns.Ignore-List.Seconds", 10);
-                }
-
-                if (ver < 7) {
-                    pl.getConfig().set("Cooldowns.Ignore-List.Enabled", null);
-                    pl.getConfig().set("Cooldowns.Ignore-List.Seconds", null);
-                }
-
-                pl.getConfig().set("Version", 7);
-                pl.saveConfig();
-                pl.reloadConfig();
-            }
-        }
+        //if (pl.getConfig().contains("Version")) {
+            //int ver = pl.getConfig().getInt("Version");
+            //if (ver != 7) {
+                //pl.saveConfig();
+                //pl.reloadConfig();
+            //}
+       // }
     }
 
     private void updateLastOn(Player p) {
@@ -680,13 +614,10 @@ public class Main extends JavaPlugin implements Listener {
     public void onEnable() {
         long start = System.currentTimeMillis();
 
-        // Required to do these first even if they are called in updateCheck()
         if (getConfig().contains("Other.Reduce-Console-Msgs")) {
             reducemsgs = getConfig().getBoolean("Other.Reduce-Console-Msgs");
-        }
-
-        if (getConfig().contains("Other.Debug")) {
-            debug = getConfig().getBoolean("Other.Debug");
+        } else {
+            reducemsgs = false;
         }
 
         log("Checking repository to maximize support...", false, false);
@@ -1705,20 +1636,7 @@ public class Main extends JavaPlugin implements Listener {
 
             final int page_length = Math.max(1, getConfig().getInt("General.Help-Page-Length"));
 
-            List<String> enabledfeelings = new ArrayList<>();
-            for(String fl : feelings) {
-                if (emotes.getBoolean("Feelings." + capitalizeString(fl) + ".Enable")) {
-                    enabledfeelings.add(fl);
-                }
-            }
-
-            if(enabledfeelings.isEmpty()) {
-                bass(sender);
-                Msgs.sendPrefix(sender,"&7There are no feelings are currently enabled.");
-                return true;
-            }
-
-            final int totalpages = Math.max(1, (int)Math.ceil((double) enabledfeelings.size() /page_length));
+            final int totalpages = Math.max(1, (int)Math.ceil((double) feelings.size() / page_length));
 
             if(page > totalpages) {
                 bass(sender);
@@ -1733,16 +1651,13 @@ public class Main extends JavaPlugin implements Listener {
             Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
                     Objects.requireNonNull(msg.getString("Feelings-Help-Page")).replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
             for (int i = start; i < end; i++) {
-                if(i < enabledfeelings.size()) {
-                    final String flcap = capitalizeString(enabledfeelings.get(i));
-                    final String cfl = enabledfeelings.get(i).toLowerCase();
-                    if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-                        if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
-                            Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
+                if(i < feelings.size()) {
+                    final String flcap = capitalizeString(feelings.get(i));
+                        if (hasPerm(sender, "chatfeelings." + cmdlr)) {
+                            Msgs.send(sender, "&8&l> &f&l/" + feelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
                         } else {
-                            Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            Msgs.send(sender, "&8&l> &c/" + feelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
-                    }
                 }
             }
             if(totalpages > 1 && ((page+1) <= totalpages)) {
@@ -1794,12 +1709,6 @@ public class Main extends JavaPlugin implements Listener {
                         Msgs.sendPrefix(sender, msg.getString("Sending-World-Disabled"));
                         return;
                     }
-                }
-
-                if (!emotes.getBoolean("Feelings." + cmdconfig + ".Enable")) {
-                    bass(sender);
-                    Msgs.sendPrefix(sender, msg.getString("Emote-Disabled"));
-                    return;
                 }
 
                 if (args[0].equalsIgnoreCase("console")) {
@@ -2050,13 +1959,13 @@ public class Main extends JavaPlugin implements Listener {
                         if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
 
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                    Sound.valueOf(sound1),
+                                    (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             if (sender instanceof Player) {
                                 final Player p = (Player)sender;
                                 p.playSound(p.getLocation(),
-                                        Sound.valueOf(sound1),
+                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             }
@@ -2072,14 +1981,14 @@ public class Main extends JavaPlugin implements Listener {
                                         2.0F, 0.5F);
                             } else {
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        Sound.valueOf(sound2),
+                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
                                 if (sender instanceof Player && !sound2.contains("DISC")) {
                                     final Player p = (Player)sender;
                                     p.playSound(p.getLocation(),
-                                            Sound.valueOf(sound2),
+                                            (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
                                 }
