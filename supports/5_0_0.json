@@ -1,0 +1,19 @@
+{
+    "Legend": "FULL, PARTIAL, NONE, NOT_TESTED",
+    "Versions": {
+        "1_21": "FULL",
+        "1_20": "NONE",
+        "1_19": "NONE",
+        "1_18": "NONE",
+        "1.17": "NONE",
+        "1_16": "NONE",
+        "1_15": "NONE",
+        "1_14": "NONE",
+        "1_13": "NONE",
+        "1_12": "NONE"
+    },
+    "Latest": "1.21",
+    "Oldest": "1.21",
+    "Console_Message": "> This is a VERY unstable version of ChatFeelings. Use at your own risk!",
+    "Msg_Critical": true
+}
