@@ -9,14 +9,19 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileSetup {
     private static final Main plugin = Main.getPlugin(Main.class);
+
 
     private static boolean saveFile(FileConfiguration fc, File f) {
         try {
@@ -31,6 +36,63 @@ public class FileSetup {
 
     private static File getFolder() {
         return Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings")).getDataFolder();
+    }
+
+    private static File emfolder = getEmoteFolder(false);
+    static List<Path> emoteFiles = new ArrayList<>();
+
+    // Returns folder and updates variable
+    private static File getEmoteFolder(boolean update) {
+        if(emfolder == null || update) {
+                emfolder = new File(plugin.getDataFolder(), File.separator + "Emotes");
+                try (Stream<Path> stream = Files.list(emfolder.toPath())) {
+                    emoteFiles = stream
+                            .filter(Files::isRegularFile)
+                            .filter(path -> path.getFileName().toString().endsWith(".yml") || path.getFileName().toString().endsWith(".yaml"))
+                            .collect(Collectors.toList());
+                } catch (IOException e) {
+                    throw new UncheckedIOException("Error loading command files: " + e.getMessage(), e);
+                }
+        }
+        return emfolder;
+    }
+
+    static void updateEmoteFolder() {
+        getEmoteFolder(true);
+    }
+
+    static void generateDefaultEmotes() {
+        if (emfolder.exists()) {
+            // Only generates on 1st run.
+            return;
+        }
+
+        File f = new File(emfolder, File.separator + "hug.yml");
+        FileConfiguration sethug = YamlConfiguration.loadConfiguration(f);
+
+        sethug.options().header("\nThis is a default emote generated on your first run. You can delete this file if you don't want to use this emote!\n");
+        sethug.set("Name", "hug");
+        sethug.set("Enabled", true);
+        sethug.set("Messages.Sender", "You give &a&l%player% &r&7a warm hug. &cAwww &4❤");
+        sethug.set("Messages.Target", "&a&l%player% &r&7gives you a warm hug. &cAwww &4❤");
+        sethug.set("Messages.Global", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
+        setEmotes("Messages.All", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
+
+        setEmotes("Sounds.Primary.Name", "ENTITY_CAT_PURREOW");
+        setEmotesDouble("Sounds.Primary.Volume", 2.0);
+        setEmotesDouble("Sounds.Primary.Pitch", 2.0);
+        setEmotes("Sounds.Secondary.Name", "None");
+        setEmotesDouble("Sounds.Primary.Volume", 0.0);
+        setEmotesDouble("Sounds.Primary.Pitch", 0.0);
+
+        sethug.set("Permission.Node", "chatfeelings.hug");
+
+        try {
+            sethug.save(f);
+        } catch (IOException e) {
+            plugin.getLogger().info("Error trying to create hug.yml: ");
+            e.printStackTrace();
+        }
     }
 
     private static void setMsgs(String configpath, String msg) {
@@ -106,104 +168,122 @@ public class FileSetup {
         }
     }
 
+    @Deprecated
     private static void forceEmotes(String configpath, String msg) {
-        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes;
-        try {
-            emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            if(Main.debug) {
-                Main.debug("Unable to decode or create emotes.yml file:");
-                throw new RuntimeException(e);
-            } else {
-                Main.log("There was an error when trying to modify or create your emotes.yml", true, true);
-                return;
-            }
-        }
-
-        if (!emotesfile.exists()) {
-            saveFile(emotes, emotesfile);
-        }
-
-        emotes.set(configpath, msg);
-        saveFile(emotes, emotesfile);
+//        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
+//        FileConfiguration emotes;
+//        try {
+//            emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
+//        } catch (IOException e) {
+//            if(Main.debug) {
+//                Main.debug("Unable to decode or create emotes.yml file:");
+//                throw new RuntimeException(e);
+//            } else {
+//                Main.log("There was an error when trying to modify or create your emotes.yml", true, true);
+//                return;
+//            }
+//        }
+//
+//        if (!emotesfile.exists()) {
+//            saveFile(emotes, emotesfile);
+//        }
+//
+//        emotes.set(configpath, msg);
+//        saveFile(emotes, emotesfile);
     }
 
+    @Deprecated
     private static void setEmotes(String configpath, String msg) {
-        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes;
-        try {
-            emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            if(Main.debug) {
-                Main.debug("Unable to decode or create emotes.yml file:");
-                throw new RuntimeException(e);
-            } else {
-                Main.log("There was an error when trying to modify or create your emotes.yml", true, true);
-                return;
-            }
-        }
-
-        if (!emotesfile.exists()) {
-            saveFile(emotes, emotesfile);
-        }
-
-        if (!emotes.contains(configpath)) {
-            emotes.set(configpath, msg);
-        } else {
-            if (emotes.getString(configpath) == null) {
-                plugin.getLogger().warning("Replacing '" + configpath + " in emotes.yml, it was left blank.");
-                emotes.set(configpath, msg);
-            }
-        }
-
-        saveFile(emotes, emotesfile);
+//        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
+//        FileConfiguration emotes;
+//        try {
+//            emotes = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(emotesfile.toPath()), StandardCharsets.UTF_8));
+//        } catch (IOException e) {
+//            if(Main.debug) {
+//                Main.debug("Unable to decode or create emotes.yml file:");
+//                throw new RuntimeException(e);
+//            } else {
+//                Main.log("There was an error when trying to modify or create your emotes.yml", true, true);
+//                return;
+//            }
+//        }
+//
+//        if (!emotesfile.exists()) {
+//            saveFile(emotes, emotesfile);
+//        }
+//
+//        if (!emotes.contains(configpath)) {
+//            emotes.set(configpath, msg);
+//        } else {
+//            if (emotes.getString(configpath) == null) {
+//                plugin.getLogger().warning("Replacing '" + configpath + " in emotes.yml, it was left blank.");
+//                emotes.set(configpath, msg);
+//            }
+//        }
+//
+//        saveFile(emotes, emotesfile);
     }
 
+    @Deprecated
     private static void setEmotesVersion(int vers) {
-        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
-
-        if (!emotesfile.exists()) {
-            saveFile(emotes, emotesfile);
-        }
-
-        if (!emotes.contains("Version") || emotes.getInt("Version") != vers) {
-            emotes.set("Version", vers);
-            saveFile(emotes, emotesfile);
-        }
+//        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
+//        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+//
+//        if (!emotesfile.exists()) {
+//            saveFile(emotes, emotesfile);
+//        }
+//
+//        if (!emotes.contains("Version") || emotes.getInt("Version") != vers) {
+//            emotes.set("Version", vers);
+//            saveFile(emotes, emotesfile);
+//        }
     }
 
+    @Deprecated
     private static void setEmotesDouble(String configpath, Double dubdub) {
-        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
-        if (!emotesfile.exists()) {
-            saveFile(emotes, emotesfile);
-        }
-
-        if (!emotes.contains(configpath)) {
-            emotes.set(configpath, dubdub);
-        } else if (emotes.getString(configpath) == null) {
-            plugin.getLogger().warning("Replacing '" + configpath + " (double) in emotes.yml, it was left blank.");
-            emotes.set(configpath, dubdub);
-        }
-        saveFile(emotes, emotesfile);
+//        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
+//        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+//        if (!emotesfile.exists()) {
+//            saveFile(emotes, emotesfile);
+//        }
+//
+//        if (!emotes.contains(configpath)) {
+//            emotes.set(configpath, dubdub);
+//        } else if (emotes.getString(configpath) == null) {
+//            plugin.getLogger().warning("Replacing '" + configpath + " (double) in emotes.yml, it was left blank.");
+//            emotes.set(configpath, dubdub);
+//        }
+//        saveFile(emotes, emotesfile);
     }
 
     private static void setEmotesBoolean(String configpath, boolean siono) {
-        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
-        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
-        if (!emotesfile.exists()) {
-            saveFile(emotes, emotesfile);
-        }
+//        File emotesfile = new File(getFolder(), File.separator + "emotes.yml");
+//        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
+//        if (!emotesfile.exists()) {
+//            saveFile(emotes, emotesfile);
+//        }
+//
+//        if (!emotes.contains(configpath)) {
+//            emotes.set(configpath, siono);
+//        } else if (emotes.getString(configpath) == null) {
+//            plugin.getLogger().warning("Replacing '" + configpath + " (boolean) in emotes.yml, it was left blank.");
+//            emotes.set(configpath, siono);
+//        }
+//        saveFile(emotes, emotesfile);
+    }
 
-        if (!emotes.contains(configpath)) {
-            emotes.set(configpath, siono);
-        } else if (emotes.getString(configpath) == null) {
-            plugin.getLogger().warning("Replacing '" + configpath + " (boolean) in emotes.yml, it was left blank.");
-            emotes.set(configpath, siono);
+    static ArrayList < String > emotesFromFolder() {
+        ArrayList < String > emotes = new ArrayList < String > ();
+
+        for (File emotefile: Objects.requireNonNull(emfolder.listFiles())) {
+            String path = emotefile.getPath();
+
+            if (com.google.common.io.Files.getFileExtension(path).equalsIgnoreCase("yml")) {
+                File f = new File(path);
+                Main.feelings.add(com.google.common.io.Files.getNameWithoutExtension(f.getName().toLowerCase().trim()));
+            }
         }
-        saveFile(emotes, emotesfile);
+        return emotes;
     }
 
     @SuppressWarnings("SpellCheckingInspection")
@@ -213,109 +293,9 @@ public class FileSetup {
         File msgsfile = new File(folder, File.separator + "messages.yml");
         FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 
-        File emotesfile = new File(folder, File.separator + "emotes.yml");
-        FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
-
-        /// ---------------------------------- LEGACY FILE SAVING  ---------------------------------------
-
-        File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
-
-        File soundsfile = new File(folder, File.separator + "sounds.yml");
-        FileConfiguration sounds = YamlConfiguration.loadConfiguration(soundsfile); // Sounds.yml moved to emotes.yml,  this is here for Legacy reasons.
-
-        if (msgsfile.exists() && !msgs.contains("Version")) {
-            File legacymsgsfile = new File(legacyfolder, File.separator + "legacy_messages.yml");
-
-            plugin.getLogger().warning("Legacy messages.yml from v3.X detected. Renaming to 'legacy_messages.yml' & starting anew.");
-            saveFile(msgs, legacymsgsfile);
-            msgsfile.delete();
-        }
-
-        if (emotesfile.exists() && !emotes.contains("Version")) {
-            File legacyemotesfile = new File(legacyfolder, File.separator + "legacy_emotes.yml");
-            plugin.getLogger().warning("Legacy emotes.yml from v3.X detected. Renaming to 'legacy_emotes.yml' & starting anew.");
-            saveFile(emotes, legacyemotesfile);
-            emotesfile.delete();
-        }
-
-        if (soundsfile.exists()) {
-            File legacysoundsfile = new File(legacyfolder, File.separator + "legacy_sounds.yml");
-
-            plugin.getLogger().warning("Legacy sounds.yml from v3.X detected. Renaming to 'legacy_sounds.yml' & starting anew.");
-            saveFile(sounds, legacysoundsfile);
-            soundsfile.delete();
-        }
-        //------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
-
-        final int msgfilever = 12;
-        if (!msgsfile.exists() || !msgs.contains("Version")) {
-
-            List<String> confighead = new ArrayList<>();
-            confighead.add("Looking for the messages used for feelings?");
-            confighead.add("Check inside your emotes.yml!");
-
-            try {
-                msgs.options().setHeader(confighead);
-            } catch (NoSuchMethodError e) {
-                // Using less than Java 18 will use this method instead.
-                try {
-                    msgs.options().header("Looking for the messages used for feelings? Check the emotes.yml!");
-                } catch (Exception giveup) { /* just skip this */ }
-            }
-
-            if (saveFile(msgs, msgsfile)) {
-                if(!Main.reducemsgs) {
-                    plugin.getLogger().info("Created new messages.yml file...");
-                }
-            }
-
-        } else {
-            final int currentmsgv = msgs.getInt("Version");
-            if (currentmsgv != msgfilever) {
-                plugin.getLogger().info("Updating your messages.yml with new additional messages...");
-            }
-            if (currentmsgv < 6) {
-                forceMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%");
-            }
-
-            if (currentmsgv < 7) {
-                forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
-                forceMsgs("No-Player-Ignore", null); // removed in v7
-            }
-
-            if (currentmsgv < 10) {
-                forceMsgs("Prefix", msgs.getString("Prefix") + " &f"); // removed space in prefix internally in v10
-            }
-
-            if (currentmsgv < 12) {
-                // Was also v11 but had auto correct causing upgrade issues, bump to v12 - 8/18/24
-                // Typo in file, move old variables to correctly spelled one.
-                // INTENTIONALLY MISTYPED AS INGORING TO CORRECT TO IGNORING 
-                if (msgs.getString("Ingoring-On-Player") != null) {
-                    setMsgs("Ignoring-On-Player", msgs.getString("Ingoring-On-Player"));
-                    forceMsgs("Ingoring-On-Player", null);
-                }
-                if (msgs.getString("Ingoring-Off-Player") != null) {
-                    setMsgs("Ignoring-Off-Player", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-Off-Player", null);
-                }
-
-                if (msgs.getString("Ingoring-On-All") != null) {
-                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-On-Player", null);
-                }
-
-                if (msgs.getString("Ingoring-Off-All") != null) {
-                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-Off-Player", null);
-                }
-                // Wb -> Welcome Back
-                if (msgs.getString("Command_Descriptions.Wb") != null) {
-                    setMsgs("Command_Descriptions.Welcomeback", msgs.getString("Command_Descriptions.Wb"));
-                    forceMsgs("Command_Descriptions.Wb", null);
-                }
-            }
-        }
+        generateDefaultEmotes();
+        updateEmoteFolder();
+        emotesFromFolder();
 
         setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃ &f");
         setMsgs("Prefix-Header", "&a&lC&r&ahat &f&lF&r&feelings");
@@ -411,59 +391,6 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Welcomeback", "Give a warm welcome-back to returning players!");
         setMsgs("Command_Descriptions.Boop", "Boop someone right on their nose!");
         setMsgsVersion(12);
-
-        if (!emotesfile.exists() || !emotes.contains("Version")) {
-            if (saveFile(emotes, emotesfile)) {
-                if(!Main.reducemsgs) {
-                    plugin.getLogger().info("Created new emotes.yml file...");
-                }
-            }
-        } else {
-            if (emotes.get("Feelings.Spook") != null) {
-                forceEmotes("Feelings.Spook", null);
-            } //only when spook is removed
-            if (emotes.getInt("Version") != 6) {
-                plugin.getLogger().info("Updating your emotes.yml for the latest update...");
-                if(emotes.getInt("Version") <= 4) {
-                    if(Objects.requireNonNull(emotes.getString("Feelings.Welcomeback.Msgs.Sender")).equalsIgnoreCase("&7You told &a&l%player% welcome back!")) {
-                        forceEmotes("Feelings.Welcomeback.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
-                    }
-                }
-                if (emotes.getInt("Version") <= 3) {
-                    if (Objects.requireNonNull(emotes.getString("Feelings.Bite.Msgs.Sender")).contains("info")) {
-                        forceEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin");
-                        plugin.getLogger().info("Fixing a typo in the the '/bite' command for sender...");
-                    }
-                }
-                if (emotes.getInt("Version") <= 5) {
-                   setEmotesBoolean("Feelings.Welcomeback.Enable", emotes.getBoolean("Feelings.Wb.Enable"));
-                   setEmotes("Feelings.Welcomeback.Msgs.Sender", emotes.getString("Feelings.Wb.Msgs.Sender"));
-                   setEmotes("Feelings.Welcomeback.Msgs.Target", emotes.getString("Feelings.Wb.Msgs.Target"));
-                   setEmotes("Feelings.Welcomeback.Msgs.Global", emotes.getString("Feelings.Wb.Msgs.Global"));
-                   setEmotes("Feelings.Welcomeback.Sounds.Sound1.Name", emotes.getString("Feelings.Wb.Sounds.Sound1.Name"));
-                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Volume", emotes.getDouble("Feelings.Wb.Sounds.Sound1.Volume"));
-                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Pitch", emotes.getDouble("Feelings.Wb.Sounds.Sound1.Pitch"));
-                   setEmotes("Feelings.Welcomeback.Sounds.Sound2.Name", emotes.getString("Feelings.Wb.Sounds.Sound2.Name"));
-                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Volume", emotes.getDouble("Feelings.Wb.Sounds.Sound2.Volume"));
-                   setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Pitch", emotes.getDouble("Feelings.Wb.Sounds.Sound2.Pitch"));
-                   
-                   forceEmotes("Feelings.Wb", null);
-                }
-                setEmotesVersion(6);
-            }
-        }
-
-        setEmotesBoolean("Feelings.Hug.Enable", true);
-        setEmotes("Feelings.Hug.Msgs.Sender", "&7You give &a&l%player% &r&7a warm hug. &cAwww &4❤");
-        setEmotes("Feelings.Hug.Msgs.Target", "&a&l%player% &r&7gives you a warm hug. &cAwww &4❤");
-        setEmotes("Feelings.Hug.Msgs.Global", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
-        //	setEmotes("Feelings.Hug.Msgs.Everyone", "&a&l%player% &r&7gives everyone a warm hug. &cAwww &4❤");
-        setEmotes("Feelings.Hug.Sounds.Sound1.Name", "ENTITY_CAT_PURREOW");
-        setEmotesDouble("Feelings.Hug.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Hug.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Hug.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Hug.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Hug.Sounds.Sound2.Pitch", 0.0);
 
         setEmotesBoolean("Feelings.Bite.Enable", true);
         setEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin.");
@@ -753,7 +680,6 @@ public class FileSetup {
         plugin.msgsfile = new File(plugin.folder, File.separator + "messages.yml");
         plugin.msg = YamlConfiguration.loadConfiguration(plugin.msgsfile);
 
-        plugin.emotesfile = new File(plugin.folder, File.separator + "emotes.yml");
-        plugin.emotes = YamlConfiguration.loadConfiguration(plugin.emotesfile);
+        getEmoteFolder(true);
     }
 }
