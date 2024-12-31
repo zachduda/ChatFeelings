@@ -36,7 +36,7 @@ import java.util.logging.Logger;
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
-    public final static boolean beta = false;
+    public final static boolean beta = true;
 
     public ChatFeelingsAPI api;
 
