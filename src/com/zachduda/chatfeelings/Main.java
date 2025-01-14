@@ -303,6 +303,19 @@ public class Main extends JavaPlugin implements Listener {
     public static void updateConfig(JavaPlugin pl) {
         debug = pl.getConfig().getBoolean("Other.Debug");
         sounds = pl.getConfig().getBoolean("General.Sounds");
+        final String lvu = pl.getConfig().getString("LVU");
+
+        if(lvu == null || lvu.isEmpty()) {
+            pl.getConfig().set("LVU", Supports.getMCVersion());
+        } else {
+            if(!lvu.equals(Supports.getMCVersion())) {
+                log.warning("------------ CHECK YOUR EMOTES.YML SOUNDS, RESET IT IF NECESSARY TO PREVENT ERRORS ------------ ");
+                log.warning("Your server was running " + lvu + " and is now running " + Supports.getMCVersion() + ".");
+                log.warning("Sound values may need to be changed in ChatFeeling's emotes.yml, or erasing this file altogether.");
+                log.warning("------------------------------------------------------------------");
+                pl.getConfig().set("LVU", Supports.getMCVersion());
+            }
+        }
 
         if (pl.getConfig().getBoolean("General.Particles")) {
             if (!Supports.isSupported()) {
