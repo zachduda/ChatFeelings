@@ -1,6 +1,7 @@
 package com.zachduda.chatfeelings;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -74,16 +75,17 @@ public class FileSetup {
         sethug.set("Messages.Sender", "You give &a&l%player% &r&7a warm hug. &cAwww &4❤");
         sethug.set("Messages.Target", "&a&l%player% &r&7gives you a warm hug. &cAwww &4❤");
         sethug.set("Messages.Global", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
-        sethug.set("Messages.All", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
 
+        sethug.set("Sounds.Enabled", true);
         sethug.set("Sounds.Primary.Name", "ENTITY_CAT_PURREOW");
         sethug.set("Sounds.Primary.Volume", 2.0);
         sethug.set("Sounds.Primary.Pitch", 2.0);
         sethug.set("Sounds.Secondary.Name", "None");
-        sethug.set("Sounds.Primary.Volume", 0.0);
-        sethug.set("Sounds.Primary.Pitch", 0.0);
+        sethug.set("Sounds.Secondary.Volume", 0.0);
+        sethug.set("Sounds.Secondary.Pitch", 0.0);
 
-        sethug.set("Permission.Node", "chatfeelings.hug");
+        sethug.set("Is-Harmful", false);
+        sethug.set("Permission-Node:", "chatfeelings.hug");
 
         try {
             sethug.save(f);
@@ -165,18 +167,38 @@ public class FileSetup {
             saveFile(msgs, msgsfile);
         }
     }
-    static ArrayList < String > emotesFromFolder() {
+    static void emotesFromFolder() {
         ArrayList < String > emotes = new ArrayList < String > ();
 
+        int i = Main.feelings.size();
+        String lf;
         for (File emotefile: Objects.requireNonNull(emfolder.listFiles())) {
             String path = emotefile.getPath();
 
             if (com.google.common.io.Files.getFileExtension(path).equalsIgnoreCase("yml")) {
                 File f = new File(path);
-                Main.feelings.add(com.google.common.io.Files.getNameWithoutExtension(f.getName().toLowerCase().trim()));
+                final String fn = com.google.common.io.Files.getNameWithoutExtension(f.getName().toLowerCase().trim()); // File Name
+                final FileConfiguration fc = YamlConfiguration.loadConfiguration(f);
+                Main.feelings.add(new Emotion(fc.getString("Name"),
+                        fc.getString("Messages.Sender"),
+                        fc.getString("Messages.Target"),
+                        fc.getString("Messages.Global"),
+                        fc.getString("Permission-Node"),
+                        Sound.valueOf(fc.getString("Sounds.Primary.Name")),
+                        Sound.valueOf(fc.getString("Sounds.Secondary.Name")),
+                        (float) fc.getDouble("Sounds.Primary.Volume"),
+                        (float) fc.getDouble("Sounds.Secondary.Volume"),
+                        (float) fc.getDouble("Sounds.Primary.Pitch"),
+                        (float) fc.getDouble("Sounds.Secondary.Pitch"),
+                        fc.getBoolean("Sounds.Enabled"),
+                        fc.getBoolean("Is-Harmful")
+                        )
+                );
+                Main.fmap.put(Objects.requireNonNull(fc.getString("Name")).toLowerCase(), i);
+                i++;
             }
         }
-        return emotes;
+        Main.debug("Loaded " + Main.feelings.size() + " emotions from file: " + Main.feelings.toString());
     }
 
     static void enableFiles() {
