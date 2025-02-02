@@ -10,8 +10,6 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -42,7 +40,8 @@ public class Main extends JavaPlugin implements Listener {
 
     public MorePaperLib morePaperLib = new MorePaperLib(this);
 
-    public static List< String > feelings = Collections.emptyList();
+    public static List<Emotion> feelings = Collections.emptyList();
+    public static HashMap<String, Integer> fmap = new HashMap<>();
 
     private boolean hasess = false;
     private boolean haslitebans = false;
@@ -361,8 +360,8 @@ public class Main extends JavaPlugin implements Listener {
             FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
 
             Map<String, Integer> map = new HashMap<>();
-            for (String fl : feelings) {
-                final String flc = capitalizeString(fl);
+            for (Emotion em : feelings) {
+                final String flc = capitalizeString(em.getName());
                 map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
             }
             return map;
@@ -773,7 +772,7 @@ public class Main extends JavaPlugin implements Listener {
         return setcache.getInt("Stats.Sent." + capitalizeString(feeling.toLowerCase()));
     }
 
-    public List < String > APIgetFeelings() {
+    public List < Emotion > APIgetFeelings() {
         return feelings;
     }
 
@@ -948,27 +947,27 @@ public class Main extends JavaPlugin implements Listener {
                 Msgs.send(p, "&f   &8&l> &f" + name + " &7hasn't sent feelings yet!");
             }
         } else {
-            for (String fl : feelings) {
+            for (Emotion em : feelings) {
                 String flcap;
-                flcap = capitalizeString(fl);
+                flcap = capitalizeString(em.getName());
 
                 final int fsent = setcache.getInt("Stats.Sent." + flcap);
 
                 if(fsent > 0) {
                     // grammatical adjustment logic
-                    if (fl.equalsIgnoreCase("kiss")) {
+                    if (em.getName().equalsIgnoreCase("kiss")) {
                         flcap = "Kisse";
                     }
 
-                    if (fl.equalsIgnoreCase("cry")) {
+                    if (em.getName().equalsIgnoreCase("cry")) {
                         flcap = "Crie";
                     }
 
-                    if (fl.equalsIgnoreCase("welcomeback")) {
+                    if (em.getName().equalsIgnoreCase("welcomeback")) {
                         flcap = "Welcome";
                     }
 
-                    if (fl.equalsIgnoreCase("punch")) {
+                    if (em.getName().equalsIgnoreCase("punch")) {
                         flcap = "Punche";
                     }
 
@@ -1652,11 +1651,11 @@ public class Main extends JavaPlugin implements Listener {
                     Objects.requireNonNull(msg.getString("Feelings-Help-Page")).replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
             for (int i = start; i < end; i++) {
                 if(i < feelings.size()) {
-                    final String flcap = capitalizeString(feelings.get(i));
+                    final String flcap = capitalizeString(feelings.get(i).getName());
                         if (hasPerm(sender, "chatfeelings." + cmdlr)) {
-                            Msgs.send(sender, "&8&l> &f&l/" + feelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
+                            Msgs.send(sender, "&8&l> &f&l/" + feelings.get(i).getName().toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
                         } else {
-                            Msgs.send(sender, "&8&l> &c/" + feelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            Msgs.send(sender, "&8&l> &c/" + feelings.get(i).getName().toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
                 }
             }
@@ -1668,8 +1667,17 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (feelings.contains(cmdlr)) {
+        if (fmap.containsKey(cmdlr)) {
+            Integer fmloc = fmap.get(cmdlr); // Feeling Map Location Number, used in main list.
+            Emotion sem = feelings.get(fmloc); // Load in Emotion as value.
 
+            if(sem == null) {
+                getLogger().severe("Unable to find Emotion in the location.");
+                if(debug) {
+                    debug("Fm Loc: " + fmloc + " // Emotion Name: " + cmdlr + " // Current Feeling/Emotion List: " + feelings.toString());
+                }
+                return false;
+            }
             morePaperLib.scheduling().asyncScheduler().run(() -> {
                 if (sender instanceof Player && useperms) {
                     if(!hasPerm(sender, "chatfeelings." + cmdlr) && !hasPerm(sender, "chatfeelings.all")) {
@@ -1874,7 +1882,7 @@ public class Main extends JavaPlugin implements Listener {
 
                             if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player)) {
                                 // ONLY for CONSOLE Global notify here.
-                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
+                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(sem.getGlobalMsg(), sender, target));
                             } else {
                                 // Global for PLAYER below
                                 Player p = (Player) sender;
@@ -1884,7 +1892,7 @@ public class Main extends JavaPlugin implements Listener {
                                         Bukkit.getPluginManager().callEvent(fgne);
 
                                         if (!fgne.isCancelled()) {
-                                            Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, finalTarget));
+                                            Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(sem.getGlobalMsg(), sender, finalTarget));
                                         }
                                     });
 
@@ -1896,7 +1904,7 @@ public class Main extends JavaPlugin implements Listener {
 
                     // Global Console Broadcast Msg ------------------------------------------------
                     if (getConfig().getBoolean("General.Global-Feelings.Broadcast-To-Console")) {
-                        Msgs.send(getServer().getConsoleSender(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
+                        Msgs.send(getServer().getConsoleSender(), NicknamePlaceholders.replacePlaceholders(sem.getGlobalMsg(), sender, target));
 
                     }
                     // Global Console End --------------------------------------------------
@@ -1904,17 +1912,15 @@ public class Main extends JavaPlugin implements Listener {
                 } else {
                     // if not global (normal)
                     // send to target
-                    Msgs.send(Objects.requireNonNull(target.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Target"), sender));
+                    Msgs.send(Objects.requireNonNull(target.getPlayer()), NicknamePlaceholders.replacePlaceholders(sem.getTargetMsg(), sender));
                     // send to cmd sender
-                    Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender"), target));
+                    Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(sem.getSenderMsg(), target));
                 } // end of global else
 
 
                 // Special Effect Command Handlers -----------------------------
                 if (getConfig().getBoolean("General.Violent-Command-Harm")) {
-                    if (cmdlr.equals("slap") || cmdlr.equals("bite") ||
-                            cmdlr.equals("shake") || cmdlr.equals("stab") ||
-                            cmdlr.equals("punch") || cmdlr.equals("murder")) {
+                    if (sem.isHarmful()) {
                         try {
                             if (!target.isSleeping()) {
                                 target.damage(0.01D);
@@ -1955,45 +1961,53 @@ public class Main extends JavaPlugin implements Listener {
                 // Sound Handler ----------------------------------------
                 if (sounds) {
                     try {
-                        String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
-                        if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
+                        target.playSound(target.getLocation(), sem.getSound1(), sem.getSound1Pitch(), sem.getSound1Vol());
+                        target.playSound(target.getLocation(), sem.getSound2(), sem.getSound2Pitch(), sem.getSound2Vol());
 
-                            target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                    (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
-                                    (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
-                                    (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
-                            if (sender instanceof Player) {
-                                final Player p = (Player)sender;
-                                p.playSound(p.getLocation(),
-                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
-                            }
+                        if (sender instanceof Player) {
+                            final Player p = (Player)sender;
+                            p.playSound(p.getLocation(), sem.getSound1(), sem.getSound1Pitch(), sem.getSound1Vol());
+                            p.playSound(p.getLocation(), sem.getSound2(), sem.getSound2Pitch(), sem.getSound2Vol());
                         }
-
-                        String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
-                        if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") && !sound2.equalsIgnoreCase("off") && !sound2.equals("null")) {
-
-                            if (sound2.contains("DISC") && !multiversion) {
-                                // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
-                                target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        Sound.AMBIENT_CAVE,
-                                        2.0F, 0.5F);
-                            } else {
-                                target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
-
-                                if (sender instanceof Player && !sound2.contains("DISC")) {
-                                    final Player p = (Player)sender;
-                                    p.playSound(p.getLocation(),
-                                            (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
-                                            (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
-                                            (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
-                                }
-                            }
-                        }
+//                        String sound1 = sem.getSound1();
+//                        if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
+//
+//                            target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
+//                                    (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
+//                                    (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
+//                                    (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
+//                            if (sender instanceof Player) {
+//                                final Player p = (Player)sender;
+//                                p.playSound(p.getLocation(),
+//                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
+//                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
+//                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
+//                            }
+//                        }
+//
+//                        String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
+//                        if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") && !sound2.equalsIgnoreCase("off") && !sound2.equals("null")) {
+//
+//                            if (sound2.contains("DISC") && !multiversion) {
+//                                // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
+//                                target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
+//                                        Sound.AMBIENT_CAVE,
+//                                        2.0F, 0.5F);
+//                            } else {
+//                                target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
+//                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
+//                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
+//                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
+//
+//                                if (sender instanceof Player && !sound2.contains("DISC")) {
+//                                    final Player p = (Player)sender;
+//                                    p.playSound(p.getLocation(),
+//                                            (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
+//                                            (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
+//                                            (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
+//                                }
+//                            }
+//                        }
                     } catch (Exception sounderr) { // err test for sounds
                         log("One or more of your sounds for /" + cmdconfig + " are incorrect! Sounds are disabling...", true, true);
                         if(debug) {

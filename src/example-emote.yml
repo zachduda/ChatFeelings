@@ -1,0 +1,20 @@
+# This is a default emote generated on your first run. You can delete this file if you don't want to use this emote!
+
+Name: "hug"
+Enabled: true
+Messages:
+  Sender: "You give &a&l%player% &r&7a warm hug. &cAwww &4❤"
+  Target: "&a&l%player% &r&7gives you a warm hug. &cAwww &4❤"
+  Global: "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
+Sounds:
+  Enabled: true
+  Primary:
+    Name: "ENTITY_CAT_PURREOW"
+    Volume: 2.0
+    Pitch: 2.0
+  Secondary:
+    Name: "NONE"
+    Volume: 0.0
+    Pitch: 0.0
+Is-Harmful: false
+Permission-Node: "chatfeelings.hug"
