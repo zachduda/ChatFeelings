@@ -1,7 +1,6 @@
 package com.zachduda.chatfeelings.api;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.HashMap;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
@@ -37,12 +36,9 @@ public class ChatFeelingsAPI {
 		if(uuid == null) {
 			return false;
 		}
-		
-		if(plugin.APIisMutedUUIDBoolean(uuid)) {
-			return true;
-		}
-		return false;
-	}
+
+        return plugin.APIisMutedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * MUST USE ASYNC *
@@ -55,12 +51,9 @@ public class ChatFeelingsAPI {
 		if(Bukkit.isPrimaryThread()) {
 			throw new IllegalAccessException("ChatFeelings API isMuted() must be accessed Asynchronously.");
 		}
-		
-		if(plugin.APIisMutedUUIDBoolean(uuid)) {
-			return true;
-		}
-		return false;
-	}
+
+        return plugin.APIisMutedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * Recommended to use Async *
@@ -71,11 +64,8 @@ public class ChatFeelingsAPI {
 	 */
 	public static boolean hasPlayedBefore(UUID uuid) {
 		final String name = plugin.hasPlayedUUIDGetName(uuid);
-		if(name == null || name.equals("0")) {
-			return false;
-		}
-		return true;
-	}
+        return name != null && !name.equals("0");
+    }
 
 	/**
 	 * Recommended to use Async especially if searching with a username as the UUID search can take hold up main thread. *
@@ -86,11 +76,8 @@ public class ChatFeelingsAPI {
 	 */
 	public static boolean hasPlayedBefore(String username) {
 		final UUID u = plugin.hasPlayedNameGetUUID(username);
-		if(u == null) {
-			return false;
-		}
-		return true;
-	}
+        return u != null;
+    }
 
 	/**
 	 * MUST USE ASYNC *
@@ -110,13 +97,9 @@ public class ChatFeelingsAPI {
 		if(uuid == null) {
 			return false;
 		}
-		
-		if(plugin.APIisBannedUUIDBoolean(uuid)) {
-			return true;
-		}
-		
-		return false;
-	}
+
+        return plugin.APIisBannedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * MUST USE ASYNC *
@@ -130,12 +113,8 @@ public class ChatFeelingsAPI {
 			throw new IllegalAccessException("ChatFeelings API isBanned() must be accessed Asynchronously.");
 		}
 
-		if(plugin.APIisBannedUUIDBoolean(uuid)) {
-			return true;
-		}
-		
-		return false;
-	}
+        return plugin.APIisBannedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * Fetches a feelings message from the emotes.yml
@@ -144,11 +123,11 @@ public class ChatFeelingsAPI {
 	 */
 	public static String getGlobalEmoteMessage(String feeling) {
 		String flc = feeling.toLowerCase();
-		if(!Main.feelings.contains(flc)) {
+		if(!Main.fmap.containsKey(flc)) {
 			Main.log("[API] getGlobalEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		return plugin.emotes.getString("Feelings."+flc+".Msgs.Global");
+		return Main.feelings.get(Main.fmap.get(feeling)).getGlobalMsg();
 	}
 
 	/**
@@ -158,11 +137,11 @@ public class ChatFeelingsAPI {
 	 */
 	public static String getSenderEmoteMessage(String feeling) {
 		String flc = feeling.toLowerCase();
-		if(!Main.feelings.contains(flc)) {
+		if(!Main.fmap.containsKey(flc)) {
 			Main.log("[API] getSenderEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		return plugin.emotes.getString("Feelings."+flc+".Msgs.Sender");
+		return Main.feelings.get(Main.fmap.get(feeling)).getSenderMsg();
 	}
 
 	/**
@@ -172,11 +151,11 @@ public class ChatFeelingsAPI {
 	 */
 	public static String getTargetEmoteMessage(String feeling) {
 		String flc = feeling.toLowerCase();
-		if(!Main.feelings.contains(flc)) {
+		if(!Main.fmap.containsKey(flc)) {
 			Main.log("[API] getTargetEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		return plugin.emotes.getString("Feelings."+flc+".Msgs.Target");
+		return Main.feelings.get(Main.fmap.get(feeling)).getTargetMsg();
 	}
 	
 	public static int getSentStats(String name, String feeling) {
@@ -216,14 +195,11 @@ public class ChatFeelingsAPI {
 	}
 	
 	public static boolean hookedToPunishments() {
-		if(plugin.APIhasAB() || plugin.APIhasEss() || plugin.APIhasLB()) {
-			return true;
-		}
-		return false;
-	}
+        return plugin.APIhasAB() || plugin.APIhasEss() || plugin.APIhasLB();
+    }
 	
-	public static List<String> getFeelingsList() {
-		return plugin.APIgetFeelings();
+	public static HashMap<String, Integer> getFeelingsMap() {
+		return Main.fmap;
 	}
 	
 	public static boolean isAcceptingFeelings(UUID u) {
