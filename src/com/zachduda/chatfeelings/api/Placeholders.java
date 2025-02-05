@@ -59,7 +59,8 @@ public class Placeholders extends PlaceholderExpansion {
         if(identifier.equalsIgnoreCase("incoming_allow")) {
         	return plugin.APIisAcceptingFeelings(player.getUniqueId()) ?yes :no;
         }
-        
+
+        // will need to add implementation to refresh this somehow when new feelings are added.
         for (String fl : Main.fmap.keySet()) {
         	if(identifier.equalsIgnoreCase("total_"+fl) || identifier.equalsIgnoreCase("total_"+fl+"s") || identifier.equalsIgnoreCase("total_"+fl+"es")) {
         		return Integer.toString(plugin.APIgetSentStat(player.getUniqueId(), fl));
