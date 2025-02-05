@@ -6,9 +6,10 @@ import com.zachduda.chatfeelings.Main;
 
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.jetbrains.annotations.NotNull;
 
 public class Placeholders extends PlaceholderExpansion {
-	private Main plugin;
+	private final Main plugin;
 	private String yes = "true";
 	private String no = "false";
     
@@ -33,17 +34,17 @@ public class Placeholders extends PlaceholderExpansion {
     }
 
     @Override
-    public String getAuthor(){
+    public @NotNull String getAuthor(){
         return plugin.getDescription().getAuthors().get(0);
     }
 
     @Override
-    public String getIdentifier(){
+    public @NotNull String getIdentifier(){
         return plugin.getDescription().getName().toLowerCase();
     }
 
     @Override
-    public String getVersion(){
+    public @NotNull String getVersion(){
         return plugin.getDescription().getVersion();
     }
   
@@ -59,7 +60,7 @@ public class Placeholders extends PlaceholderExpansion {
         	return plugin.APIisAcceptingFeelings(player.getUniqueId()) ?yes :no;
         }
         
-        for (String fl : plugin.APIgetFeelings()) {
+        for (String fl : Main.fmap.keySet()) {
         	if(identifier.equalsIgnoreCase("total_"+fl) || identifier.equalsIgnoreCase("total_"+fl+"s") || identifier.equalsIgnoreCase("total_"+fl+"es")) {
         		return Integer.toString(plugin.APIgetSentStat(player.getUniqueId(), fl));
         	}
