@@ -93,15 +93,14 @@ public class FileSetup {
 
     private static void setMsgs(String configpath, String msg) {
         File msgsfile = new File(getFolder(), File.separator + "messages.yml");
-        FileConfiguration msgs;
+        FileConfiguration msgs = null;
         try {
             msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
         } catch (IOException e) {
             if(Main.debug) {
-                Main.debug("Unable to decode or create messages.yml file:");
-                throw new RuntimeException(e);
+                Main.debug("Unable to decode or create messages.yml file:" + e.getMessage());
             } else {
-                Main.log("There was an error when trying to modify or create your messages.yml", true, true);
+                Main.log("Unable to decode or create messages.yml file", true, true);
                 return;
             }
         }
@@ -110,6 +109,7 @@ public class FileSetup {
             saveFile(msgs, msgsfile);
         }
 
+        assert msgs != null;
         if (!msgs.contains(configpath)) {
             msgs.set(configpath, msg);
         } else if (msgs.getString(configpath) == null) {
