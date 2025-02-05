@@ -22,14 +22,14 @@ public class FileSetup {
     private static final Main plugin = Main.getPlugin(Main.class);
 
 
-    private static boolean saveFile(FileConfiguration fc, File f) {
+    private static void saveFile(FileConfiguration fc, File f) {
         try {
             fc.save(f);
-            return true;
         } catch (Exception err) {
-            plugin.getLogger().severe("[!] Failed to save file changes. See error below:");
-            err.printStackTrace();
-            return false;
+            plugin.getLogger().severe("[!] Failed to save file changes: " + f.getName());
+            if(Main.debug) {
+                err.getMessage();
+            }
         }
     }
 
@@ -37,12 +37,12 @@ public class FileSetup {
         return Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings")).getDataFolder();
     }
 
-    private static File emfolder = getEmoteFolder(false);
+    private static File emfolder = updateEmoteFolder();
     static List<Path> emoteFiles = new ArrayList<>();
 
     // Returns folder and updates variable
-    private static File getEmoteFolder(boolean update) {
-        if(emfolder == null || update) {
+    private static File updateEmoteFolder() {
+        if(emfolder == null) {
                 emfolder = new File(plugin.getDataFolder(), File.separator + "Emotes");
                 try (Stream<Path> stream = Files.list(emfolder.toPath())) {
                     emoteFiles = stream
@@ -54,10 +54,6 @@ public class FileSetup {
                 }
         }
         return emfolder;
-    }
-
-    static void updateEmoteFolder() {
-        getEmoteFolder(true);
     }
 
     static void generateDefaultEmotes() {
@@ -168,8 +164,6 @@ public class FileSetup {
         }
     }
     static void emotesFromFolder() {
-        ArrayList < String > emotes = new ArrayList < String > ();
-
         int i = Main.feelings.size();
         String lf;
         for (File emotefile: Objects.requireNonNull(emfolder.listFiles())) {
@@ -198,7 +192,7 @@ public class FileSetup {
                 i++;
             }
         }
-        Main.debug("Loaded " + Main.feelings.size() + " emotions from file: " + Main.feelings.toString());
+        Main.debug("Loaded " + Main.feelings.size() + " emotions from file: " + Main.feelings);
     }
 
     static void enableFiles() {
@@ -314,6 +308,6 @@ public class FileSetup {
         plugin.msgsfile = new File(plugin.folder, File.separator + "messages.yml");
         plugin.msg = YamlConfiguration.loadConfiguration(plugin.msgsfile);
 
-        getEmoteFolder(true);
+        updateEmoteFolder();
     }
 }
