@@ -2052,7 +2052,7 @@ public class Main extends JavaPlugin implements Listener {
                             if (sender instanceof Player) {
                                 final Player p = (Player)sender;
                                 p.playSound(p.getLocation(),
-                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound1)))),
+                                        (Objects.requireNonNull(Registry.SOUNDS.match(sound1))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             }
@@ -2068,7 +2068,7 @@ public class Main extends JavaPlugin implements Listener {
                                         2.0F, 0.5F);
                             } else {
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        (Objects.requireNonNull(Registry.SOUNDS.get(NamespacedKey.minecraft(sound2)))),
+                                        (Objects.requireNonNull(Registry.SOUNDS.match(sound2))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
