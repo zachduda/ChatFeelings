@@ -33,8 +33,6 @@ import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
-import static jdk.jfr.internal.SecuritySupport.getResourceAsStream;
-
 public class Main extends JavaPlugin implements Listener {
     /* If true, metrics & update checking are skipped. */
     public static boolean beta = false;
@@ -704,6 +702,11 @@ public class Main extends JavaPlugin implements Listener {
             debug("Build Timestamp: " + buildTimestamp);
             debug("Build Display: " + buildDisplay);
             debug("Git Commit: " + gitCommit);
+            if(debug) {
+                debug("Environment Printout: -----");
+                debug(System.getenv().keySet().toString());
+                debug(System.getenv().toString());
+            }
         } catch (IOException e) {
             debug("Unable to get detailed build info: " + e.getMessage());
         }
