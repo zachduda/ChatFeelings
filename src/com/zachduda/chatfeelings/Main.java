@@ -697,10 +697,12 @@ public class Main extends JavaPlugin implements Listener {
 
             String buildNumber = prop.getProperty("build.number");
             String buildTimestamp = prop.getProperty("build.timestamp");
+            String buildDisplay = prop.getProperty("build.display_name");
             String gitCommit = prop.getProperty("git.commit");
 
             debug("Build Number: " + buildNumber);
             debug("Build Timestamp: " + buildTimestamp);
+            debug("Build Display: " + buildDisplay);
             debug("Git Commit: " + gitCommit);
         } catch (IOException e) {
             debug("Unable to get detailed build info: " + e.getMessage());
