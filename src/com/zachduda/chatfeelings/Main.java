@@ -679,26 +679,40 @@ public class Main extends JavaPlugin implements Listener {
     public void onEnable() {
         long start = System.currentTimeMillis();
 
+        // Required to do these first even if they are called in updateCheck()
         if (getConfig().contains("Other.Reduce-Console-Msgs")) {
             reducemsgs = getConfig().getBoolean("Other.Reduce-Console-Msgs");
-        } else {
-            reducemsgs = false;
         }
 
+        if (getConfig().contains("Other.Debug")) {
+            reducemsgs = getConfig().getBoolean("Other.Debug");
+        }
 
+        Properties prop = new Properties();
+        try (InputStream input = getClassLoader().getResourceAsStream("build.properties")) { // Use ClassLoader for resources
+            if (input == null) {
+                System.out.println("Sorry, unable to find build.properties");
+                return;
+            }
+            prop.load(input);
 
-        String buildNumber = System.getProperty("build.number");
-        String buildTimestamp = System.getProperty("build.timestamp");
-        String buildDisplay = System.getProperty("build.display_name");
-        String gitCommit = System.getProperty("git.commit");
+            String buildNumber = prop.getProperty("build.number");
+            String buildTimestamp = prop.getProperty("build.timestamp");
+            String buildDisplay = prop.getProperty("build.display_name");
+            String gitCommit = prop.getProperty("git.commit");
 
-        debug("Build Number: " + buildNumber);
-        debug("Build Timestamp: " + buildTimestamp);
-        debug("Build Display: " + buildDisplay);
-        debug("Git Commit: " + gitCommit);
-        debug("Environment Printout: -----");
-        debug(System.getenv().keySet().toString());
-        debug(System.getenv().toString());
+            debug("Build Number: " + buildNumber);
+            debug("Build Timestamp: " + buildTimestamp);
+            debug("Build Display: " + buildDisplay);
+            debug("Git Commit: " + gitCommit);
+            if(debug) {
+                debug("Environment Printout: -----");
+                debug(System.getenv().keySet().toString());
+                debug(System.getenv().toString());
+            }
+        } catch (IOException e) {
+            debug("Unable to get detailed build info: " + e.getMessage());
+        }
 
         log("Checking repository to maximize support...", false, false);
 
