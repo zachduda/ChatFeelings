@@ -28,13 +28,16 @@ import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Main extends JavaPlugin implements Listener {
+import static jdk.jfr.internal.SecuritySupport.getResourceAsStream;
 
+public class Main extends JavaPlugin implements Listener {
     /* If true, metrics & update checking are skipped. */
-    public final static boolean beta = false;
+    public static boolean beta = false;
 
     public ChatFeelingsAPI api;
 
@@ -682,6 +685,25 @@ public class Main extends JavaPlugin implements Listener {
             reducemsgs = getConfig().getBoolean("Other.Reduce-Console-Msgs");
         } else {
             reducemsgs = false;
+        }
+
+        Properties prop = new Properties();
+        try (InputStream input = getClassLoader().getResourceAsStream("build.properties")) { // Use ClassLoader for resources
+            if (input == null) {
+                System.out.println("Sorry, unable to find build.properties");
+                return;
+            }
+            prop.load(input);
+
+            String buildNumber = prop.getProperty("build.number");
+            String buildTimestamp = prop.getProperty("build.timestamp");
+            String gitCommit = prop.getProperty("git.commit");
+
+            debug("Build Number: " + buildNumber);
+            debug("Build Timestamp: " + buildTimestamp);
+            debug("Git Commit: " + gitCommit);
+        } catch (IOException e) {
+            debug("Unable to get detailed build info: " + e.getMessage());
         }
 
         log("Checking repository to maximize support...", false, false);

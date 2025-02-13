@@ -8,7 +8,7 @@
     <url>https://zachduda.com/chatfeelings</url>
     <packaging>jar</packaging>
     <version>4.15.0</version>
-    <description>Show your feelings in Minecraft with this lightweight Java plugin!</description>
+    <description>Show your feelings in Minecraft with this lightweight plugin!</description>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
