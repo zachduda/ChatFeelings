@@ -51,7 +51,7 @@ public class Updater {
                             final String vs = ((String) object.get("tag_name")).replace("v", "");
                             final Boolean prerelease = ((Boolean) object.get("prerelease"));
                             if (!prerelease) {
-                                if (!localPluginVersion.equalsIgnoreCase(vs)) {
+                                if (!localPluginVersion.equalsIgnoreCase(vs) && localPluginVersion.equalsIgnoreCase("v4.14.5")) {
                                     outdated = true;
                                     posted_version = vs;
                                 }

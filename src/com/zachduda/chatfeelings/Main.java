@@ -685,7 +685,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (getConfig().contains("Other.Debug")) {
-            reducemsgs = getConfig().getBoolean("Other.Debug");
+            debug = getConfig().getBoolean("Other.Debug");
         }
 
         Properties prop = new Properties();
