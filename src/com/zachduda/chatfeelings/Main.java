@@ -1713,7 +1713,7 @@ public class Main extends JavaPlugin implements Listener {
 
             if(enabledfeelings.isEmpty()) {
                 bass(sender);
-                Msgs.sendPrefix(sender,"&cThere was an error when trying to sort available commands.");
+                Msgs.sendPrefix(sender,"&7There are no feelings are currently enabled.");
                 return true;
             }
 
@@ -1734,11 +1734,12 @@ public class Main extends JavaPlugin implements Listener {
             for (int i = start; i < end; i++) {
                 if(i < enabledfeelings.size()) {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
+                    final String cfl = enabledfeelings.get(i).toLowerCase();
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-                        if (hasPerm(sender, "chatfeelings." + cmdlr)) {
-                            Msgs.send(sender, "&8&l> &f&l/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString(path + flcap));
+                        if (hasPerm(sender, "chatfeelings." + cfl)) {
+                            Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
                         } else {
-                            Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
                     }
                 }
