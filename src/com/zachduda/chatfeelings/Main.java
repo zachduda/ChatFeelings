@@ -1737,7 +1737,7 @@ public class Main extends JavaPlugin implements Listener {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
                     final String cfl = enabledfeelings.get(i).toLowerCase();
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-                        if (hasPerm(sender, "chatfeelings." + cfl)) {
+                        if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
                             Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
                         } else {
                             Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
