@@ -49,6 +49,10 @@
                             <pattern>org.bstats</pattern>
                             <shadedPattern>com.zachduda.chatfeelings.other.metrics</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>space.arim.morepaperlib</pattern>
+                            <shadedPattern>com.zachduda.chatfeelings.other.morepaperlib</shadedPattern>
+                        </relocation>
                     </relocations>
                     <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
