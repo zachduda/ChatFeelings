@@ -302,7 +302,7 @@ public class Main extends JavaPlugin implements Listener {
     }
 
     public boolean hasPerm(CommandSender p, String node, Boolean admin_cmd) {
-        return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms);
+        return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms) || (fmap.containsKey(node.replaceAll("chatfeelings.", "")) && p.hasPermission("chatfeelings.all"));
     }
     public boolean hasPerm(CommandSender p, String node) {
         return hasPerm(p, node, false);
