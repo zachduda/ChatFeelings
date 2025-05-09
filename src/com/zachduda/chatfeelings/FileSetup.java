@@ -8,7 +8,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,9 +25,9 @@ public class FileSetup {
         try {
             fc.save(f);
         } catch (Exception err) {
-            plugin.getLogger().severe("[!] Failed to save file changes: " + f.getName());
+            Main.log("[!] Failed to save file changes: " + f.getName(), true, false);
             if(Main.debug) {
-                err.getMessage();
+                Main.debug("Error calling saveFile: " + err.getMessage());
             }
         }
     }
@@ -37,11 +36,11 @@ public class FileSetup {
         return Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("ChatFeelings")).getDataFolder();
     }
 
-    private static File emfolder = updateEmoteFolder();
+    private static File emfolder;
     static List<Path> emoteFiles = new ArrayList<>();
 
     // Returns folder and updates variable
-    private static File updateEmoteFolder() {
+    private static void updateEmoteFolder() {
         if(emfolder == null) {
                 emfolder = new File(plugin.getDataFolder(), File.separator + "Emotes");
                 try (Stream<Path> stream = Files.list(emfolder.toPath())) {
@@ -50,17 +49,18 @@ public class FileSetup {
                             .filter(path -> path.getFileName().toString().endsWith(".yml") || path.getFileName().toString().endsWith(".yaml"))
                             .collect(Collectors.toList());
                 } catch (IOException e) {
-                    throw new UncheckedIOException("Error loading command files: " + e.getMessage(), e);
+                     Main.log("Error calling updateEmoteFolder: " + e.getMessage(), true, false);
                 }
         }
-        return emfolder;
     }
 
     static void generateDefaultEmotes() {
-        if (emfolder.exists()) {
+        if (emfolder != null && emfolder.exists()) {
             // Only generates on 1st run.
             return;
         }
+
+        updateEmoteFolder();
 
         File f = new File(emfolder, File.separator + "hug.yml");
         FileConfiguration sethug = YamlConfiguration.loadConfiguration(f);
@@ -107,9 +107,14 @@ public class FileSetup {
 
         if (!msgsfile.exists()) {
             saveFile(msgs, msgsfile);
+            // not exist, need to update local variable
+            try {
+                msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
+            } catch(Exception err) {
+                Main.log("Failed to create messages file: " + err.getMessage(), true, false);
+            }
         }
 
-        assert msgs != null;
         if (!msgs.contains(configpath)) {
             msgs.set(configpath, msg);
         } else if (msgs.getString(configpath) == null) {
@@ -163,6 +168,20 @@ public class FileSetup {
             saveFile(msgs, msgsfile);
         }
     }
+
+    private static Sound getCheckedSound(FileConfiguration fc, String path) {
+        String soundName = fc.getString(path);
+        if (soundName == null || soundName.equalsIgnoreCase("none")) {
+            return null;
+        }
+        try {
+            return Sound.valueOf(soundName);
+        } catch (IllegalArgumentException e) {
+            Main.log("Invalid sound found in Emotes folder: " + soundName, false, true);
+            return null;
+        }
+    }
+
     static void emotesFromFolder() {
         int i = Main.feelings.size();
         String lf;
@@ -178,8 +197,8 @@ public class FileSetup {
                         fc.getString("Messages.Target"),
                         fc.getString("Messages.Global"),
                         fc.getString("Permission-Node"),
-                        Sound.valueOf(fc.getString("Sounds.Primary.Name")),
-                        Sound.valueOf(fc.getString("Sounds.Secondary.Name")),
+                        getCheckedSound(fc, "Sounds.Primary.Name"),
+                        getCheckedSound(fc, "Sounds.Secondary.Name"),
                         (float) fc.getDouble("Sounds.Primary.Volume"),
                         (float) fc.getDouble("Sounds.Secondary.Volume"),
                         (float) fc.getDouble("Sounds.Primary.Pitch"),
@@ -201,8 +220,8 @@ public class FileSetup {
         File msgsfile = new File(folder, File.separator + "messages.yml");
         FileConfiguration msgs = YamlConfiguration.loadConfiguration(msgsfile);
 
-        generateDefaultEmotes();
         updateEmoteFolder();
+        generateDefaultEmotes();
         emotesFromFolder();
 
         setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃ &f");

@@ -40,7 +40,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public MorePaperLib morePaperLib = new MorePaperLib(this);
 
-    public static List<Emotion> feelings = Collections.emptyList();
+    public static List<Emotion> feelings = new ArrayList<>();
     public static HashMap<String, Integer> fmap = new HashMap<>();
 
     private boolean hasess = false;
@@ -1110,7 +1110,7 @@ public class Main extends JavaPlugin implements Listener {
                 long reloadtime = System.currentTimeMillis() - starttime;
                 if (reloadtime >= 1000) {
                     double reloadsec = (double) reloadtime / 1000;
-                    // Let's hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
+                    // Let's hope nobody's reload takes more than 1000ms (1s). However, it's not unheard of .-.
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
                         log("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s", false, false);
