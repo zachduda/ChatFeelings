@@ -17,9 +17,19 @@
       <option name="url" value="https://nexus.scarsz.me/content/groups/public/" />
     </remote-repository>
     <remote-repository>
+      <option name="id" value="sonatype" />
+      <option name="name" value="sonatype" />
+      <option name="url" value="https://oss.sonatype.org/content/groups/public/" />
+    </remote-repository>
+    <remote-repository>
       <option name="id" value="arim-mvn-lgpl3" />
       <option name="name" value="arim-mvn-lgpl3" />
       <option name="url" value="https://mvn-repo.arim.space/lesser-gpl3/" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="papermc-repo" />
+      <option name="name" value="papermc-repo" />
+      <option name="url" value="https://repo.papermc.io/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="github" />
