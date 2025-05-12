@@ -115,11 +115,13 @@ public class FileSetup {
             }
         }
 
-        if (!msgs.contains(configpath)) {
-            msgs.set(configpath, msg);
-        } else if (msgs.getString(configpath) == null) {
-            plugin.getLogger().warning("Replacing '" + configpath + " in messages.yml, it was left blank.");
-            msgs.set(configpath, msg);
+        if(msgs != null && msgsfile.exists() && msgsfile.isFile()) {
+            if (!msgs.contains(configpath)) {
+                msgs.set(configpath, msg);
+            } else if (msgs.getString(configpath) == null) {
+                plugin.getLogger().warning("Replacing '" + configpath + " in messages.yml, it was left blank.");
+                msgs.set(configpath, msg);
+            }
         }
 
         saveFile(msgs, msgsfile);

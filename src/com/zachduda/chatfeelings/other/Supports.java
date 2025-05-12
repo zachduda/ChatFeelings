@@ -49,7 +49,7 @@ public class Supports {
 
                 if (!Main.reducemsgs || (json.get("Msg_Critical") != null && ((boolean) json.get("Msg_Critical")))) {
                     if (json.get("Console_Message") != null && json.get("Console_Message") != "") {
-                        l.info((String) json.get("Console_Message"));
+                        l.info("[ChatFeelings] " + json.get("Console_Message"));
                     }
                 }
 
