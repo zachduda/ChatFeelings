@@ -1,7 +1,10 @@
 package com.zachduda.chatfeelings;
 
 import com.zachduda.chatfeelings.other.Supports;
-import org.bukkit.*;
+import org.bukkit.Effect;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("StatementWithEmptyBody")

@@ -1,11 +1,9 @@
 package com.zachduda.chatfeelings;
 
-import org.bukkit.configuration.file.FileConfiguration;
-
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
 import me.clip.placeholderapi.PlaceholderAPI;
+import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 
 import java.util.Objects;
 

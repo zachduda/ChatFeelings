@@ -1,12 +1,10 @@
 package com.zachduda.chatfeelings.api;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-
+import com.zachduda.chatfeelings.Main;
 import org.bukkit.Bukkit;
 
-import com.zachduda.chatfeelings.Main;
+import java.util.List;
+import java.util.UUID;
 
 public class ChatFeelingsAPI {
 

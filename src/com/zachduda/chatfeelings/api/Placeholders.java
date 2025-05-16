@@ -1,11 +1,9 @@
 package com.zachduda.chatfeelings.api;
 
-import org.bukkit.OfflinePlayer;
-
 import com.zachduda.chatfeelings.Main;
-
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import org.bukkit.OfflinePlayer;
 
 public class Placeholders extends PlaceholderExpansion {
 	private Main plugin;

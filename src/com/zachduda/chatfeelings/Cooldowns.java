@@ -1,6 +1,7 @@
 package com.zachduda.chatfeelings;
 
 import org.bukkit.entity.Player;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
