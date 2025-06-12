@@ -29,6 +29,7 @@ General:
   Nickname-Placeholder: "%essentials_nickname%"
   Help-Page-Length: 6
 Other:
+  CF-Alias: true
   Vanished-Players:
     Check: true
     Use-Legacy: false
@@ -42,4 +43,4 @@ Other:
   Debug: false
   Reduce-Console-Msgs: false
 LVU: "" # Do not touch
-Version: 7 # Do not touch
+Version: 8 # Do not touch

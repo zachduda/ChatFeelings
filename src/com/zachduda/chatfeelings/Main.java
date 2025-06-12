@@ -13,17 +13,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
 
@@ -31,7 +34,9 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class Main extends JavaPlugin implements Listener {
+import static org.bukkit.Bukkit.getCommandAliases;
+
+public class Main extends JavaPlugin implements Listener, TabExecutor {
     /* If true, metrics & update checking are skipped. */
     public static boolean beta = false;
 
@@ -74,6 +79,8 @@ public class Main extends JavaPlugin implements Listener {
     protected static boolean particles = true;
 
     private static boolean useperms = false;
+
+    private static boolean cfalias = true;
 
     protected static boolean multiversion = false;
     public static boolean reducemsgs = false;
@@ -339,6 +346,9 @@ public class Main extends JavaPlugin implements Listener {
         } else {
             multiversion = false;
         }
+        if (pl.getConfig().contains("Other.CF-Alias")) {
+            cfalias = pl.getConfig().getBoolean("Other.CF-Alias", true);
+        }
     }
 
     public boolean hasPerm(CommandSender p, String node, Boolean admin_cmd) {
@@ -471,7 +481,7 @@ public class Main extends JavaPlugin implements Listener {
         if (pl.getConfig().contains("Version")) {
             int ver = pl.getConfig().getInt("Version");
 
-            if (ver != 7) {
+            if (ver != 8) {
 
                 if (ver <= 4)
                     if (pl.getConfig().contains("Other.Bypass-Version-Block")) {
@@ -494,7 +504,11 @@ public class Main extends JavaPlugin implements Listener {
                     pl.getConfig().set("Cooldowns.Ignore-List.Seconds", null);
                 }
 
-                pl.getConfig().set("Version", 7);
+                if(ver < 8) {
+                    pl.getConfig().set("Other.CF-Alias", true);
+                }
+
+                pl.getConfig().set("Version", 8);
                 pl.saveConfig();
                 pl.reloadConfig();
             }
@@ -1055,6 +1069,68 @@ public class Main extends JavaPlugin implements Listener {
         bass(sender);
     }
 
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
+        List<String> completions = new ArrayList<>();
+
+        if (cfalias) {
+            completions.add("cf");
+        }
+
+        if (args.length == 1) {
+            completions.add("chatfeelings");
+            completions.add("help");
+
+            if (hasPerm(sender, "chatfeelings.stats")) {
+                completions.add("stats");
+            }
+            if (hasPerm(sender, "chatfeelings.mute")) {
+                completions.add("mute");
+                completions.add("unmute");
+                completions.add("mutelist");
+            }
+            if (hasPerm(sender, "chatfeelings.ignore")) {
+                completions.add("ignore");
+                completions.add("unignore");
+                completions.add("ignorelist");
+            }
+            if (hasPerm(sender, "chatfeelings.admin")) {
+                completions.add("reload");
+            }
+
+            return StringUtil.copyPartialMatches(args[0].toLowerCase(), completions, new ArrayList<>());
+        }
+        else if (args.length == 2) {
+            // Second argument completions
+            if (args[0].equalsIgnoreCase("ignore")) {
+                completions.add("all");
+                Bukkit.getOnlinePlayers().forEach(player -> completions.add(player.getName()));
+            }
+
+            return StringUtil.copyPartialMatches(args[1].toLowerCase(), completions, new ArrayList<>());
+        }
+
+        return completions;
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
+        if(cfalias) {
+            String message = e.getMessage().substring(1);
+            String[] parts = message.split(" ", 2);
+            String command = parts[0].toLowerCase();
+            log("MSG: " + message, false, false);
+            log("PARTS: " + Arrays.toString(parts), false, false);
+            log("COMMAND: " + command, false, false);
+            if (command.equalsIgnoreCase("cf")) {
+                    e.setCancelled(true);
+                    String args = (parts.length > 1) ? (" " + parts[1]) : "";
+                    log("ARGS: " + args, false, false);
+                    getServer().dispatchCommand((CommandSender) e.getPlayer(), "chatfeelings" + args);
+                    return;
+            }
+        }
+    }
     public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String cmdLabel, String[] args) {
         final String cmdlr = cmd.getName().toLowerCase();
         if (cmdlr.equals("chatfeelings") && args.length == 0) {
