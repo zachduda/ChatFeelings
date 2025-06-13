@@ -1073,11 +1073,11 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
-        if (cfalias) {
+        if (args.length < 1 && cfalias) {
             completions.add("cf");
+            return StringUtil.copyPartialMatches(command.getName().toLowerCase(), completions, new ArrayList<>());
         }
-
-        if (args.length == 1) {
+        else if (args.length == 1) {
             completions.add("chatfeelings");
             completions.add("help");
 
@@ -1119,13 +1119,9 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             String message = e.getMessage().substring(1);
             String[] parts = message.split(" ", 2);
             String command = parts[0].toLowerCase();
-            log("MSG: " + message, false, false);
-            log("PARTS: " + Arrays.toString(parts), false, false);
-            log("COMMAND: " + command, false, false);
             if (command.equalsIgnoreCase("cf")) {
                     e.setCancelled(true);
                     String args = (parts.length > 1) ? (" " + parts[1]) : "";
-                    log("ARGS: " + args, false, false);
                     getServer().dispatchCommand((CommandSender) e.getPlayer(), "chatfeelings" + args);
                     return;
             }
