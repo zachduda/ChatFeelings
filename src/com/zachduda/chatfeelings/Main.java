@@ -354,7 +354,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     public boolean hasPerm(CommandSender p, String node, Boolean admin_cmd) {
         return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms) || (feelings.contains(node.replaceAll("chatfeelings.", "")) && p.hasPermission("chatfeelings.all"));
     }
-    
+
     public boolean hasPerm(CommandSender p, String node) {
         return hasPerm(p, node, false);
     }
@@ -704,6 +704,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         log("Checking repository to maximize support...", false, false);
 
         api = new ChatFeelingsAPI();
+        new CommandManager(this);
 
         getConfig().options().copyDefaults(true);
         saveConfig();
@@ -738,6 +739,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             updateConfigHeaders(this);
             debug("Using a pre-release of ChatFeelings. Update/Support checking & metrics have been disabled!");
         }
+
+        CommandManager.updateCommands(getConfig());
 
         FileSetup.enableFiles();
 
@@ -1073,12 +1076,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
-        if (args.length < 1 && cfalias) {
-            completions.add("cf");
-            return StringUtil.copyPartialMatches(command.getName().toLowerCase(), completions, new ArrayList<>());
-        }
-        else if (args.length == 1) {
-            completions.add("chatfeelings");
+        if (args.length == 1) {
             completions.add("help");
 
             if (hasPerm(sender, "chatfeelings.stats")) {
@@ -1113,20 +1111,21 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         return completions;
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
-    public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
-        if(cfalias) {
-            String message = e.getMessage().substring(1);
-            String[] parts = message.split(" ", 2);
-            String command = parts[0].toLowerCase();
-            if (command.equalsIgnoreCase("cf")) {
-                    e.setCancelled(true);
-                    String args = (parts.length > 1) ? (" " + parts[1]) : "";
-                    getServer().dispatchCommand((CommandSender) e.getPlayer(), "chatfeelings" + args);
-                    return;
-            }
-        }
-    }
+//    @EventHandler(priority = EventPriority.LOWEST)
+//    public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
+//        if(cfalias) {
+//            String message = e.getMessage().substring(1);
+//            String[] parts = message.split(" ", 2);
+//            String command = parts[0].toLowerCase();
+//            if (command.equalsIgnoreCase("cf")) {
+//                    e.setCancelled(true);
+//                    String args = (parts.length > 1) ? (" " + parts[1]) : "";
+//                    getServer().dispatchCommand((CommandSender) e.getPlayer(), "chatfeelings" + args);
+//                    return;
+//            }
+//        }
+//    }
+
     public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String cmdLabel, String[] args) {
         final String cmdlr = cmd.getName().toLowerCase();
         if (cmdlr.equals("chatfeelings") && args.length == 0) {
@@ -1217,7 +1216,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                 FileSetup.enableFiles();
                 configChecks(this);
-
+                CommandManager.updateCommands(getConfig());
             } catch (Exception err2) {
                 if (debug) {
                     log("Error occurred when trying to reload your config: ----------", false, false);
