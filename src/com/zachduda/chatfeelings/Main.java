@@ -20,7 +20,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -33,8 +32,6 @@ import space.arim.morepaperlib.MorePaperLib;
 import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
-
-import static org.bukkit.Bukkit.getCommandAliases;
 
 public class Main extends JavaPlugin implements Listener, TabExecutor {
     /* If true, metrics & update checking are skipped. */
@@ -1110,21 +1107,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
         return completions;
     }
-
-//    @EventHandler(priority = EventPriority.LOWEST)
-//    public void onPlayerCommand(PlayerCommandPreprocessEvent e) {
-//        if(cfalias) {
-//            String message = e.getMessage().substring(1);
-//            String[] parts = message.split(" ", 2);
-//            String command = parts[0].toLowerCase();
-//            if (command.equalsIgnoreCase("cf")) {
-//                    e.setCancelled(true);
-//                    String args = (parts.length > 1) ? (" " + parts[1]) : "";
-//                    getServer().dispatchCommand((CommandSender) e.getPlayer(), "chatfeelings" + args);
-//                    return;
-//            }
-//        }
-//    }
 
     public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String cmdLabel, String[] args) {
         final String cmdlr = cmd.getName().toLowerCase();
