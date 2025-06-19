@@ -1073,6 +1073,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
         List<String> completions = new ArrayList<>();
 
+        if(feelings.contains(command.getName().toLowerCase())) {
+            if(args.length == 1) {
+                Bukkit.getOnlinePlayers().forEach(player -> completions.add(player.getName()));
+                return StringUtil.copyPartialMatches(args[0].toLowerCase(), completions, new ArrayList<>());
+            }
+            return Collections.emptyList();
+        }
         if (args.length == 1) {
             completions.add("help");
 
