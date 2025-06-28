@@ -10,6 +10,8 @@ import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -2106,13 +2108,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                         if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
 
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                    Sound.valueOf(sound1),
+                                    Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", "."))))),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             if (sender instanceof Player) {
                                 final Player p = (Player)sender;
                                 p.playSound(p.getLocation(),
-                                        Sound.valueOf(sound1),
+                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", "."))))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             }
@@ -2128,14 +2130,14 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                         2.0F, 0.5F);
                             } else {
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        Sound.valueOf(sound2),
+                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", "."))))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
                                 if (sender instanceof Player && !sound2.contains("DISC")) {
                                     final Player p = (Player)sender;
                                     p.playSound(p.getLocation(),
-                                            Sound.valueOf(sound2),
+                                            Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", "."))))),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
                                 }
