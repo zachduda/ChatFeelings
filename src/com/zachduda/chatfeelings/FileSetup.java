@@ -1,7 +1,7 @@
 package com.zachduda.chatfeelings;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
+import org.bukkit.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -205,6 +205,14 @@ public class FileSetup {
         saveFile(emotes, emotesfile);
     }
 
+    private static boolean validSound(String sound) {
+        try {
+            return Objects.requireNonNull(Registry.SOUNDS.match(sound)).isRegistered();
+        } catch(Exception e) {
+            return false;
+        }
+    }
+
     @SuppressWarnings("SpellCheckingInspection")
     static void enableFiles() {
         File folder = getFolder();
@@ -214,37 +222,6 @@ public class FileSetup {
 
         File emotesfile = new File(folder, File.separator + "emotes.yml");
         FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
-
-        /// ---------------------------------- LEGACY FILE SAVING  ---------------------------------------
-
-        File legacyfolder = new File(plugin.getDataFolder(), File.separator + "Legacy_Files");
-
-        File soundsfile = new File(folder, File.separator + "sounds.yml");
-        FileConfiguration sounds = YamlConfiguration.loadConfiguration(soundsfile); // Sounds.yml moved to emotes.yml,  this is here for Legacy reasons.
-
-        if (msgsfile.exists() && !msgs.contains("Version")) {
-            File legacymsgsfile = new File(legacyfolder, File.separator + "legacy_messages.yml");
-
-            plugin.getLogger().warning("Legacy messages.yml from v3.X detected. Renaming to 'legacy_messages.yml' & starting anew.");
-            saveFile(msgs, legacymsgsfile);
-            msgsfile.delete();
-        }
-
-        if (emotesfile.exists() && !emotes.contains("Version")) {
-            File legacyemotesfile = new File(legacyfolder, File.separator + "legacy_emotes.yml");
-            plugin.getLogger().warning("Legacy emotes.yml from v3.X detected. Renaming to 'legacy_emotes.yml' & starting anew.");
-            saveFile(emotes, legacyemotesfile);
-            emotesfile.delete();
-        }
-
-        if (soundsfile.exists()) {
-            File legacysoundsfile = new File(legacyfolder, File.separator + "legacy_sounds.yml");
-
-            plugin.getLogger().warning("Legacy sounds.yml from v3.X detected. Renaming to 'legacy_sounds.yml' & starting anew.");
-            saveFile(sounds, legacysoundsfile);
-            soundsfile.delete();
-        }
-        //------------------------------------------ END OF LEGACY SOUND.YML CHECK -------------------------------------------
 
         final int msgfilever = 12;
         if (!msgsfile.exists() || !msgs.contains("Version")) {
@@ -682,40 +659,37 @@ public class FileSetup {
         setEmotes("Feelings.Sus.Msgs.Target", "&e&l%player% &r&7suspiciously looks at your single-boned body.");
         setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
 
-        try {
-            Sound.valueOf("AMBIENT_NETHER_WASTES_MOOD");
+        if(validSound("AMBIENT_NETHER_WASTES_MOOD")) {
             setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
-        } catch (Exception e) {
+        } else {
             setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
         }
 
         setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 
-        try {
-            Sound.valueOf("BLOCK_RESPAWN_ANCHOR_DEPLETE");
+        if(validSound("BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
-        } catch (Exception e) {
+        } else {
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
-        } finally {
-            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
-            setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
         }
+        setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
+        setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
 
         setEmotesBoolean("Feelings.Wave.Enable", true);
         setEmotes("Feelings.Wave.Msgs.Sender", "&7You wave adieu to &a&l%player%&r&7!");
         setEmotes("Feelings.Wave.Msgs.Target", "&a&l%player% &r&7waves adieu to you.");
         setEmotes("Feelings.Wave.Msgs.Global", "&a&l%sender% &r&7waves adieu to &2&l%target%.");
 
-        try {
-            Sound.valueOf("BLOCK_AMETHYST_BLOCK_RESONATE");
+        if(validSound("BLOCK_AMETHYST_BLOCK_RESONATE")) {
             setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_AMETHYST_BLOCK_RESONATE");
-        } catch (Exception e) {
+        } else {
             setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_NOTE_BLOCK_BELL");
-        } finally {
-            setEmotesDouble("Feelings.Wave.Sounds.Sound1.Volume", 2.0);
-            setEmotesDouble("Feelings.Wave.Sounds.Sound1.Pitch", 2.0);
         }
+
+        setEmotesDouble("Feelings.Wave.Sounds.Sound1.Volume", 2.0);
+        setEmotesDouble("Feelings.Wave.Sounds.Sound1.Pitch", 2.0);
+
         setEmotes("Feelings.Wave.Sounds.Sound2.Name", "None");
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Wave.Sounds.Sound2.Pitch", 0.0);

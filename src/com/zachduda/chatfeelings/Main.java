@@ -77,8 +77,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
     private static boolean useperms = false;
 
-    private static boolean cfalias = true;
-
     protected static boolean multiversion = false;
     public static boolean reducemsgs = false;
     protected static boolean debug = false;
@@ -344,7 +342,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             multiversion = false;
         }
         if (pl.getConfig().contains("Other.CF-Alias")) {
-            cfalias = pl.getConfig().getBoolean("Other.CF-Alias", true);
+            boolean cfalias = pl.getConfig().getBoolean("Other.CF-Alias", true);
         }
     }
 
@@ -768,7 +766,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         if (hasPlugin("PlaceholderAPI")) {
             new Placeholders(this).register();
 
-            // enable nickname placeholders if placehodler api is present
+            // enable nickname placeholders if placeholder api is present
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, true);
         } else {
             NicknamePlaceholders.enablePlaceholders(getConfig(), msg, false);
@@ -1238,7 +1236,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 long reloadtime = System.currentTimeMillis() - starttime;
                 if (reloadtime >= 1000) {
                     double reloadsec = (double) reloadtime / 1000;
-                    // Let's hope nobody's reload takes more than 1000ms (1s). However it's not unheard of .-.
+                    // Let's hope nobody's reload takes more than 1000ms (1s). However, it's not unheard of .-.
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Reload")).replace("%time%", reloadsec + "s"));
                     if (sender instanceof Player) {
                         log("Configuration & Files reloaded by " + sender.getName() + " in " + reloadsec + "s", false, false);
