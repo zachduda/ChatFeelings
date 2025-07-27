@@ -175,6 +175,11 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             for (File cachefile: Objects.requireNonNull(folder.listFiles())) {
                 File f = new File(cachefile.getPath());
 
+                if(f.getName().toLowerCase().contains(".ds_store")) {
+                    // Ignore MAC OS created files in the DATA folder.
+                    return;
+                }
+
                 if (!f.getName().equalsIgnoreCase("global.yml")) {
                     try {
                         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);

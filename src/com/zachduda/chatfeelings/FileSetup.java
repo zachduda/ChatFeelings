@@ -401,7 +401,7 @@ public class FileSetup {
             if (emotes.getInt("Version") != 6) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
-                    if(Objects.requireNonNull(emotes.getString("Feelings.Welcomeback.Msgs.Sender")).equalsIgnoreCase("&7You told &a&l%player% welcome back!")) {
+                    if(!emotes.contains("Feelings.Welcomeback.Msgs.Sender") || Objects.requireNonNull(emotes.getString("Feelings.Welcomeback.Msgs.Sender")).equalsIgnoreCase("&7You told &a&l%player% welcome back!")) {
                         forceEmotes("Feelings.Welcomeback.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
                     }
                 }
