@@ -87,7 +87,7 @@
             <url>https://repo.essentialsx.net/releases/</url>
         </repository>
         <repository>
-            <id>paper-repo</id>
+            <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
         <repository>

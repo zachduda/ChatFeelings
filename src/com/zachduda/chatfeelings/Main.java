@@ -1098,7 +1098,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
             if (hasPerm(sender, "chatfeelings.ignore")) {
                 completions.add("ignore");
-                completions.add("unignore");
                 completions.add("ignorelist");
             }
             if (hasPerm(sender, "chatfeelings.admin")) {
