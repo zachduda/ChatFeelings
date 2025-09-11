@@ -1409,6 +1409,12 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             return true;
         }
 
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("unignore")) {
+            Msgs.sendPrefix(sender, "&c&lOops! &fRetype the username to unignore as &7/cf ignore (player)");
+            bass(sender);
+            return true;
+        }
+
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("unmute")) {
             if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
