@@ -1091,7 +1091,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             if (hasPerm(sender, "chatfeelings.stats")) {
                 completions.add("stats");
             }
-            if (hasPerm(sender, "chatfeelings.mute")) {
+            if (hasPerm(sender, "chatfeelings.mute", true)) {
                 completions.add("mute");
                 completions.add("unmute");
                 completions.add("mutelist");
@@ -1100,17 +1100,20 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 completions.add("ignore");
                 completions.add("ignorelist");
             }
-            if (hasPerm(sender, "chatfeelings.admin")) {
+            if (hasPerm(sender, "chatfeelings.admin", true)) {
                 completions.add("reload");
+                completions.add("version");
             }
 
             return StringUtil.copyPartialMatches(args[0].toLowerCase(), completions, new ArrayList<>());
         }
         else if (args.length == 2) {
             // Second argument completions
-            if (args[0].equalsIgnoreCase("ignore")) {
-                completions.add("all");
-                Bukkit.getOnlinePlayers().forEach(player -> completions.add(player.getName()));
+            if (args[0].equalsIgnoreCase("ignore") || args[0].equalsIgnoreCase("mute")) {
+                if (hasPerm(sender, "chatfeelings.ignore")) {
+                    completions.add("all");
+                    Bukkit.getOnlinePlayers().forEach(player -> completions.add(player.getName()));
+                }
             }
 
             return StringUtil.copyPartialMatches(args[1].toLowerCase(), completions, new ArrayList<>());
