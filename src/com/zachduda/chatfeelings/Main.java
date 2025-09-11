@@ -2113,9 +2113,15 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     try {
                         String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
                         if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
-
+                            Sound sound1var;
+                            try {
+                                sound1var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase()))));
+                            } catch (Exception preerr1) {
+                                debug("Attempting sound regex: (replacing _ with .)");
+                                sound1var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", ".")))));
+                            }
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                    Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase())))),
+                                    sound1var,
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             if (sender instanceof Player) {
@@ -2126,9 +2132,23 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             }
                         }
-
+                    } catch (Exception sounderr1) { // err test for sounds
+                        log("Primary feeling values for /" + cmdconfig + " are incorrect! Sounds will disable...", true, true);
+                        if(debug) {
+                            sounderr1.printStackTrace();
+                        }
+                        sounds = false;
+                    }
+                    try {
                         String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
                         if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") && !sound2.equalsIgnoreCase("off") && !sound2.equals("null")) {
+                            Sound sound2var;
+                            try {
+                                sound2var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase()))));
+                            } catch (Exception preerr1) {
+                                debug("Attempting sound regex: (replacing _ with .)");
+                                sound2var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", ".")))));
+                            }
 
                             if (sound2.contains("DISC") && !multiversion) {
                                 // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
@@ -2137,21 +2157,21 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                         2.0F, 0.5F);
                             } else {
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", "."))))),
+                                        sound2var,
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
                                 if (sender instanceof Player && !sound2.contains("DISC")) {
                                     final Player p = (Player)sender;
                                     p.playSound(p.getLocation(),
-                                            Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", "."))))),
+                                            sound2var,
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
                                 }
                             }
                         }
                     } catch (Exception sounderr) { // err test for sounds
-                        log("One or more of your sounds for /" + cmdconfig + " are incorrect! Sounds are disabling...", true, true);
+                        log("Secondary feeling values for /" + cmdconfig + " are incorrect! Sounds will disable..", true, true);
                         if(debug) {
                             sounderr.printStackTrace();
                         }
