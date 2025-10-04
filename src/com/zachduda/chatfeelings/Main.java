@@ -9,10 +9,7 @@ import me.leoko.advancedban.manager.PunishmentManager;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimpleBarChart;
 import org.bstats.charts.SimplePie;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Registry;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -22,8 +19,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
@@ -32,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -67,7 +68,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             "sus",
             "wave",
             "welcomeback",
-            "boop"
+            "boop",
+            "spook"
         );
 
     private boolean hasess = false;
@@ -1800,10 +1802,25 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
                     final String cfl = enabledfeelings.get(i).toLowerCase();
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-                        if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
-                            Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
+                        if(enabledfeelings.get(i).equalsIgnoreCase("spook")) { // test if spook
+                            Date now = new Date();
+                            SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                            if (format.format(now).equals("10") || format.format(now).equals("09")) {
+                                if (hasPerm(sender, "chatfeelings." + cmdlr)) {
+                                    Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
+                                } else {
+                                    Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                                }
+                            } else {
+                                Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
+                            }
                         } else {
-                            Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
+                                Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
+                            } else {
+                                Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            }
                         }
                     }
                 }
@@ -1985,6 +2002,34 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // ------------------------------------------------
 
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
+
+
+                // SPOOK INSERT
+                if(cmdlr.equals("spook")) {
+                    Date now = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("MM");
+
+                    if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
+                        Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
+                        bass(sender);
+                        return;
+                    }
+
+                    if(Cooldowns.spook.containsKey(target.getName())) {
+                        Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
+                        bass(sender);
+                        return;
+                    }
+
+                    if(!(Objects.equals(target.getInventory().getHelmet(), new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
+                        Msgs.sendPrefix(sender, "&cSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
+                        bass(sender);
+                        return;
+                    }
+
+                    Cooldowns.spookHash(target);
+                }
+                // END OF SPOOK
 
                 // API Events ----------------------------
                 final Player finalTarget = target;
@@ -2224,5 +2269,27 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                         " &7for " + Supports.getMCVersion() + "." + Supports.getMcPatchVersion());
             }
         });
+    }
+
+    // spook even listeners
+    @EventHandler
+    public void onChestEvent(InventoryClickEvent event) {
+        Player p = (Player)event.getWhoClicked();
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            event.setCancelled(true);
+        }
+    }
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onTP(PlayerTeleportEvent e) {
+        if(e.isCancelled()) {
+            return;
+        }
+        Player p = e.getPlayer();
+        if(Cooldowns.spook.containsKey(p.getName())) {
+            e.setCancelled(true);
+            bass(p);
+            Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
+            Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
+        }
     }
 }

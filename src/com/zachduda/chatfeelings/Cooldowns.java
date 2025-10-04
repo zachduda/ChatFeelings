@@ -1,6 +1,11 @@
 package com.zachduda.chatfeelings;
 
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,12 +16,14 @@ public class Cooldowns {
 	static HashMap<Player, Long> cooldown = new HashMap<>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<>();
 	static HashMap<Player, String> ignorelistcooldown = new HashMap<>();
-	
+	static HashMap<String, ScheduledTask> spook = new HashMap<String, ScheduledTask>();
+
 	static ArrayList<String> playerFileUpdate = new ArrayList<>();
 	
 	static void removeAll(Player p) {
 		cooldown.remove(p);
 		ignorecooldown.remove(p);
+		spookStop(p);
 	}
 	
 	static void putCooldown(Player p) {
@@ -46,6 +53,54 @@ public class Cooldowns {
 		}
 
 		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> playerFileUpdate.remove(p), 1200L); // 1 minute
+	}
+
+	static void spookStop(Player p) {
+		if(Cooldowns.spook.containsKey(p.getName())) {
+			p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
+			p.removePotionEffect(PotionEffectType.SLOWNESS);
+			p.removePotionEffect(PotionEffectType.BLINDNESS);
+			p.removePotionEffect(PotionEffectType.SATURATION);
+			p.removePotionEffect(PotionEffectType.NAUSEA);
+			// idk man, this might not work --zach 10/18/24
+			Cooldowns.spook.get(p.getName()).cancel();
+			Cooldowns.spook.remove(p.getName());
+		}
+	}
+
+	@SuppressWarnings("UnnecessaryLocalVariable")
+	static ScheduledTask spookTimer(Player p) {
+		if(!Main.particles) {
+			return null;
+		}
+		ScheduledTask timer = plugin.morePaperLib.scheduling().globalRegionalScheduler().runAtFixedRate(() -> {
+			if(!p.isOnline()) {
+				if(spook.containsKey(p.getName())) {
+					spookStop(p);
+				}
+				return;
+			}
+			Particles.spookDripParticle(p);
+		}, 5, 5);
+		return timer;
+	}
+
+	static void spookHash(Player p) {
+		spook.put(p.getName(), spookTimer(p));
+
+		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> {
+			spookStop(p);
+
+			if(p.isOnline()) {
+				plugin.pop(p);
+
+				if (!Main.multiversion) {
+					p.stopSound(Sound.MUSIC_DISC_13);
+				}
+
+				Msgs.send(p, "&e" + p.getName() + "&7, your spooky days are finally over.");
+			}
+		}, 20 * 10);
 	}
 
 }
