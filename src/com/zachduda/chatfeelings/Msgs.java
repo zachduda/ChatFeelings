@@ -11,24 +11,19 @@ public class Msgs {
 
 	static String color(String msg) {
 		msg = msg.replaceAll("&#", "#");
-		Pattern pattern = Pattern.compile("(&#|#|&)[a-fA-F0-9]{6}");
+		Pattern pattern = Pattern.compile("(?<!\\w)(?:#|&x)([A-Fa-f0-9]{6})(?!\\w)");
 		Matcher matcher = pattern.matcher(msg);
 		while (matcher.find()) {
-			String hexCode = msg.substring(matcher.start(), matcher.end());
-			String replaceAmp = hexCode.replaceAll("&#", "x");
-			String replaceSharp = replaceAmp.replace('#', 'x');
-
-			char[] ch = replaceSharp.toCharArray();
-			StringBuilder builder = new StringBuilder();
-			for (char c : ch) {
-				builder.append("&").append(c);
-			}
-
-			msg = msg.replace(hexCode, builder.toString());
+			String hexCode = matcher.group(0);
+			String hex = matcher.group(1);
+			String replace = "&x&" + hex.charAt(0) + "&" + hex.charAt(1) + "&" + hex.charAt(2)
+					+ "&" + hex.charAt(3) + "&" + hex.charAt(4) + "&" + hex.charAt(5);
+			msg = msg.replace(hexCode, replace);
 			matcher = pattern.matcher(msg);
 		}
 		return ChatColor.translateAlternateColorCodes('&', msg);
 	}
+
 	static void sendPrefix(CommandSender sender, String msg) {
 	    String prefix = color(plugin.msg.getString("Prefix"));
 	    sender.sendMessage(prefix + color(msg));
