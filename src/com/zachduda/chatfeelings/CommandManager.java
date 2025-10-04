@@ -8,6 +8,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
+import space.arim.morepaperlib.MorePaperLib;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -18,9 +19,11 @@ public class CommandManager {
     private static CommandMap commandMap;
     private static Map<String, Command> knownCommands;
     private static boolean cfAliasRegistered = false;
+    private static MorePaperLib mpl;
 
-    public CommandManager(Plugin plugin) {
+    public CommandManager(Plugin plugin, MorePaperLib morePaperLib) {
         CommandManager.plugin = plugin;
+        CommandManager.mpl = morePaperLib;
         setupCommandMap();
     }
 
@@ -30,13 +33,10 @@ public class CommandManager {
                 Field f = SimplePluginManager.class.getDeclaredField("commandMap");
                 f.setAccessible(true);
 
-                commandMap = (CommandMap) f.get(Bukkit.getPluginManager());
-
+                commandMap = mpl.commandRegistration().getServerCommandMap();
                 // Get knownCommands map for unregistering
                 if (commandMap instanceof SimpleCommandMap) {
-                    Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
-                    knownCommandsField.setAccessible(true);
-                    knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
+                    knownCommands = mpl.commandRegistration().getCommandMapKnownCommands((SimpleCommandMap) commandMap);
                 }
             }
         } catch (Exception e) {

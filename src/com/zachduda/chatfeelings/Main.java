@@ -712,7 +712,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         log("Checking repository to maximize support...", false, false);
 
         api = new ChatFeelingsAPI();
-        new CommandManager(this);
+        new CommandManager(this, morePaperLib);
 
         getConfig().options().copyDefaults(true);
         saveConfig();
@@ -2152,7 +2152,9 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // Particle Handler -------------------------------------
                 if (particles) {
                     try {
-                        Particles.show(target, cmdlr);
+                        morePaperLib.scheduling().globalRegionalScheduler().run(() ->  {
+                            Particles.show(target, cmdlr);
+                        });
                     } catch (Exception parterr) {
                         if (debug) {
                             parterr.printStackTrace();
@@ -2172,7 +2174,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                             try {
                                 sound1var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase()))));
                             } catch (Exception preerr1) {
-                                debug("Attempting sound regex: (replacing _ with .)");
+                                debug("[Sound Soft-Fail] Attempting sound regex (replacing _ with .) for sound: " + sound1.toUpperCase());
                                 sound1var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", ".")))));
                             }
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
@@ -2201,11 +2203,11 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                             try {
                                 sound2var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase()))));
                             } catch (Exception preerr1) {
-                                debug("Attempting sound regex: (replacing _ with .)");
+                                debug("[Sound Soft-Fail] Attempting sound regex (replacing _ with .) for sound: " + sound2.toUpperCase());
                                 sound2var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", ".")))));
                             }
 
-                            if (sound2.contains("DISC") && !multiversion) {
+                            if (sound2.contains("DISC") && multiversion) {
                                 // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                         Sound.AMBIENT_CAVE,

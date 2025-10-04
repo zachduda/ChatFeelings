@@ -10,11 +10,13 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 // ChatFeelings Async Check --> Based off of Benz56's update checker <3
 // https://github.com/Benz56/Async-Update-Checker/blob/master/UpdateChecker.java
@@ -36,49 +38,70 @@ public class Updater {
         this.morePaperLib = morePaperLib;
     }
 
+    protected ScheduledTask updatetimer;
+
     public void checkForUpdate() {
-    	try {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
+        try {
+            updatetimer = morePaperLib.scheduling().globalRegionalScheduler().runAtFixedRate(() -> {
+                // Run network I/O off the main thread
                 morePaperLib.scheduling().asyncScheduler().run(() -> {
+                    AtomicBoolean foundOutdated = new AtomicBoolean(false);
+                    String foundVersion = null;
+
                     try {
-                    	URL url = new URL("https://api.github.com/repos/zachduda/ChatFeelings/releases");
-            			BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()));
-            			String str = br.readLine();
-                        JSONArray raw_json = (JSONArray) new JSONParser().parse(str);
-                        for (JSONObject object : (Iterable<JSONObject>) raw_json) {
-                            final String vs = ((String) object.get("tag_name")).replace("v", "");
-                            final Boolean prerelease = ((Boolean) object.get("prerelease"));
-                            if (!prerelease) {
-                                if (!localPluginVersion.equalsIgnoreCase(vs) && localPluginVersion.equalsIgnoreCase("v4.14.5")) {
-                                    outdated = true;
-                                    posted_version = vs;
+                        URL url = new URL("https://api.github.com/repos/zachduda/ChatFeelings/releases");
+                        try (BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream()))) {
+                            String str = br.readLine();
+                            JSONArray raw_json = (JSONArray) new JSONParser().parse(str);
+                            for (JSONObject object : (Iterable<JSONObject>) raw_json) {
+                                final String vs = ((String) object.get("tag_name")).replace("v", "");
+                                final Boolean prerelease = ((Boolean) object.get("prerelease"));
+                                if (!prerelease) {
+                                    if (!localPluginVersion.equalsIgnoreCase(vs) && localPluginVersion.equalsIgnoreCase("v4.14.5")) {
+                                        foundOutdated.set(true);
+                                        foundVersion = vs;
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
                     } catch (final IOException | ParseException e) {
-                    	e.printStackTrace();
-                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "[ChatFeelings] Unable to check for updates. Is your server online?");
-                        cancel();
+                        if(Main.debug()) {
+                            e.printStackTrace();
+                        }
+                        // Send console message on main thread and cancel repeating task
+                        morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
+                            Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "[ChatFeelings] Unable to check for updates. Is your server online?");
+                            if(updatetimer != null) {
+                                updatetimer.cancel();
+                            }
+                        });
                         return;
                     }
-                    if(outdated) {
-                        Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion + "&r, while the latest is &av" + posted_version));
-                        cancel(); //Cancel the runnable as an update has been found.
+
+                    if (foundOutdated.get()) {
+                        final String posted = foundVersion;
+                        morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
+                            Bukkit.getServer().getConsoleSender().sendMessage(
+                                    ChatColor.translateAlternateColorCodes('&',
+                                            "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion +
+                                                    "&r, while the latest is &av" + posted)
+                            );
+                            if(updatetimer != null) {
+                                updatetimer.cancel();
+                            }
+                        });
                     }
                 });
-            }
-        }.runTaskTimer(javaPlugin, 0, CHECK_INTERVAL);
-    	}catch(Exception err) {
-            if(!Main.reducemsgs) {
+            }, 100000, 100000);
+        } catch (Exception err) {
+            if (!Main.reducemsgs) {
                 javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
             }
-            if(Main.debug()) {
+            if (Main.debug()) {
                 err.printStackTrace();
             }
-    	}
+        }
     }
 
 	public static boolean isOutdated() {

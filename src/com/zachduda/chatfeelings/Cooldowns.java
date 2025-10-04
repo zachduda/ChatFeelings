@@ -57,11 +57,14 @@ public class Cooldowns {
 
 	static void spookStop(Player p) {
 		if(Cooldowns.spook.containsKey(p.getName())) {
-			p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
-			p.removePotionEffect(PotionEffectType.SLOWNESS);
-			p.removePotionEffect(PotionEffectType.BLINDNESS);
-			p.removePotionEffect(PotionEffectType.SATURATION);
-			p.removePotionEffect(PotionEffectType.NAUSEA);
+			plugin.morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
+				p.getInventory().setHelmet(new ItemStack(Material.AIR, 1));
+				p.removePotionEffect(PotionEffectType.SLOWNESS);
+				p.removePotionEffect(PotionEffectType.BLINDNESS);
+				p.removePotionEffect(PotionEffectType.SATURATION);
+				p.removePotionEffect(PotionEffectType.NAUSEA);
+			});
+
 			// idk man, this might not work --zach 10/18/24
 			Cooldowns.spook.get(p.getName()).cancel();
 			Cooldowns.spook.remove(p.getName());
