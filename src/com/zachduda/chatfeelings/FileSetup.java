@@ -721,10 +721,10 @@ public class FileSetup {
         setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
         setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
         setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
-        setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY_WITCH_AMBIENT");
+        setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY.WITCH.AMBIENT");
         setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
-        setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC_13");
+        setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC.13");
         setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
         setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
 

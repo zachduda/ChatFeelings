@@ -75,6 +75,9 @@ public class Updater {
             if(!Main.reducemsgs) {
                 javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
             }
+            if(Main.debug()) {
+                err.printStackTrace();
+            }
     	}
     }
 

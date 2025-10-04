@@ -126,6 +126,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         }
     }
 
+    public static boolean debug() {
+        return debug;
+    }
+
     public void onDisable() {
         disabledsendingworlds.clear();
         disabledreceivingworlds.clear();
