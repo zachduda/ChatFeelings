@@ -397,7 +397,7 @@ public class FileSetup {
         } else {
             //if (emotes.get("Feelings.Spook") != null) {
             //    forceEmotes("Feelings.Spook", null);
-            //} // uncomment only when spook is removed
+            //} //only when spook is removed
             if (emotes.getInt("Version") != 6) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
@@ -446,7 +446,7 @@ public class FileSetup {
         setEmotes("Feelings.Bite.Msgs.Target", "&c&l%player% &r&7sinks their teeth into your skin.");
         setEmotes("Feelings.Bite.Msgs.Global", "&c&l%sender% &r&7sank their teeth into &4&l%target%&r&7's skin");
         //	setEmotes("Feelings.Bite.Msgs.Everyone", "&c&l%player% &r&7sinks their teeth into everyone's skin.");
-        setEmotes("Feelings.Bite.Sounds.Sound1.Name", "ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR");
+        setEmotes("Feelings.Bite.Sounds.Sound1.Name", "ENTITY.ZOMBIE.ATTACK_WOODEN_DOOR");
         setEmotesDouble("Feelings.Bite.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Bite.Sounds.Sound1.Pitch", 2.0);
         setEmotes("Feelings.Bite.Sounds.Sound2.Name", "None");
@@ -458,7 +458,7 @@ public class FileSetup {
         setEmotes("Feelings.Punch.Msgs.Target", "&c&l%player% &r&7strikes you with a punch. Ouch!");
         setEmotes("Feelings.Punch.Msgs.Global", "&c&l%sender% &r&7punched &4&l%target% &r&7right in the face.");
         //	setEmotes("Feelings.Punch.Msgs.Everyone", "&c&l%player% &r&7punches everyone in the face.");
-        setEmotes("Feelings.Punch.Sounds.Sound1.Name", "ENTITY_IRON_GOLEM_ATTACK");
+        setEmotes("Feelings.Punch.Sounds.Sound1.Name", "ENTITY.IRON_GOLEM.ATTACK");
         setEmotesDouble("Feelings.Punch.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Punch.Sounds.Sound1.Pitch", 0.6);
         setEmotes("Feelings.Punch.Sounds.Sound2.Name", "None");
@@ -469,7 +469,7 @@ public class FileSetup {
         setEmotes("Feelings.Murder.Msgs.Sender", "&7You murder &c&l%player% &r&7and have no regrets.");
         setEmotes("Feelings.Murder.Msgs.Target", "&c&l%player% &r&7just murdered you. Bandaid anyone?");
         setEmotes("Feelings.Murder.Msgs.Global", "&c&l%sender% &r&7just murdered &4&l%target%&r&7. &7&lRIP");
-        setEmotes("Feelings.Murder.Sounds.Sound1.Name", "ENTITY_BLAZE_DEATH");
+        setEmotes("Feelings.Murder.Sounds.Sound1.Name", "ENTITY.BLAZE.DEATH");
         setEmotesDouble("Feelings.Murder.Sounds.Sound1.Volume", 1.0);
         setEmotesDouble("Feelings.Murder.Sounds.Sound1.Pitch", 0.7);
         setEmotes("Feelings.Murder.Sounds.Sound2.Name", "None");
@@ -480,7 +480,7 @@ public class FileSetup {
         setEmotes("Feelings.Boi.Msgs.Sender", "&7You inhale at &e&l%player%&r&7... &6&lBOI");
         setEmotes("Feelings.Boi.Msgs.Target", "&e&l%player% &r&7inhales at you... &6&lBOI");
         setEmotes("Feelings.Boi.Msgs.Global", "&e&l%sender% &r&7inhales at &6&l%target%&r&7... &6&l&oBOI");
-        setEmotes("Feelings.Boi.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
+        setEmotes("Feelings.Boi.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
         setEmotesDouble("Feelings.Boi.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Boi.Sounds.Sound1.Pitch", 0.1);
         setEmotes("Feelings.Boi.Sounds.Sound2.Name", "None");
@@ -491,7 +491,7 @@ public class FileSetup {
         setEmotes("Feelings.Dab.Msgs.Sender", "&7You freshly dab on &a&l%player%&r&7... &7&oGot'em.");
         setEmotes("Feelings.Dab.Msgs.Target", "&a&l%player% &r&7freshly dabs on you... &7&oGot'em.");
         setEmotes("Feelings.Dab.Msgs.Global", "&a&l%sender% &r&7freshly dabs on &2&l%target%&r&7... &7&oGot'em.");
-        setEmotes("Feelings.Dab.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
+        setEmotes("Feelings.Dab.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
         setEmotesDouble("Feelings.Dab.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Dab.Sounds.Sound1.Pitch", 0.1);
         setEmotes("Feelings.Dab.Sounds.Sound2.Name", "None");
@@ -502,7 +502,7 @@ public class FileSetup {
         setEmotes("Feelings.Cry.Msgs.Sender", "&7You cry on &b&l%player%&r&7's shoulder.");
         setEmotes("Feelings.Cry.Msgs.Target", "&b&l%player% &r&7cries on your shoulder.");
         setEmotes("Feelings.Cry.Msgs.Global", "&b&l%sender% &r&7leans on &3&l%target%&r&7's shoulder and cries.");
-        setEmotes("Feelings.Cry.Sounds.Sound1.Name", "ENTITY_GHAST_DEATH");
+        setEmotes("Feelings.Cry.Sounds.Sound1.Name", "ENTITY.GHAST.DEATH");
         setEmotesDouble("Feelings.Cry.Sounds.Sound1.Volume", 1.0);
         setEmotesDouble("Feelings.Cry.Sounds.Sound1.Pitch", 0.8);
         setEmotes("Feelings.Cry.Sounds.Sound2.Name", "None");
@@ -513,7 +513,7 @@ public class FileSetup {
         setEmotes("Feelings.Facepalm.Msgs.Sender", "&7You facepalm at what &e&l%player% &r&7just said.");
         setEmotes("Feelings.Facepalm.Msgs.Target", "&e&l%player% &r&7facepalmed at what you just said.");
         setEmotes("Feelings.Facepalm.Msgs.Global", "&e&l%sender% &r&7facepalms at &6&l%target%&r&7 for being dumb.");
-        setEmotes("Feelings.Facepalm.Sounds.Sound1.Name", "ENTITY_VILLAGER_NO");
+        setEmotes("Feelings.Facepalm.Sounds.Sound1.Name", "ENTITY.VILLAGER.NO");
         setEmotesDouble("Feelings.Facepalm.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Facepalm.Sounds.Sound1.Pitch", 1.0);
         setEmotes("Feelings.Facepalm.Sounds.Sound2.Name", "None");
@@ -526,7 +526,7 @@ public class FileSetup {
         setEmotes("Feelings.Highfive.Msgs.Sender", "&7You give a mighty highfive to &a&l%player%&7.");
         setEmotes("Feelings.Highfive.Msgs.Target", "&a&l%player% &7gives you a mighty highfive.");
         setEmotes("Feelings.Highfive.Msgs.Global", "&a&l%sender% &7gives &2&l%target% &r&7a mighty highfive.");
-        setEmotes("Feelings.Highfive.Sounds.Sound1.Name", "ENTITY_VILLAGER_YES");
+        setEmotes("Feelings.Highfive.Sounds.Sound1.Name", "ENTITY.VILLAGER.YES");
         setEmotesDouble("Feelings.Highfive.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Highfive.Sounds.Sound1.Pitch", 1.0);
         setEmotes("Feelings.Highfive.Sounds.Sound2.Name", "None");
@@ -537,7 +537,7 @@ public class FileSetup {
         setEmotes("Feelings.Kiss.Msgs.Sender", "&7You give &a&l%player% &r&7a kiss. &cAwww &4❤");
         setEmotes("Feelings.Kiss.Msgs.Target", "&a&l%player% &r&7gives you a kiss. &cAwww &4❤");
         setEmotes("Feelings.Kiss.Msgs.Global", "&a&l%sender% &7gives &2&l%target% &7a kiss. &cAwww &4❤");
-        setEmotes("Feelings.Kiss.Sounds.Sound1.Name", "ENTITY_ARROW_HIT_PLAYER");
+        setEmotes("Feelings.Kiss.Sounds.Sound1.Name", "ENTITY.ARROW.HIT_PLAYER");
         setEmotesDouble("Feelings.Kiss.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Kiss.Sounds.Sound1.Pitch", 1.0);
         setEmotes("Feelings.Kiss.Sounds.Sound2.Name", "None");
@@ -548,7 +548,7 @@ public class FileSetup {
         setEmotes("Feelings.Lick.Msgs.Sender", "&7You lick &e&l%player% &7like ice-cream. &6Gross!");
         setEmotes("Feelings.Lick.Msgs.Target", "&e&l%player% &r&7licks you like ice-cream. &6Gross!");
         setEmotes("Feelings.Lick.Msgs.Global", "&e&l%target% &r&7got licked by &6&l%sender%&r&7. &8Gross.");
-        setEmotes("Feelings.Lick.Sounds.Sound1.Name", "ENTITY_GENERIC_DRINK");
+        setEmotes("Feelings.Lick.Sounds.Sound1.Name", "ENTITY.GENERIC.DRINK");
         setEmotesDouble("Feelings.Lick.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Lick.Sounds.Sound1.Pitch", 0.1); // not sure
         setEmotes("Feelings.Lick.Sounds.Sound2.Name", "None");
@@ -559,7 +559,7 @@ public class FileSetup {
         setEmotes("Feelings.Shake.Msgs.Sender", "&7You shake &c&l%player%&r&7's entire body.");
         setEmotes("Feelings.Shake.Msgs.Target", "&c&l%player% &r&7shakes your entire body.");
         setEmotes("Feelings.Shake.Msgs.Global", "&c&l%sender% &r&7picks up &4&l%target%&r&7's body, and shakes it.");
-        setEmotes("Feelings.Shake.Sounds.Sound1.Name", "ENTITY_WOLF_SHAKE");
+        setEmotes("Feelings.Shake.Sounds.Sound1.Name", "ENTITY.WOLF.SHAKE");
         setEmotesDouble("Feelings.Shake.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Shake.Sounds.Sound1.Pitch", 0.7); // not sure
         setEmotes("Feelings.Shake.Sounds.Sound2.Name", "None");
@@ -570,7 +570,7 @@ public class FileSetup {
         setEmotes("Feelings.Snuggle.Msgs.Sender", "&7You snuggle &a&l%player% &r&7with love. &cAwww &4❤");
         setEmotes("Feelings.Snuggle.Msgs.Target", "&a&l%player% &r&7snuggles you with love. &cAwww &4❤");
         setEmotes("Feelings.Snuggle.Msgs.Global", "&a&l%sender% &r&7snuggles &2&l%target% &r&7them with hugs. &cAwww &4❤");
-        setEmotes("Feelings.Snuggle.Sounds.Sound1.Name", "ENTITY_CAT_PURR");
+        setEmotes("Feelings.Snuggle.Sounds.Sound1.Name", "ENTITY.CAT.PURR");
         setEmotesDouble("Feelings.Snuggle.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Snuggle.Sounds.Sound1.Pitch", 1.0); // not sure
         setEmotes("Feelings.Snuggle.Sounds.Sound2.Name", "None");
@@ -581,7 +581,7 @@ public class FileSetup {
         setEmotes("Feelings.Yell.Msgs.Sender", "&7You yell at &c&l%player%&r&7 at the top of your lungs.");
         setEmotes("Feelings.Yell.Msgs.Target", "&c&l%player% &r&7yells at you from the top of their lungs.");
         setEmotes("Feelings.Yell.Msgs.Global", "&c&l%sender% &r&7yells right at &4&l%target% &r&7from the top of their lungs.");
-        setEmotes("Feelings.Yell.Sounds.Sound1.Name", "ENTITY_GHAST_SCREAM");
+        setEmotes("Feelings.Yell.Sounds.Sound1.Name", "ENTITY.GHAST.SCREAM");
         setEmotesDouble("Feelings.Yell.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Yell.Sounds.Sound1.Pitch", 1.0); // not sure
         setEmotes("Feelings.Yell.Sounds.Sound2.Name", "None");
@@ -592,7 +592,7 @@ public class FileSetup {
         setEmotes("Feelings.Poke.Msgs.Sender", "&7You poked &e&l%player%&7. Maybe they're on vacation?");
         setEmotes("Feelings.Poke.Msgs.Target", "&e&l%player% &r&7has poked you. Anyone there?");
         setEmotes("Feelings.Poke.Msgs.Global", "&e&l%target% &r&7was poked by &6&l%sender%&r&7. &7&oAnyone home?");
-        setEmotes("Feelings.Poke.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
+        setEmotes("Feelings.Poke.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
         setEmotesDouble("Feelings.Poke.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Poke.Sounds.Sound1.Pitch", 0.1); // not sure
         setEmotes("Feelings.Poke.Sounds.Sound2.Name", "None");
@@ -603,7 +603,7 @@ public class FileSetup {
         setEmotes("Feelings.Slap.Msgs.Sender", "&7You slap &c&l%player% &r&7with some spaghetti.");
         setEmotes("Feelings.Slap.Msgs.Target", "&c&l%player% &r&7slaps you with some spaghetti.");
         setEmotes("Feelings.Slap.Msgs.Global", "&c&l%target% &r&7was slapped by &4&l%sender%&r&7.");
-        setEmotes("Feelings.Slap.Sounds.Sound1.Name", "ENTITY_BLAZE_HURT");
+        setEmotes("Feelings.Slap.Sounds.Sound1.Name", "ENTITY.BLAZE.HURT");
         setEmotesDouble("Feelings.Slap.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Slap.Sounds.Sound1.Pitch", 0.7); // not sure
         setEmotes("Feelings.Slap.Sounds.Sound2.Name", "None");
@@ -614,7 +614,7 @@ public class FileSetup {
         setEmotes("Feelings.Stab.Msgs.Sender", "&7You stab &c&l%player% &r&7with a knife. Got Bandaids?");
         setEmotes("Feelings.Stab.Msgs.Target", "&c&l%player% &r&7grabs a knife and stabs you. Got Bandaids?");
         setEmotes("Feelings.Stab.Msgs.Global", "&c&l%sender% &r&7grabs a knife and stabs &4&l%target%&r&7.");
-        setEmotes("Feelings.Stab.Sounds.Sound1.Name", "ENTITY_GENERIC_HURT");
+        setEmotes("Feelings.Stab.Sounds.Sound1.Name", "ENTITY.GENERIC.HURT");
         setEmotesDouble("Feelings.Stab.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Stab.Sounds.Sound1.Pitch", 0.7); // not sure
         setEmotes("Feelings.Stab.Sounds.Sound2.Name", "None");
@@ -625,7 +625,7 @@ public class FileSetup {
         setEmotes("Feelings.Pat.Msgs.Sender", "&7You gently pat &a&l%player%&r&7's head for being good.");
         setEmotes("Feelings.Pat.Msgs.Target", "&a&l%player% &r&7gently pats your head for being good.");
         setEmotes("Feelings.Pat.Msgs.Global", "&a&l%sender% &r&7gently pats &2&l%target%&r&7's head for being good.");
-        setEmotes("Feelings.Pat.Sounds.Sound1.Name", "ENTITY_WOLF_PANT");
+        setEmotes("Feelings.Pat.Sounds.Sound1.Name", "ENTITY.WOLF.PANT");
         setEmotesDouble("Feelings.Pat.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Pat.Sounds.Sound1.Pitch", 0.8); // not sure
         setEmotes("Feelings.Pat.Sounds.Sound2.Name", "None");
@@ -636,7 +636,7 @@ public class FileSetup {
         setEmotes("Feelings.Scorn.Msgs.Sender", "&7You scorn &c&l%player% &r&7for what they've done.");
         setEmotes("Feelings.Scorn.Msgs.Target", "&c&l%player% &r&7scorns you for what you've done.");
         setEmotes("Feelings.Scorn.Msgs.Global", "&c&l%sender% &r&7scorns &4&l%target% &r&7for what they've done.");
-        setEmotes("Feelings.Scorn.Sounds.Sound1.Name", "ENTITY_ENDERMAN_STARE");
+        setEmotes("Feelings.Scorn.Sounds.Sound1.Name", "ENTITY.ENDERMAN.STARE");
         setEmotesDouble("Feelings.Scorn.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Scorn.Sounds.Sound1.Pitch", 0.8); // not sure
         setEmotes("Feelings.Scorn.Sounds.Sound2.Name", "None");
@@ -647,7 +647,7 @@ public class FileSetup {
         setEmotes("Feelings.Stalk.Msgs.Sender", "&7You carefully stalk &e&l%player%&r&7, &7&oHeh Heh.");
         setEmotes("Feelings.Stalk.Msgs.Target", "&e&l%player% &r&7stalks you from a nearby tree.");
         setEmotes("Feelings.Stalk.Msgs.Global", "&e&l%sender% &r&7stalks &6&l%target% &r&7from a nearby tree.");
-        setEmotes("Feelings.Stalk.Sounds.Sound1.Name", "AMBIENT_CAVE");
+        setEmotes("Feelings.Stalk.Sounds.Sound1.Name", "AMBIENT.CAVE");
         setEmotesDouble("Feelings.Stalk.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Stalk.Sounds.Sound1.Pitch", 2.0); // not sure
         setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
@@ -660,16 +660,16 @@ public class FileSetup {
         setEmotes("Feelings.Sus.Msgs.Global", "&e&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
 
         if(validSound("AMBIENT_NETHER_WASTES_MOOD")) {
-            setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_NETHER_WASTES_MOOD");
+            setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT.NETHER_WASTES.MOOD");
         } else {
-            setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT_CAVE");
+            setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT.CAVE");
         }
 
         setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
 
         if(validSound("BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
-            setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK_RESPAWN_ANCHOR_DEPLETE");
+            setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK.RESPAWN_ANCHOR.DEPLETE");
         } else {
             setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
         }
@@ -682,9 +682,9 @@ public class FileSetup {
         setEmotes("Feelings.Wave.Msgs.Global", "&a&l%sender% &r&7waves adieu to &2&l%target%.");
 
         if(validSound("BLOCK_AMETHYST_BLOCK_RESONATE")) {
-            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_AMETHYST_BLOCK_RESONATE");
+            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK.AMETHYST_BLOCK.RESONATE");
         } else {
-            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK_NOTE_BLOCK_BELL");
+            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK.NOTE_BLOCK.BELL");
         }
 
         setEmotesDouble("Feelings.Wave.Sounds.Sound1.Volume", 2.0);
@@ -698,7 +698,7 @@ public class FileSetup {
         setEmotes("Feelings.Welcomeback.Msgs.Sender", "&7You told &a&l%player%&r &7welcome back!");
         setEmotes("Feelings.Welcomeback.Msgs.Target", "&a&l%player% &r&7gave you a warm welcome back!");
         setEmotes("Feelings.Welcomeback.Msgs.Global", "&a&l%sender% &r&7welcomed &2&l%target% &r&7back.");
-        setEmotes("Feelings.Welcomeback.Sounds.Sound1.Name", "BLOCK_BEACON_POWER_SELECT");
+        setEmotes("Feelings.Welcomeback.Sounds.Sound1.Name", "BLOCK.BEACON.POWER_SELECT");
         setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Pitch", 2.0);
         setEmotes("Feelings.Welcomeback.Sounds.Sound2.Name", "None");
@@ -710,7 +710,7 @@ public class FileSetup {
         setEmotes("Feelings.Boop.Msgs.Sender", "&7You boop &a&l%player%&7 right on their nose!");
         setEmotes("Feelings.Boop.Msgs.Target", "&a&l%player% &r&7boops you right on your nose!");
         setEmotes("Feelings.Boop.Msgs.Global", "&a&l%target% &r&7was booped on their nose by &a&l%sender%&r&7!");
-        setEmotes("Feelings.Boop.Sounds.Sound1.Name", "ENTITY_CHICKEN_EGG");
+        setEmotes("Feelings.Boop.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
         setEmotesDouble("Feelings.Boop.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Boop.Sounds.Sound1.Pitch", 2.0);
         setEmotes("Feelings.Boop.Sounds.Sound2.Name", "None");

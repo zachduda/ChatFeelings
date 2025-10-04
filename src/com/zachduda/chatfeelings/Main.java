@@ -1093,27 +1093,29 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             if (hasPerm(sender, "chatfeelings.stats")) {
                 completions.add("stats");
             }
-            if (hasPerm(sender, "chatfeelings.mute")) {
+            if (hasPerm(sender, "chatfeelings.mute", true)) {
                 completions.add("mute");
                 completions.add("unmute");
                 completions.add("mutelist");
             }
             if (hasPerm(sender, "chatfeelings.ignore")) {
                 completions.add("ignore");
-                completions.add("unignore");
                 completions.add("ignorelist");
             }
-            if (hasPerm(sender, "chatfeelings.admin")) {
+            if (hasPerm(sender, "chatfeelings.admin", true)) {
                 completions.add("reload");
+                completions.add("version");
             }
 
             return StringUtil.copyPartialMatches(args[0].toLowerCase(), completions, new ArrayList<>());
         }
         else if (args.length == 2) {
             // Second argument completions
-            if (args[0].equalsIgnoreCase("ignore")) {
-                completions.add("all");
-                Bukkit.getOnlinePlayers().forEach(player -> completions.add(player.getName()));
+            if (args[0].equalsIgnoreCase("ignore") || args[0].equalsIgnoreCase("mute")) {
+                if (hasPerm(sender, "chatfeelings.ignore")) {
+                    completions.add("all");
+                    Bukkit.getOnlinePlayers().forEach(player -> completions.add(player.getName()));
+                }
             }
 
             return StringUtil.copyPartialMatches(args[1].toLowerCase(), completions, new ArrayList<>());
@@ -1406,6 +1408,12 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 Msgs.send(sender, "");
             });
             pop(sender);
+            return true;
+        }
+
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("unignore")) {
+            Msgs.sendPrefix(sender, "&c&lOops! &fRetype to unignore as &7/cf ignore (player)");
+            bass(sender);
             return true;
         }
 
@@ -2156,22 +2164,42 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     try {
                         String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
                         if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
-
+                            Sound sound1var;
+                            try {
+                                sound1var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase()))));
+                            } catch (Exception preerr1) {
+                                debug("Attempting sound regex: (replacing _ with .)");
+                                sound1var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", ".")))));
+                            }
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                    Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", "."))))),
+                                    sound1var,
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             if (sender instanceof Player) {
                                 final Player p = (Player)sender;
                                 p.playSound(p.getLocation(),
-                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase().replaceAll("_", "."))))),
+                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase())))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
                             }
                         }
-
+                    } catch (Exception sounderr1) { // err test for sounds
+                        log("Primary feeling values for /" + cmdconfig + " are incorrect! Sounds will disable...", true, true);
+                        if(debug) {
+                            sounderr1.printStackTrace();
+                        }
+                        sounds = false;
+                    }
+                    try {
                         String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
                         if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") && !sound2.equalsIgnoreCase("off") && !sound2.equals("null")) {
+                            Sound sound2var;
+                            try {
+                                sound2var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase()))));
+                            } catch (Exception preerr1) {
+                                debug("Attempting sound regex: (replacing _ with .)");
+                                sound2var = Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", ".")))));
+                            }
 
                             if (sound2.contains("DISC") && !multiversion) {
                                 // Check for SPOOK, that runs an ALT sound to prevent needing to stop it. (For Multi Version support)
@@ -2180,21 +2208,21 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                         2.0F, 0.5F);
                             } else {
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
-                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", "."))))),
+                                        sound2var,
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
                                 if (sender instanceof Player && !sound2.contains("DISC")) {
                                     final Player p = (Player)sender;
                                     p.playSound(p.getLocation(),
-                                            Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound2.toLowerCase().replaceAll("_", "."))))),
+                                            sound2var,
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
                                 }
                             }
                         }
                     } catch (Exception sounderr) { // err test for sounds
-                        log("One or more of your sounds for /" + cmdconfig + " are incorrect! Sounds are disabling...", true, true);
+                        log("Secondary feeling values for /" + cmdconfig + " are incorrect! Sounds will disable..", true, true);
                         if(debug) {
                             sounderr.printStackTrace();
                         }
