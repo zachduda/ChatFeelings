@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 @SuppressWarnings("StatementWithEmptyBody")
 public class Particles {
@@ -273,17 +274,25 @@ public class Particles {
     {
         try {
             // must be forced again sync for some reason idk
-            plugin.morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                        p.removePotionEffect(PotionEffectType.SLOWNESS);
-                        p.removePotionEffect(PotionEffectType.BLINDNESS);
-                        p.removePotionEffect(PotionEffectType.SATURATION);
-                        p.removePotionEffect(PotionEffectType.NAUSEA);
+            if(!Main.folia) { // errors on folia
+                try {
+                    p.removePotionEffect(PotionEffectType.SLOWNESS);
+                    p.removePotionEffect(PotionEffectType.BLINDNESS);
+                    p.removePotionEffect(PotionEffectType.SATURATION);
+                    p.removePotionEffect(PotionEffectType.NAUSEA);
 
-                        p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 200, 2));
-                        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
-                        p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 200, 10));
-                        p.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 200, 1));
-            });
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 200, 2));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 1));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 200, 10));
+                    p.addPotionEffect(new PotionEffect(PotionEffectType.NAUSEA, 200, 1));
+                } catch (Exception ep) {
+                    Main.debug("Failed to add PotionEffect:  ");
+                    if (Main.debug()) {
+                        ep.getMessage();
+                    }
+                }
+            }
+
             World world = p.getLocation().getWorld();
 
             final boolean fullSupport = Bukkit.getBukkitVersion().contains("1.13") || Bukkit.getBukkitVersion().contains("1.14") || Bukkit.getBukkitVersion().contains("1.15") || Bukkit.getBukkitVersion().contains("1.16") || Bukkit.getBukkitVersion().contains("1.17") || Bukkit.getBukkitVersion().contains("1.18") || Bukkit.getBukkitVersion().contains("1.19") || Bukkit.getBukkitVersion().contains("1.20") || Bukkit.getBukkitVersion().contains("1.21");

@@ -30,6 +30,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.FoliaDetection;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -38,7 +39,8 @@ import java.util.logging.Logger;
 
 public class Main extends JavaPlugin implements Listener, TabExecutor {
     /* If true, metrics & update checking are skipped. */
-    public static boolean beta = false;
+    final public static boolean beta = false;
+    final public static boolean folia = isFolia();
 
     public ChatFeelingsAPI api;
 
@@ -373,6 +375,14 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         return hasPerm(p, "none", false);
     }
 
+    private static boolean isFolia() {
+        try {
+            Class.forName("io.papermc.paper.threadedregions.RegionizedServer");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
     private Metrics addMetrics() {
         if(beta) {
             debug("Metrics were not enabled as this is a pre-release version.");
@@ -392,15 +402,19 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
         metrics = new Metrics(this, 1376);
         metrics.addCustomChart(new SimplePie("server_version", () -> {
-            try {
-                Class.forName("com.destroystokyo.paper.PaperConfig");
-                return "Paper";
-            } catch (Exception NotPaper) {
+            if(isFolia()) {
+                return "Folia";
+            } else {
                 try {
-                    Class.forName("org.spigotmc.SpigotConfig");
-                    return "Spigot";
-                } catch (Exception Other) {
-                    return "Bukkit / Other";
+                    Class.forName("com.destroystokyo.paper.PaperConfig");
+                    return "Paper";
+                } catch (Exception NotPaper) {
+                    try {
+                        Class.forName("org.spigotmc.SpigotConfig");
+                        return "Spigot";
+                    } catch (Exception Other) {
+                        return "Bukkit / Other";
+                    }
                 }
             }
         }));
