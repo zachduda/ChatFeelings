@@ -728,6 +728,11 @@ public class FileSetup {
         setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
         setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
 
+        setEmotes("Feelings.Spook.Has-Helmet", "&cSorry. &7%target%&f has a helmet on, and cannot be spooked.");
+        setEmotes("Feelings.Spook.Already-Spooked", "&cSorry. &7%target%&f is already being spooked.");
+        setEmotes("Feelings.Spook.Not-Available", "&cSorry. &7/spook &fis only available near October.");
+        setEmotes("Feelings.Spook.Finished", "&e%player%&7, your spooky days are finally over.");
+
         setEmotesVersion(6);
         reloadFiles();
     }

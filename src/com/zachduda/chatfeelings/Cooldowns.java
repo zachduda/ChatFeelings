@@ -9,6 +9,7 @@ import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Cooldowns {
 	private static final Main plugin = Main.getPlugin(Main.class);
@@ -101,7 +102,8 @@ public class Cooldowns {
 					p.stopSound(Sound.MUSIC_DISC_13);
 				}
 
-				Msgs.send(p, "&e" + p.getName() + "&7, your spooky days are finally over.");
+				Msgs.sendPrefix(p, Objects.requireNonNull(plugin.emotes.getString("Feelings.Spook.Finished")).replaceAll("%player%", p.getName()));
+
 			}
 		}, 20 * 10);
 	}

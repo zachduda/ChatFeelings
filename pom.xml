@@ -160,11 +160,11 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-<!--    <distributionManagement>-->
-<!--        <repository>-->
-<!--            <id>github</id>-->
-<!--            <name>ChatFeelings</name>-->
-<!--            <url>https://maven.pkg.github.com/zachduda/ChatFeelings</url>-->
-<!--        </repository>-->
-<!--    </distributionManagement>-->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>ChatFeelings</name>
+            <url>https://maven.pkg.github.com/zachduda/ChatFeelings</url>
+        </repository>
+    </distributionManagement>
 </project>

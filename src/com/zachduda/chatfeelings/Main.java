@@ -2036,19 +2036,19 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     SimpleDateFormat format = new SimpleDateFormat("MM");
 
                     if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
-                        Msgs.sendPrefix(sender, "&c&lSorry. &fSpook is an emote exclusive to &7&lOctober");
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(emotes.getString("Feelings.Spook.Not-Available")));
                         bass(sender);
                         return;
                     }
 
                     if(Cooldowns.spook.containsKey(target.getName())) {
-                        Msgs.sendPrefix(sender, "&e&l&oToo Spooky! &fThis player is already being spooked.");
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(emotes.getString("Feelings.Spook.Already-Spooked")).replaceAll("%target%", target.getName()));
                         bass(sender);
                         return;
                     }
 
                     if(!(Objects.equals(target.getInventory().getHelmet(), new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
-                        Msgs.sendPrefix(sender, "&cSorry. &7" + target.getName() + "&f has a helmet on, and cannot be spooked.");
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(emotes.getString("Feelings.Spook.Has-Helmet")).replaceAll("%target%", target.getName()));
                         bass(sender);
                         return;
                     }
