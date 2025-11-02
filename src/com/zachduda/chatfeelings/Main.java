@@ -451,8 +451,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             return;
         }
 
-        if (sender instanceof Player) {
-            final Player p = (Player)sender;
+        if (sender instanceof Player p) {
             try {
                 p.playSound(p.getLocation(), Sound.ENTITY_CHICKEN_EGG, 2.0F, 2.0F);
             } catch (Exception err) {
@@ -466,9 +465,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             return;
         }
 
-        if (sender instanceof Player) {
+        if (sender instanceof Player p) {
             try {
-                final Player p = (Player)sender;
                 morePaperLib.scheduling().globalRegionalScheduler().run(() -> p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 2.0F, 1.3F));
             } catch (Exception err) {
                 sounds = false;
@@ -481,9 +479,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             return;
         }
 
-        if (sender instanceof Player) {
+        if (sender instanceof Player p) {
             try {
-                final Player p = (Player)sender;
                 p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 2.0F, 2.0F);
             } catch (Exception err) {
                 sounds = false;
@@ -1171,11 +1168,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
 
             if (args.length == 1) {
-                if (!(sender instanceof Player)) {
+                if (!(sender instanceof Player p)) {
                     Msgs.sendPrefix(sender, msg.getString("No-Player"));
                     return true;
                 }
-                final Player p = (Player)sender;
                 getStats(sender, p.getUniqueId(), true);
                 pop(sender);
                 return true;
@@ -1627,12 +1623,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 return true;
             }
 
-            if (!(sender instanceof Player)) {
+            if (!(sender instanceof Player p)) {
                 Msgs.sendPrefix(sender, "&c&lSorry. &fOnly players can ignore other players.");
                 return true;
             }
-
-            final Player p = (Player)sender;
 
             if (args.length == 1) {
                 if (Cooldowns.ignorelistcooldown.containsKey(p)) {
@@ -1857,8 +1851,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 }
 
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !hasPerm(sender,"chatfeelings.bypasscooldowns", true)) {
-                    if (sender instanceof Player) {
-                        final Player p = (Player)sender;
+                    if (sender instanceof Player p) {
                         if (Cooldowns.cooldown.containsKey(p.getPlayer())) {
                             int cooldownTime = getConfig().getInt("General.Cooldowns.Feelings.Seconds");
                             long secondsLeft = ((Cooldowns.cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
@@ -1880,8 +1873,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                 final String cmdconfig = (capitalizeString(cmd.getName()));
 
-                if (sender instanceof Player) {
-                    final Player p = (Player)sender;
+                if (sender instanceof Player p) {
                     if (disabledsendingworlds.contains(p.getWorld().getName())) {
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Sending-World-Disabled"));
@@ -1928,8 +1920,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 }
 
                 // Radius & Sleeping Check ---------------------------
-                if (sender instanceof Player) {
-                    final Player p = (Player)sender;
+                if (sender instanceof Player p) {
                     if (getConfig().getBoolean("General.Radius.Enabled")) {
                         final String omsg = Objects.requireNonNull(msg.getString("Outside-Of-Radius")).replace("%player%", target.getName()).replace("%command%", cmd.getName());
                         if (target.getWorld() != p.getWorld()) {
@@ -1952,8 +1943,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                 File playerfiles = new File(this.getDataFolder(), File.separator + "Data");
 
-                if (sender instanceof Player) {
-                    final Player p = (Player)sender;
+                if (sender instanceof Player p) {
                     File myf = new File(playerfiles, File.separator + p.getUniqueId() + ".yml");
                     FileConfiguration me = YamlConfiguration.loadConfiguration(myf);
 
@@ -2045,8 +2035,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                         if (!setcache.getBoolean("Allow-Feelings") && (!online.getName().equals(sender.getName()))) {
                             debug(online.getName() + " is blocking all feelings. Skipping Global Msg!");
                         } else { // else NOT ignoring ALL
-                            if (sender instanceof Player) {
-                                final Player p = (Player)sender;
+                            if (sender instanceof Player p) {
                                 if (isTargetIgnoringSender(target, p)) {
                                     // Player is Ignoring from sender but is not target. (GlobaL)
 
@@ -2056,12 +2045,11 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                             }
                             // End of Global ignoring Checks -------------------
 
-                            if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player)) {
+                            if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player p)) {
                                 // ONLY for CONSOLE Global notify here.
                                 Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
                             } else {
                                 // Global for PLAYER below
-                                Player p = (Player) sender;
                                 if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
                                     morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
                                         FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, finalTarget, cmdconfig);
@@ -2115,8 +2103,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                 // Cooldown Handler ------------------------------------
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled")) {
-                    if (sender instanceof Player) {
-                        final Player p = (Player)sender;
+                    if (sender instanceof Player p) {
                         Cooldowns.putCooldown(p);
                     }
                 }
@@ -2152,8 +2139,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                     sound1var,
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
                                     (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
-                            if (sender instanceof Player) {
-                                final Player p = (Player)sender;
+                            if (sender instanceof Player p) {
                                 p.playSound(p.getLocation(),
                                         Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase())))),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
@@ -2189,8 +2175,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
                                         (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
 
-                                if (sender instanceof Player && !sound2.contains("DISC")) {
-                                    final Player p = (Player)sender;
+                                if (sender instanceof Player p && !sound2.contains("DISC")) {
                                     p.playSound(p.getLocation(),
                                             sound2var,
                                             (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
@@ -2209,8 +2194,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // ---------- End of Sounds
 
                 // Add Stats
-                if (sender instanceof Player) {
-                    final Player p = (Player) sender;
+                if (sender instanceof Player p) {
                     statsAdd(p, cmdconfig);
                 }
             });
@@ -2223,8 +2207,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             Msgs.send(sender, msg.getString("Prefix-Header"));
             Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
             Msgs.send(sender, "");
-            if (sender instanceof Player) {
-                final Player p = (Player)sender;
+            if (sender instanceof Player p) {
                 bass(p.getPlayer());
             }
         }
