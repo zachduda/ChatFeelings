@@ -95,9 +95,7 @@ public class Updater {
                 });
             }, 100000, 100000);
         } catch (Exception err) {
-            if (!Main.reducemsgs) {
-                javaPlugin.getLogger().warning("Error. There was a problem checking for updates.");
-            }
+            Main.log("Hmm. Something didn't go right when trying to check for updates.", false, true);
             if (Main.debug()) {
                 err.printStackTrace();
             }

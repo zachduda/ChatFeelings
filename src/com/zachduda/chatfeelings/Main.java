@@ -107,6 +107,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     private static final String logtag = "[ChatFeelings] ";
 
     public static void log(String msg, Boolean critical, Boolean warning) {
+        if(msg.isBlank()) {
+            return;
+        }
+
         if (critical || !reducemsgs) {
             if(warning) {
                 log.warning("[!] " + logtag + msg);
@@ -117,6 +121,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     }
 
     public static void debug(String msg) {
+        if(msg.isBlank()) {
+            return;
+        }
+
         if (debug) {
             log("[Debug] " + msg, true, false);
         }
