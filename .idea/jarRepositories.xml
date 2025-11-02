@@ -2,14 +2,14 @@
 <project version="4">
   <component name="RemoteRepositoriesConfiguration">
     <remote-repository>
-      <option name="id" value="paper-repo" />
-      <option name="name" value="paper-repo" />
-      <option name="url" value="https://repo.papermc.io/repository/maven-public/" />
-    </remote-repository>
-    <remote-repository>
       <option name="id" value="central" />
       <option name="name" value="Central Repository" />
       <option name="url" value="https://repo.maven.apache.org/maven2" />
+    </remote-repository>
+    <remote-repository>
+      <option name="id" value="paper-repo" />
+      <option name="name" value="paper-repo" />
+      <option name="url" value="https://repo.papermc.io/repository/maven-public/" />
     </remote-repository>
     <remote-repository>
       <option name="id" value="jitpack.io" />

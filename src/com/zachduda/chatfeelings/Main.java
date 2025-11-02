@@ -19,21 +19,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
-import space.arim.morepaperlib.scheduling.FoliaDetection;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -70,8 +65,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             "sus",
             "wave",
             "welcomeback",
-            "boop",
-            "spook"
+            "boop"
         );
 
     private boolean hasess = false;
@@ -1828,25 +1822,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
                     final String cfl = enabledfeelings.get(i).toLowerCase();
                     if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
-                        if(enabledfeelings.get(i).equalsIgnoreCase("spook")) { // test if spook
-                            Date now = new Date();
-                            SimpleDateFormat format = new SimpleDateFormat("MM");
-
-                            if (format.format(now).equals("10") || format.format(now).equals("09")) {
-                                if (hasPerm(sender, "chatfeelings." + cmdlr)) {
-                                    Msgs.send(sender, "&8&l> &6&l/spook (player) &7Give your friends some festive fright!");
-                                } else {
-                                    Msgs.send(sender, "&8&l> &c/" + enabledfeelings.get(i).toLowerCase() + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
-                                }
-                            } else {
-                                Msgs.send(sender, "&8&l> &7&l/spook &7This command is exclusive to October only.");
-                            }
+                        if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
+                            Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
                         } else {
-                            if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
-                                Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
-                            } else {
-                                Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
-                            }
+                            Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
                     }
                 }
@@ -2028,34 +2007,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // ------------------------------------------------
 
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
-
-
-                // SPOOK INSERT
-                if(cmdlr.equals("spook")) {
-                    Date now = new Date();
-                    SimpleDateFormat format = new SimpleDateFormat("MM");
-
-                    if(!format.format(now).equals("10") && !format.format(now).equals("09")) {
-                        Msgs.sendPrefix(sender, Objects.requireNonNull(emotes.getString("Feelings.Spook.Not-Available")));
-                        bass(sender);
-                        return;
-                    }
-
-                    if(Cooldowns.spook.containsKey(target.getName())) {
-                        Msgs.sendPrefix(sender, Objects.requireNonNull(emotes.getString("Feelings.Spook.Already-Spooked")).replaceAll("%target%", target.getName()));
-                        bass(sender);
-                        return;
-                    }
-
-                    if(!(Objects.equals(target.getInventory().getHelmet(), new ItemStack(Material.AIR)) || (target.getInventory().getHelmet() == null))) {
-                        Msgs.sendPrefix(sender, Objects.requireNonNull(emotes.getString("Feelings.Spook.Has-Helmet")).replaceAll("%target%", target.getName()));
-                        bass(sender);
-                        return;
-                    }
-
-                    Cooldowns.spookHash(target);
-                }
-                // END OF SPOOK
 
                 // API Events ----------------------------
                 final Player finalTarget = target;
@@ -2317,27 +2268,5 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                         " &7for " + Supports.getMCVersion() + "." + Supports.getMcPatchVersion());
             }
         });
-    }
-
-    // spook even listeners
-    @EventHandler
-    public void onChestEvent(InventoryClickEvent event) {
-        Player p = (Player)event.getWhoClicked();
-        if(Cooldowns.spook.containsKey(p.getName())) {
-            event.setCancelled(true);
-        }
-    }
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onTP(PlayerTeleportEvent e) {
-        if(e.isCancelled()) {
-            return;
-        }
-        Player p = e.getPlayer();
-        if(Cooldowns.spook.containsKey(p.getName())) {
-            e.setCancelled(true);
-            bass(p);
-            Msgs.sendPrefix(p, "&c&lSorry! &fYou can't teleport while being spooked.");
-            Msgs.sendPrefix(p, "&e&oTip: &7&oTo prevent the spooks, you can put a helmet on your head.");
-        }
     }
 }

@@ -395,9 +395,6 @@ public class FileSetup {
                 }
             }
         } else {
-            //if (emotes.get("Feelings.Spook") != null) {
-            //    forceEmotes("Feelings.Spook", null);
-            //} //only when spook is removed
             if (emotes.getInt("Version") != 6) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
@@ -716,22 +713,6 @@ public class FileSetup {
         setEmotes("Feelings.Boop.Sounds.Sound2.Name", "None");
         setEmotesDouble("Feelings.Boop.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Boop.Sounds.Sound2.Pitch", 0.0);
-
-        setEmotesBoolean("Feelings.Spook.Enable", true);
-        setEmotes("Feelings.Spook.Msgs.Sender", "&7You give &6&l%player% &7some scary spooks. &8&oFestive!");
-        setEmotes("Feelings.Spook.Msgs.Target", "&6&l%player% &7gives you some scary spooks. &8&oFestive!");
-        setEmotes("Feelings.Spook.Msgs.Global", "&e&l%sender% &r&7gives &6&l%target% &r&7some scary spooks.&r &8&oFestive!");
-        setEmotes("Feelings.Spook.Sounds.Sound1.Name", "ENTITY.WITCH.AMBIENT");
-        setEmotesDouble("Feelings.Spook.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Spook.Sounds.Sound1.Pitch", 0.1);
-        setEmotes("Feelings.Spook.Sounds.Sound2.Name", "MUSIC_DISC.13");
-        setEmotesDouble("Feelings.Spook.Sounds.Sound2.Volume", 9999.0);
-        setEmotesDouble("Feelings.Spook.Sounds.Sound2.Pitch", 1.0);
-
-        setEmotes("Feelings.Spook.Has-Helmet", "&cSorry. &7%target%&f has a helmet on, and cannot be spooked.");
-        setEmotes("Feelings.Spook.Already-Spooked", "&cSorry. &7%target%&f is already being spooked.");
-        setEmotes("Feelings.Spook.Not-Available", "&cSorry. &7/spook &fis only available near October.");
-        setEmotes("Feelings.Spook.Finished", "&e%player%&7, your spooky days are finally over.");
 
         setEmotesVersion(6);
         reloadFiles();

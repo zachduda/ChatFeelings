@@ -72,7 +72,7 @@ public class CommandManager {
             }
         };
 
-        cfCommand.setDescription("Alias for yourmaincommand");
+        cfCommand.setDescription("Chatfeelings Primary (Alias) Command");
         cfCommand.setUsage("/cf");
 
         commandMap.register(plugin.getName(), cfCommand);
