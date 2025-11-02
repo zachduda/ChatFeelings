@@ -22,7 +22,7 @@ public class FileSetup {
             fc.save(f);
             return true;
         } catch (Exception err) {
-            plugin.getLogger().severe("[!] Failed to save file changes. See error below:");
+            Main.log("[!] Failed to save file changes. See error below:", true, true);
             err.printStackTrace();
             return false;
         }
@@ -54,7 +54,7 @@ public class FileSetup {
         if (!msgs.contains(configpath)) {
             msgs.set(configpath, msg);
         } else if (msgs.getString(configpath) == null) {
-            plugin.getLogger().warning("Replacing '" + configpath + " in messages.yml, it was left blank.");
+            Main.log("Replacing '" + configpath + " in messages.yml, it was left blank.", false, true);
             msgs.set(configpath, msg);
         }
 

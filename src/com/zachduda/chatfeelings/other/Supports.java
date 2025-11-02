@@ -12,14 +12,13 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class Supports {
 
-    private final String support_v = "4_14_0";
+    private final String support_v = "4_15_0";
     private final JavaPlugin javaPlugin;
     private final MorePaperLib morePaperLib;
     private static int mcMajorVersion = 0; // ex: the 1 in 1.20.5
@@ -39,7 +38,6 @@ public class Supports {
     public void fetch() {
         morePaperLib.scheduling().asyncScheduler().run(() -> {
             try {
-                Logger l = javaPlugin.getLogger();
                 final String dottedver = getMCVersion();
                 final String this_version = getMCVersion("_");
                 JSONParser reader = new JSONParser();
@@ -49,7 +47,7 @@ public class Supports {
 
                 if (!Main.reducemsgs || (json.get("Msg_Critical") != null && ((boolean) json.get("Msg_Critical")))) {
                     if (json.get("Console_Message") != null && json.get("Console_Message") != "") {
-                        l.info((String) json.get("Console_Message"));
+                        Main.log((String) json.get("Console_Message"), false, false);
                     }
                 }
 
@@ -63,38 +61,34 @@ public class Supports {
                             return;
                         }
                         case "partial": {
-                            l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
+                            Main.log(ChatColor.YELLOW + "This plugin can work with " + dottedver + ", however it is not officially supported.", true, true);
                             return;
                         }
                         case "not_tested": {
-                            l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
+                            Main.log(ChatColor.YELLOW + "Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!", true, true);
                             return;
                         }
                     }
-                } // else this for any version not specifically listed
-                if (!supported) {
-                    if (Main.reducemsgs) {
-                        l.info("This version of ChatFeelings is made for " + json.get("Latest") + "-" + json.get("Oldest") + " o");
-                    } else {
-                        l.info("---------------------------------------------------");
-                        l.info("This version of ChatFeelings is only compatible with: " + json.get("Latest") + "-" + json.get("Oldest"));
-                        l.info("While ChatFeelings may work with " + dottedver + ", it is not supported.");
-                        l.info(" ");
-                        l.info("If you continue, you understand that you will get no support, and");
-                        l.info("that some features, such as sounds, may disable to continue working.");
-                        l.info("");
-                        l.info("");
-                        l.info("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.");
-                        l.info("---------------------------------------------------");
-                    }
+                } else {
+                    supported = false;
+                    // Version wasn't found in supports -> json file. Likely very old or very new. Use longer message to warn
+                    Main.log("---------------------------------------------------", false, false);
+                    Main.log("This version is designed to work with " + json.get("Latest") + "-" + json.get("Oldest") + ". Expect some issues!", true, true);
+                    Main.log("While ChatFeelings may work with " + dottedver + ", it is not supported.", false, true);
+                    Main.log("If you continue, you understand that you will get no support, and", false, false);
+                    Main.log("that some features, such as sounds, may disable to continue working.", false, false);
+                    Main.log("", false, false);
+                    Main.log("[!] IF YOU GET BUGS/ERRORS, DO NOT REPORT THEM.", true, false);
+                    Main.log("---------------------------------------------------", false, false);
                 }
-                supported = false;
             } catch (final Exception e) {
                 if (e instanceof FileNotFoundException) {
-                    Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ChatFeelings] Couldn't find the support file for this version within the repository.");
+                    Main.log(ChatColor.YELLOW + "Unable to find support information on server at (missing " + support_v + ".json)", false, true);
                 } else {
-                    Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ChatFeelings] Unable to check repository for version support:");
-                    e.printStackTrace();
+                    Main.log(ChatColor.YELLOW + "[ChatFeelings] Unable to check repository for version support.", true, true);
+                    if(Main.debug()) {
+                        e.printStackTrace();
+                    }
                 }
             } finally {
                 // particle support logic
@@ -133,7 +127,7 @@ public class Supports {
         if (!version.find()) {
             if (!invalidver) {
                 invalidver = true;
-                Bukkit.getLogger().severe("[ChatFeelings] Unable to read Minecraft Version: " + this_ver);
+                Main.log(ChatColor.RED + "Unable to read Minecraft Version: " + this_ver, true ,true);
                 return this_ver;
             }
             return "X.XX";

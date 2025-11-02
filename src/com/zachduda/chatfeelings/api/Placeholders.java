@@ -5,8 +5,10 @@ import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
+@SuppressWarnings("unused")
 public class Placeholders extends PlaceholderExpansion {
-	private Main plugin;
+	@SuppressWarnings("FieldMayBeFinal")
+    private Main plugin;
 	private String yes = "true";
 	private String no = "false";
     

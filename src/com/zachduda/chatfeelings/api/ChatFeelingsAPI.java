@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public class ChatFeelingsAPI {
 
 	/**
@@ -35,12 +36,9 @@ public class ChatFeelingsAPI {
 		if(uuid == null) {
 			return false;
 		}
-		
-		if(plugin.APIisMutedUUIDBoolean(uuid)) {
-			return true;
-		}
-		return false;
-	}
+
+        return plugin.APIisMutedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * MUST USE ASYNC *
@@ -53,12 +51,9 @@ public class ChatFeelingsAPI {
 		if(Bukkit.isPrimaryThread()) {
 			throw new IllegalAccessException("ChatFeelings API isMuted() must be accessed Asynchronously.");
 		}
-		
-		if(plugin.APIisMutedUUIDBoolean(uuid)) {
-			return true;
-		}
-		return false;
-	}
+
+        return plugin.APIisMutedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * Recommended to use Async *
@@ -69,11 +64,8 @@ public class ChatFeelingsAPI {
 	 */
 	public static boolean hasPlayedBefore(UUID uuid) {
 		final String name = plugin.hasPlayedUUIDGetName(uuid);
-		if(name == null || name.equals("0")) {
-			return false;
-		}
-		return true;
-	}
+        return name != null && !name.equals("0");
+    }
 
 	/**
 	 * Recommended to use Async especially if searching with a username as the UUID search can take hold up main thread. *
@@ -84,11 +76,8 @@ public class ChatFeelingsAPI {
 	 */
 	public static boolean hasPlayedBefore(String username) {
 		final UUID u = plugin.hasPlayedNameGetUUID(username);
-		if(u == null) {
-			return false;
-		}
-		return true;
-	}
+        return u != null;
+    }
 
 	/**
 	 * MUST USE ASYNC *
@@ -108,13 +97,9 @@ public class ChatFeelingsAPI {
 		if(uuid == null) {
 			return false;
 		}
-		
-		if(plugin.APIisBannedUUIDBoolean(uuid)) {
-			return true;
-		}
-		
-		return false;
-	}
+
+        return plugin.APIisBannedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * MUST USE ASYNC *
@@ -128,12 +113,8 @@ public class ChatFeelingsAPI {
 			throw new IllegalAccessException("ChatFeelings API isBanned() must be accessed Asynchronously.");
 		}
 
-		if(plugin.APIisBannedUUIDBoolean(uuid)) {
-			return true;
-		}
-		
-		return false;
-	}
+        return plugin.APIisBannedUUIDBoolean(uuid);
+    }
 
 	/**
 	 * Fetches a feelings message from the emotes.yml
@@ -214,11 +195,8 @@ public class ChatFeelingsAPI {
 	}
 	
 	public static boolean hookedToPunishments() {
-		if(plugin.APIhasAB() || plugin.APIhasEss() || plugin.APIhasLB()) {
-			return true;
-		}
-		return false;
-	}
+        return plugin.APIhasAB() || plugin.APIhasEss() || plugin.APIhasLB();
+    }
 	
 	public static List<String> getFeelingsList() {
 		return plugin.APIgetFeelings();

@@ -57,7 +57,7 @@ public class Updater {
                                 final String vs = ((String) object.get("tag_name")).replace("v", "");
                                 final Boolean prerelease = ((Boolean) object.get("prerelease"));
                                 if (!prerelease) {
-                                    if (!localPluginVersion.equalsIgnoreCase(vs) && localPluginVersion.equalsIgnoreCase("v4.14.5")) {
+                                    if (!localPluginVersion.equalsIgnoreCase(vs)) {
                                         foundOutdated.set(true);
                                         foundVersion = vs;
                                     }
@@ -71,7 +71,7 @@ public class Updater {
                         }
                         // Send console message on main thread and cancel repeating task
                         morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                            Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.RED + "[ChatFeelings] Unable to check for updates. Is your server online?");
+                            Main.log(ChatColor.RED + "Unable to check for updates. Is your server online?", true, true);
                             if(updatetimer != null) {
                                 updatetimer.cancel();
                             }
@@ -82,11 +82,11 @@ public class Updater {
                     if (foundOutdated.get()) {
                         final String posted = foundVersion;
                         morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                            Bukkit.getServer().getConsoleSender().sendMessage(
+                            Main.log(
                                     ChatColor.translateAlternateColorCodes('&',
-                                            "&r[ChatFeelings] &e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion +
+                                            "&e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion +
                                                     "&r, while the latest is &av" + posted)
-                            );
+                            , true, false);
                             if(updatetimer != null) {
                                 updatetimer.cancel();
                             }

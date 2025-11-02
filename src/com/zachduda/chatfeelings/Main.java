@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 public class Main extends JavaPlugin implements Listener, TabExecutor {
     /* If true, metrics & update checking are skipped. */
     final public static boolean beta = false;
-    final public static boolean folia = isFolia();
+    //final public static boolean folia = isFolia();
 
     public ChatFeelingsAPI api;
 
@@ -317,10 +317,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             pl.getConfig().set("LVU", Supports.getMCVersion());
         } else {
             if(!lvu.equals(Supports.getMCVersion())) {
-                log.warning("------------ CHECK YOUR EMOTES.YML SOUNDS, RESET IT IF NECESSARY TO PREVENT ERRORS ------------ ");
-                log.warning("Your server was running " + lvu + " and is now running " + Supports.getMCVersion() + ".");
-                log.warning("Sound values may need to be changed in ChatFeeling's emotes.yml, or erasing this file altogether.");
-                log.warning("------------------------------------------------------------------");
+                log("--------------------[ Server Version Updated ]----------------------", false, false);
+                log("Your server was running " + lvu + " and is now running " + Supports.getMCVersion() + ".", true, true);
+                log("Sound values may need to be changed in ChatFeeling's emotes.yml, or erasing this file altogether.", true, true);
+                log("------------------------------------------------------------------", false, false);
                 pl.getConfig().set("LVU", Supports.getMCVersion());
             }
         }
@@ -351,7 +351,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             multiversion = false;
         }
         if (pl.getConfig().contains("Other.CF-Alias")) {
-            boolean cfalias = pl.getConfig().getBoolean("Other.CF-Alias", true);
+            CommandManager.updateCommands(pl.getConfig());
         }
     }
 

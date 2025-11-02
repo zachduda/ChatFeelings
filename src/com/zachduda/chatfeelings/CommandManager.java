@@ -8,11 +8,13 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
+import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class CommandManager {
     private static Plugin plugin = null;
@@ -60,15 +62,15 @@ public class CommandManager {
         // Create your command instance
         Command cfCommand = new Command("cf") {
             @Override
-            public boolean execute(CommandSender sender, String label, String[] args) {
+            public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
                 // Forward to your main command
                 return Bukkit.dispatchCommand(sender, "chatfeelings " + String.join(" ", args));
             }
 
             @Override
-            public List<String> tabComplete(CommandSender sender, String alias, String[] args) {
+            public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, String[] args) {
                 // Forward tab completion to your main command
-                return  Bukkit.getPluginCommand("chatfeelings").tabComplete(sender, "chatfeelings", args);
+                return  Objects.requireNonNull(Bukkit.getPluginCommand("chatfeelings")).tabComplete(sender, "chatfeelings", args);
             }
         };
 
@@ -77,7 +79,7 @@ public class CommandManager {
 
         commandMap.register(plugin.getName(), cfCommand);
         cfAliasRegistered = true;
-        plugin.getLogger().info("Registered /cf command alias");
+        Main.debug("Registered /cf command alias");
     }
 
     private static void unregisterCfAlias() {
@@ -88,6 +90,6 @@ public class CommandManager {
         knownCommands.remove(plugin.getName().toLowerCase() + ":cf");
 
         cfAliasRegistered = false;
-        plugin.getLogger().info("Unregistered /cf command alias");
+        Main.debug("Unregistered /cf command alias");
     }
 }
