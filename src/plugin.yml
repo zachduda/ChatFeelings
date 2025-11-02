@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zachduda.chatfeelings.Main
 website: https://zachduda.com/chatfeelings
 authors: [zach_attack]
-version: 4.15-B73
+version: 4.15-B75
 api-version: 1.13
 softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
