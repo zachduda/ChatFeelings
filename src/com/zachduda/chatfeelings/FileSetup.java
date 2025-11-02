@@ -1,5 +1,6 @@
 package com.zachduda.chatfeelings;
 
+import com.zachduda.chatfeelings.other.Supports;
 import org.bukkit.Bukkit;
 import org.bukkit.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -395,7 +396,7 @@ public class FileSetup {
                 }
             }
         } else {
-            if (emotes.getInt("Version") != 6) {
+            if (emotes.getInt("Version") != 7) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
                     if(!emotes.contains("Feelings.Welcomeback.Msgs.Sender") || Objects.requireNonNull(emotes.getString("Feelings.Welcomeback.Msgs.Sender")).equalsIgnoreCase("&7You told &a&l%player% welcome back!")) {
@@ -405,9 +406,9 @@ public class FileSetup {
                 if (emotes.getInt("Version") <= 3) {
                     if (Objects.requireNonNull(emotes.getString("Feelings.Bite.Msgs.Sender")).contains("info")) {
                         forceEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &c&l%player%&r&7's skin");
-                        plugin.getLogger().info("Fixing a typo in the the '/bite' command for sender...");
                     }
                 }
+
                 if (emotes.getInt("Version") <= 5) {
                    setEmotesBoolean("Feelings.Welcomeback.Enable", emotes.getBoolean("Feelings.Wb.Enable"));
                    setEmotes("Feelings.Welcomeback.Msgs.Sender", emotes.getString("Feelings.Wb.Msgs.Sender"));
@@ -422,7 +423,18 @@ public class FileSetup {
                    
                    forceEmotes("Feelings.Wb", null);
                 }
-                setEmotesVersion(6);
+                if(emotes.getInt("Version") <= 6) {
+                    final String path = "Feelings.Hug.Sounds.Sound1.Name";
+                    if(emotes.contains(path)) {
+                        if(Objects.requireNonNull(emotes.getString(path)).equalsIgnoreCase("ENTITY_CAT_PURREOW")) {
+                            if(Supports.getMcMajorVersion() >= 1 && Supports.getMcMinorVersion() >= 20 && Supports.getMcPatchVersion() >= 6) {
+                                // Sounds changed along the way somehow and I let a soft fail occur. This should fix it.
+                                emotes.set(path, "ENTITY.CAT.PURREOW");
+                            }
+                        }
+                    }
+                }
+                setEmotesVersion(7);
             }
         }
 
@@ -431,7 +443,7 @@ public class FileSetup {
         setEmotes("Feelings.Hug.Msgs.Target", "&a&l%player% &r&7gives you a warm hug. &cAwww &4❤");
         setEmotes("Feelings.Hug.Msgs.Global", "&a&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &cAwww &4❤");
         //	setEmotes("Feelings.Hug.Msgs.Everyone", "&a&l%player% &r&7gives everyone a warm hug. &cAwww &4❤");
-        setEmotes("Feelings.Hug.Sounds.Sound1.Name", "ENTITY_CAT_PURREOW");
+        setEmotes("Feelings.Hug.Sounds.Sound1.Name", "ENTITY.CAT.PURREOW");
         setEmotesDouble("Feelings.Hug.Sounds.Sound1.Volume", 2.0);
         setEmotesDouble("Feelings.Hug.Sounds.Sound1.Pitch", 2.0);
         setEmotes("Feelings.Hug.Sounds.Sound2.Name", "None");
@@ -714,7 +726,7 @@ public class FileSetup {
         setEmotesDouble("Feelings.Boop.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Boop.Sounds.Sound2.Pitch", 0.0);
 
-        setEmotesVersion(6);
+        setEmotesVersion(7);
         reloadFiles();
     }
 
