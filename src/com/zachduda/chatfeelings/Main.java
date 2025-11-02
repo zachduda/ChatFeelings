@@ -2117,9 +2117,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // Particle Handler -------------------------------------
                 if (particles) {
                     try {
-                        morePaperLib.scheduling().globalRegionalScheduler().run(() ->  {
-                            Particles.show(target, cmdlr);
-                        });
+                        morePaperLib.scheduling().globalRegionalScheduler().run(() -> Particles.show(target, cmdlr));
                     } catch (Exception parterr) {
                         if (debug) {
                             parterr.printStackTrace();

@@ -19,11 +19,10 @@ public class NicknamePlaceholders {
 	/**
 	 * Checks if the config is set to use nickname placeholders and if a nickname
 	 * placeholder is set. If so then it enables placeholders
-	 * 
+	 *
 	 * @param config
-	 * @return boolean should nicknames be replaced
 	 */
-	static boolean enablePlaceholders(FileConfiguration config, FileConfiguration msgConfig, boolean papiExists) {
+	static void enablePlaceholders(FileConfiguration config, FileConfiguration msgConfig, boolean papiExists) {
 		if (msgConfig.getString("Console-Name") != null) {
 
 			console_name = msgConfig.getString("Console-Name");
@@ -33,23 +32,22 @@ public class NicknamePlaceholders {
 		
 		if(!papiExists) {
 			use_nickname = false;
-			return false;
+			return;
 		}
 		
 		
 		if (!config.getBoolean("General.Use-Nickname-Placeholder")) {
 			use_nickname = false;
-			return false;
+			return;
 		}
 
 		if (config.getString("General.Nickname-Placeholder") == null) {
 			use_nickname = false;
-			return false;
+			return;
 		}
 
 		nickname_placeholder = config.getString("General.Nickname-Placeholder");
 		use_nickname = true;
-		return true;
 
 	}
 
@@ -82,9 +80,7 @@ public class NicknamePlaceholders {
 			return replaceUsernames(msg, sender, target);
 		}
 
-		String out = msg.replace("%sender%", senderNick).replace("%target%", targetNick);
-
-		return out;
+        return msg.replace("%sender%", senderNick).replace("%target%", targetNick);
 	}
 
 	/**
@@ -107,8 +103,7 @@ public class NicknamePlaceholders {
 			return replaceUsernames(msg, player);
 		}
 
-		String out = msg.replace("%player%", playerNick);
-		return out;
+        return msg.replace("%player%", playerNick);
 	}
 
 	/**
@@ -151,7 +146,7 @@ public class NicknamePlaceholders {
 
 		String senderName;
 		if (sender instanceof Player) {
-			senderName = ((Player) sender).getName();
+			senderName = sender.getName();
 		} else {
 			senderName = console_name;
 		}
@@ -182,7 +177,7 @@ public class NicknamePlaceholders {
 
 		String playerName;
 		if (sender instanceof Player) {
-			playerName = ((Player) sender).getName();
+			playerName = sender.getName();
 		} else {
 			playerName = console_name;
 		}

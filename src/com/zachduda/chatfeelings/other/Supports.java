@@ -66,7 +66,6 @@ public class Supports {
                         }
                         case "not_tested": {
                             Main.log(ChatColor.YELLOW + "Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!", true, true);
-                            return;
                         }
                     }
                 } else {
