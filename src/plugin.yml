@@ -61,3 +61,96 @@ commands:
     description: Give a warm welcome-back to returning players!
   boop:
     description: Boop someone right on their nose!
+permissions:
+  chatfeelings.*:
+    description: Allows all ChatFeelings emotes, commands, including administrative actions.
+    children:
+      chatfeelings.admin: true
+      chatfeelings.stats: true
+      chatfeelings.stats.others: true
+      chatfeelings.mute: true
+      chatfeelings.ignore: true
+      chatfeelings.bypasscooldowns: true
+      chatfeelings.all: true
+  chatfeelings.all:
+    description: Allows access all ChatFeelings emotes.
+    default: true
+    children:
+      chatfeelings.hug: true
+      chatfeelings.slap: true
+      chatfeelings.poke: true
+      chatfeelings.highfive: true
+      chatfeelings.facepalm: true
+      chatfeelings.yell: true
+      chatfeelings.bite: true
+      chatfeelings.snuggle: true
+      chatfeelings.shake: true
+      chatfeelings.kiss: true
+      chatfeelings.punch: true
+      chatfeelings.murder: true
+      chatfeelings.cry: true
+      chatfeelings.boi: true
+      chatfeelings.dab: true
+      chatfeelings.lick: true
+      chatfeelings.pat: true
+      chatfeelings.stalk: true
+      chatfeelings.sus: true
+      chatfeelings.wave: true
+      chatfeelings.welcomeback: true
+      chatfeelings.boop: true
+  chatfeelings.hug:
+    default: true
+  chatfeelings.slap:
+    default: true
+  chatfeelings.poke:
+    default: true
+  chatfeelings.highfive:
+    default: true
+  chatfeelings.facepalm:
+    default: true
+  chatfeelings.yell:
+    default: true
+  chatfeelings.bite:
+    default: true
+  chatfeelings.snuggle:
+    default: true
+  chatfeelings.shake:
+    default: true
+  chatfeelings.kiss:
+    default: true
+  chatfeelings.punch:
+    default: true
+  chatfeelings.murder:
+    default: true
+  chatfeelings.cry:
+    default: true
+  chatfeelings.boi:
+    default: true
+  chatfeelings.dab:
+    default: true
+  chatfeelings.lick:
+    default: true
+  chatfeelings.pat:
+    default: true
+  chatfeelings.stalk:
+    default: true
+  chatfeelings.sus:
+    default: true
+  chatfeelings.wave:
+    default: true
+  chatfeelings.welcomeback:
+    default: true
+  chatfeelings.boop:
+    default: true
+  chatfeelings.admin:
+    default: op
+  chatfeelings.stats:
+    default: true
+  chatfeelings.stats.others:
+    default: op
+  chatfeelings.mute:
+    default: op
+  chatfeelings.ignore:
+    default: op
+  chatfeelings.bypasscooldowns:
+    default: op
