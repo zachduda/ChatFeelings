@@ -17,7 +17,7 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
   <groupId>com.zachduda</groupId>
   <artifactId>chatfeelings</artifactId>
   <version>4.15.0</version>
-</dependency>```
+</dependency>
 ```
 
 # Spigot
