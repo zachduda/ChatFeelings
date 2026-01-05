@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 
 public class Supports {
 
+    public static boolean doConfigUpdate = false;
+
     private final String support_v = "5_0_0";
     private final JavaPlugin javaPlugin;
     private final MorePaperLib morePaperLib;
@@ -30,10 +32,18 @@ public class Supports {
     private static int particleVersion = 0;
 
     static boolean supported;
+    static SupportStatus status;
 
     public Supports(final JavaPlugin javaPlugin, final MorePaperLib morePaperLib) {
         this.javaPlugin = javaPlugin;
         this.morePaperLib = morePaperLib;
+    }
+
+    public enum SupportStatus {
+        FULL,
+        PARTIAL,
+        NOT_TESTED,
+        NONE
     }
 
     public void fetch() {
@@ -60,14 +70,17 @@ public class Supports {
                     switch (support) {
                         case "full": {
                             supported = true;
+                            status = SupportStatus.FULL;
                             return;
                         }
                         case "partial": {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] This plugin can work with " + dottedver + ", however it is not officially supported.");
+                            status = SupportStatus.PARTIAL;
                             return;
                         }
                         case "not_tested": {
                             l.info(ChatColor.YELLOW + "[ChatFeelings] Heads Up! This plugin hasn't been fully tested with " + dottedver + " yet!");
+                            status = SupportStatus.NOT_TESTED;
                             return;
                         }
                     }
@@ -89,6 +102,7 @@ public class Supports {
                     }
                 }
                 supported = false;
+                status = SupportStatus.NONE;
             } catch (final Exception e) {
                 if (e instanceof FileNotFoundException) {
                     Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ChatFeelings] Couldn't find the support file for this version within the repository.");
@@ -106,14 +120,20 @@ public class Supports {
                     particleVersion = 1;
                 }
                 // end of particle support logic
-                Main.updateConfig(javaPlugin);
-                Main.updateConfigHeaders(javaPlugin);
+                if(doConfigUpdate) {
+                    Main.debug("Wrapping up enable configuration checks and updates after support fetch finished...");
+                    Main.updateConfig(javaPlugin);
+                    Main.updateConfigHeaders(javaPlugin);
+                }
             }
         });
     }
 
     public static boolean isSupported() {
         return supported;
+    }
+    public static SupportStatus getStatus() {
+        return status;
     }
 
     static boolean invalidver = false;

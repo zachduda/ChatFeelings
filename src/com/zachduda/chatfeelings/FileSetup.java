@@ -107,8 +107,9 @@ public class FileSetup {
 
         if (!msgsfile.exists()) {
             saveFile(msgs, msgsfile);
-            // not exist, need to update local variable
+            // not exist, need to update local variable this is new as of v5 for some reason
             try {
+                msgsfile = new File(getFolder(), File.separator + "messages.yml");
                 msgs = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(msgsfile.toPath()), StandardCharsets.UTF_8));
             } catch(Exception err) {
                 Main.log("Failed to create messages file: " + err.getMessage(), true, false);

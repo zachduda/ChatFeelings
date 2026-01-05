@@ -276,8 +276,10 @@ public class Main extends JavaPlugin implements Listener {
 
         if (pl.getConfig().getBoolean("General.Particles")) {
             if (!Supports.isSupported()) {
-                log("Particles were disabled. You're using " + Supports.getMCVersion() + " and not 1.12 or higher.", false, true);
-                particles = false;
+                if(!Supports.getStatus().equals(Supports.SupportStatus.NOT_TESTED) && !Supports.getStatus().equals(Supports.SupportStatus.FULL)) {
+                    log("Particles were disabled. This plugin" + Supports.getMCVersion() + " and not 1.12 or higher.", false, true);
+                    particles = false;
+                }
             } else {
                 debug("Using 1.12+, Particles have been enabled.");
                 particles = true;
@@ -652,8 +654,13 @@ public class Main extends JavaPlugin implements Listener {
                 }
             }
         } else {
-            updateConfig(this);
-            updateConfigHeaders(this);
+            if(Supports.getStatus() == null) {
+                Supports.doConfigUpdate = true;
+            } else {
+                debug("Support checks already finished... init configuration updates.");
+                updateConfig(this);
+                updateConfigHeaders(this);
+            }
             debug("Using a pre-release of ChatFeelings. Update/Support checking & metrics have been disabled!");
         }
 
