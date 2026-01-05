@@ -706,7 +706,7 @@ public class Main extends JavaPlugin implements Listener {
 
         if(beta) {
                 log("[!] This is a BETA version. Check for updates manually on Github/Discord!", true, true);
-                log("Check for updates daily at https://github.com/zachduda/ChatFeelings/releases", false, true);
+                log("Check for updates daily at https://ci.zachduda.com", false, true);
         }
         debug("Finished! ChatFeelings was loaded in " + (System.currentTimeMillis() - start) + "ms");
 
