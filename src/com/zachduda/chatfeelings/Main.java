@@ -31,6 +31,11 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
+/*
+    A plugin by Zach Duda
+    Copyright 2015 - Licensed under CC-BY-NC-v4 (Copy @ https://zachduda.com/cc-license)
+ */
+
 public class Main extends JavaPlugin implements Listener {
 
     /* If true, metrics & update checking are skipped. */
