@@ -21,14 +21,20 @@ public class FileSetup {
     private static final Main plugin = Main.getPlugin(Main.class);
 
 
-    private static void saveFile(FileConfiguration fc, File f) {
+    private static boolean saveFile(FileConfiguration fc, File f) {
+        if (fc == null) {
+            Main.debug("Provided file configuration was null for: "+ f.getName());
+            return false;
+        }
         try {
             fc.save(f);
+            return true;
         } catch (Exception err) {
             Main.log("[!] Failed to save file changes: " + f.getName(), true, false);
             if(Main.debug) {
                 Main.debug("Error calling saveFile: " + err.getMessage());
             }
+            return false;
         }
     }
 
@@ -228,6 +234,76 @@ public class FileSetup {
         generateDefaultEmotes();
         emotesFromFolder();
 
+        final int msgfilever = 12;
+        if (!msgsfile.exists() || !msgs.contains("Version")) {
+
+            List<String> confighead = new ArrayList<>();
+            confighead.add("Looking for the messages used for feelings?");
+            confighead.add("Check inside your emotes.yml!");
+
+            try {
+                msgs.options().setHeader(confighead);
+            } catch (NoSuchMethodError e) {
+                // Using less than Java 18 will use this method instead.
+                try {
+                    msgs.options().header("Looking for the messages used for feelings? Check the emotes.yml!");
+                } catch (Exception giveup) { /* just skip this */ }
+            }
+
+            if (saveFile(msgs, msgsfile)) {
+                if(!Main.reducemsgs) {
+                    plugin.getLogger().info("Created new messages.yml file...");
+                }
+            }
+
+        } else {
+            final int currentmsgv = msgs.getInt("Version");
+            if (currentmsgv != msgfilever) {
+                plugin.getLogger().info("Updating your messages.yml with new additional messages...");
+            }
+            if (currentmsgv < 6) {
+                forceMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%");
+            }
+
+            if (currentmsgv < 7) {
+                forceMsgs("Player-Is-Sleeping", null); // added in v3, removed in v7
+                forceMsgs("No-Player-Ignore", null); // removed in v7
+            }
+
+            if (currentmsgv < 10) {
+                forceMsgs("Prefix", msgs.getString("Prefix") + " &f"); // removed space in prefix internally in v10
+            }
+
+            if (currentmsgv < 12) {
+                // Was also v11 but had auto correct causing upgrade issues, bump to v12 - 8/18/24
+                // Typo in file, move old variables to correctly spelled one.
+                // INTENTIONALLY MISTYPED AS INGORING TO CORRECT TO IGNORING
+                if (msgs.getString("Ingoring-On-Player") != null) {
+                    setMsgs("Ignoring-On-Player", msgs.getString("Ingoring-On-Player"));
+                    forceMsgs("Ingoring-On-Player", null);
+                }
+                if (msgs.getString("Ingoring-Off-Player") != null) {
+                    setMsgs("Ignoring-Off-Player", msgs.getString("Ingoring-Off-Player"));
+                    forceMsgs("Ingoring-Off-Player", null);
+                }
+
+                if (msgs.getString("Ingoring-On-All") != null) {
+                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-Off-Player"));
+                    forceMsgs("Ingoring-On-Player", null);
+                }
+
+                if (msgs.getString("Ingoring-Off-All") != null) {
+                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-Player"));
+                    forceMsgs("Ingoring-Off-Player", null);
+                }
+                // Wb -> Welcome Back
+                if (msgs.getString("Command_Descriptions.Wb") != null) {
+                    setMsgs("Command_Descriptions.Welcomeback", msgs.getString("Command_Descriptions.Wb"));
+                    forceMsgs("Command_Descriptions.Wb", null);
+                }
+            }
+        }
+
         setMsgs("Prefix", "&a&lC&r&ahat&f&lF&r&feelings &8&l┃ &f");
         setMsgs("Prefix-Header", "&a&lC&r&ahat &f&lF&r&feelings");
         setMsgs("Reload", "&8&l> &a&l✓  &7Plugin reloaded in &f%time%"); // updated in version 5
@@ -321,7 +397,7 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Wave", "Say frewell, and wave aideu. How elegant!");
         setMsgs("Command_Descriptions.Welcomeback", "Give a warm welcome-back to returning players!");
         setMsgs("Command_Descriptions.Boop", "Boop someone right on their nose!");
-        setMsgsVersion(1);
+        setMsgsVersion(msgfilever);
 
         reloadFiles();
     }
