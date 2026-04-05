@@ -198,7 +198,7 @@ public class FileSetup {
         for (File emotefile: Objects.requireNonNull(emfolder.listFiles())) {
             String path = emotefile.getPath();
 
-            if (com.google.common.io.Files.getFileExtension(path).equalsIgnoreCase("yml")) {
+            if (com.google.common.io.Files.getFileExtension(path).equalsIgnoreCase("yml") || com.google.common.io.Files.getFileExtension(path).equalsIgnoreCase("yaml")) {
                 File f = new File(path);
                 final String fn = com.google.common.io.Files.getNameWithoutExtension(f.getName().toLowerCase().trim()); // File Name
                 final FileConfiguration fc = YamlConfiguration.loadConfiguration(f);
