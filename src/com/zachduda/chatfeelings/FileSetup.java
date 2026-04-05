@@ -99,6 +99,7 @@ public class FileSetup {
         } catch (IOException e) {
             if(Main.debug) {
                 Main.debug("Unable to decode or create messages.yml file:" + e.getMessage());
+                return;
             } else {
                 Main.log("Unable to decode or create messages.yml file", true, true);
                 return;
