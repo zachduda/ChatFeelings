@@ -8,8 +8,8 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
 ### Maven:
 ```[code=xml]
 <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
+      <id>zachduda</id>
+      <url>https://maven.zachduda.com/repository/maven-releases/</url>
   </repository>
 ```
 ```[code=xml]
