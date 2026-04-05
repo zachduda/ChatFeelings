@@ -9,7 +9,7 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
 ```[code=xml]
 <repository>
       <id>zachduda</id>
-      <url>https://maven.zachduda.com/repository/maven-releases/</url>
+      <url>https://zachduda.com/maven</url>
   </repository>
 ```
 ```[code=xml]
