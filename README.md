@@ -1,36 +1,48 @@
-[![Discord](https://img.shields.io/discord/469625341837836290?style=flat-square&logo=Discord&logoColor=bdc7fc&label=Support%20Discord)](https://zachduda.com/discord?utm=github_badge)  [![Build Status](https://ci.zachduda.com/job/ChatFeelings/badge/icon)](https://ci.zachduda.com/job/ChatFeelings/)
+# ChatFeelings — Patched Fork
 
-![Alt text](Images/chatfeelingsbanner.png?raw=true "ChatFeelings Banner")
-The GitHub open source page for the original feeling's Minecraft plugin.
+***This is a fork*** of [ChatFeelings by zach_attack](https://www.spigotmc.org/resources/chatfeelings.12987/).
 
-# API
-For information on how to use the API, [click here](https://www.spigotmc.org/wiki/chatfeelings-api/).
-### Maven:
-```[code=xml]
-<repository>
-      <id>zachduda</id>
-      <url>https://zachduda.com/maven</url>
-  </repository>
+> **Original plugin:** https://github.com/zachduda/ChatFeelings
+> **License:** [Creative Commons CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0/) — credit must be given, non-commercial use only.
+
+---
+
+## What's changed in this fork
+
+**Fixes to `ChatFeelingsAPI` and `FeelingSendEvent`:**
+
+- Fixed a `NullPointerException` crash when calling `getSendersMessage()`, `getTargetsMessage()`, or `getGlobalEmoteMessage()` via the API (e.g. from DiscordSRV alerts)
+- Root cause: `getSenderEmoteMessage()` was looking up YAML keys in lowercase (e.g. `stab`) but `emotes.yml` uses Title Case keys (e.g. `Stab`), causing the lookup to return null
+- All three message methods now handle null safely with a fallback message
+- Minecraft color codes (`&7`, `&c`, etc.) are now stripped from API message returns, making them safe to use in external contexts like Discord
+- `%player%` placeholder is now correctly replaced in Sender and Target messages (in addition to `%sender%` and `%target%` which were already handled)
+
+---
+
+## DiscordSRV alerts.yml integration
+
+This fork makes ChatFeelings fully compatible with DiscordSRV v1 alerts. Example alert to sync feelings to your in-game chat Discord channel:
+
+```yaml
+- Trigger: com.zachduda.chatfeelings.api.FeelingSendEvent
+  Channel: global
+  Embed:
+    Enabled: true
+    Color: "#FF55FF"
+    Author:
+      ImageUrl: "https://crafthead.net/helm/${#event.getSender().getName()}"
+      Name: "${#event.getGlobalEmoteMessage()}"
+    Timestamp: false
 ```
-```[code=xml]
-<dependency>
-  <groupId>com.zachduda</groupId>
-  <artifactId>chatfeelings</artifactId>
-  <version>4.15.0</version>
-</dependency>
-```
 
-# Spigot
-ChatFeelings is a Minecraft plugin (supporting 1.13 up to 1.21).
-Please check out the [Spigot Page](https://www.spigotmc.org/resources/chatfeelings.12987/). for full documentation.
+---
 
-# License
-This project is licensed under [Creative Commons (CC-BY-NC-4)](https://creativecommons.org/licenses/by-nc/4.0/).
-You can do whatever you'd like: just give credit and make sure it's non-commerical.
+## Original README
 
-# Contact Me
-If you have any questions or inquiries, you can reach me at https://zachduda.com/contact
+[![Discord](https://img.shields.io/discord/469625341837836290?style=flat-square&logo=Discord&logoColor=bdc7fc&label=Support%20Discord)](https://zachduda.com/discord?utm=github_badge)
 
+The original plugin supports Minecraft 1.13–1.21 and is feature-rich with particles, sound effects, screen shakes, seasonal commands, and more.
 
-# Metrics
-[![ChatFeelings bStats Graph](https://bstats.org/signatures/bukkit/ChatFeelings.svg)](https://bstats.org/plugin/bukkit/ChatFeelings/1376)
+For full documentation, visit the [Spigot page](https://www.spigotmc.org/resources/chatfeelings.12987/).
+
+For API documentation, visit the [Spigot wiki](https://www.spigotmc.org/wiki/chatfeelings-api/).
