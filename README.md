@@ -1,6 +1,6 @@
 # ChatFeelings — Patched Fork
 
-This is a community fork of [ChatFeelings by zach_attack](https://www.spigotmc.org/resources/chatfeelings.12987/), maintained by [Runbad](https://github.com/Runbad).
+***This is a fork*** of [ChatFeelings by zach_attack](https://www.spigotmc.org/resources/chatfeelings.12987/).
 
 > **Original plugin:** https://github.com/zachduda/ChatFeelings
 > **License:** [Creative Commons CC-BY-NC-4.0](https://creativecommons.org/licenses/by-nc/4.0/) — credit must be given, non-commercial use only.
