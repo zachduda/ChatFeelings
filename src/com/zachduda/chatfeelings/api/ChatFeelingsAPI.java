@@ -127,7 +127,8 @@ public class ChatFeelingsAPI {
 			Main.log("[API] getGlobalEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		return plugin.emotes.getString("Feelings."+flc+".Msgs.Global");
+		String titleCase = Character.toUpperCase(flc.charAt(0)) + flc.substring(1);
+		return plugin.emotes.getString("Feelings."+titleCase+".Msgs.Global");
 	}
 
 	/**
@@ -141,7 +142,8 @@ public class ChatFeelingsAPI {
 			Main.log("[API] getSenderEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		return plugin.emotes.getString("Feelings."+flc+".Msgs.Sender");
+		String titleCase = Character.toUpperCase(flc.charAt(0)) + flc.substring(1);
+		return plugin.emotes.getString("Feelings."+titleCase+".Msgs.Sender");
 	}
 
 	/**
@@ -155,7 +157,8 @@ public class ChatFeelingsAPI {
 			Main.log("[API] getTargetEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		return plugin.emotes.getString("Feelings."+flc+".Msgs.Target");
+		String titleCase = Character.toUpperCase(flc.charAt(0)) + flc.substring(1);
+		return plugin.emotes.getString("Feelings."+titleCase+".Msgs.Target");
 	}
 	
 	public static int getSentStats(String name, String feeling) {

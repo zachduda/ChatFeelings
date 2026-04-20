@@ -54,7 +54,8 @@ public class FeelingSendEvent extends Event implements Cancellable {
     	return this.target;
     }
 
-    public String getSendersMessage() { return Objects.requireNonNull(ChatFeelingsAPI.getSenderEmoteMessage(this.feeling)).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName()); }
-    public String getTargetsMessage() { return Objects.requireNonNull(ChatFeelingsAPI.getTargetEmoteMessage(this.feeling)).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName()); }
-    public String getGlobalEmoteMessage() { return Objects.requireNonNull(ChatFeelingsAPI.getGlobalEmoteMessage(this.feeling)).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName()); }
+    private static String stripColor(String s) { return s.replaceAll("(?i)&[0-9a-fk-or]", ""); }
+    public String getSendersMessage() { String msg = ChatFeelingsAPI.getSenderEmoteMessage(this.feeling); return stripColor((msg != null ? msg : "%sender% used " + this.feeling + " on %target%").replaceAll("%player%", this.target.getName()).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName())); }
+    public String getTargetsMessage() { String msg = ChatFeelingsAPI.getTargetEmoteMessage(this.feeling); return stripColor((msg != null ? msg : "%sender% used " + this.feeling + " on %target%").replaceAll("%player%", this.sender.getName()).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName())); }
+    public String getGlobalEmoteMessage() { String msg = ChatFeelingsAPI.getGlobalEmoteMessage(this.feeling); return stripColor((msg != null ? msg : "%sender% used " + this.feeling + " on %target%").replaceAll("%player%", this.target.getName()).replaceAll("%sender%", this.sender.getName()).replaceAll("%target%", this.target.getName())); }
 }
