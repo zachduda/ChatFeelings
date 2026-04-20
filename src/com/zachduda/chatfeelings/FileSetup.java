@@ -42,6 +42,7 @@ public class FileSetup {
             if(Main.debug) {
                 Main.debug("Unable to decode or create messages.yml file:");
                 throw new RuntimeException(e);
+                return;
             } else {
                 Main.log("There was an error when trying to modify or create your messages.yml", true, true);
                 return;
