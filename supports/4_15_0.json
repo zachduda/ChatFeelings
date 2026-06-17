@@ -1,6 +1,7 @@
 {
   "Legend": "FULL, PARTIAL, NONE, NOT_TESTED",
   "Versions": {
+    "26_2": "FULL",
     "26_1": "FULL",
     "1_21": "FULL",
     "1_20": "FULL",
@@ -13,7 +14,7 @@
     "1_13": "FULL",
     "1_12": "NONE"
   },
-  "Latest": "26.1",
+  "Latest": "26.2",
   "Oldest": "1.13",
   "Console_Message": "",
   "Msg_Critical": false
