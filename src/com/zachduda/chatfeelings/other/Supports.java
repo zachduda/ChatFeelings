@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 
 public class Supports {
 
-    private final String support_v = "4_15_0";
+    private final String support_v = "4_15_0b95";
     private final JavaPlugin javaPlugin;
     private final MorePaperLib morePaperLib;
     private static int mcMajorVersion = 0; // ex: the 1 in 1.20.5
@@ -133,7 +133,16 @@ public class Supports {
         }
         mcMajorVersion = Integer.parseInt(version.group(1));
         mcMinorVersion = Integer.parseInt(version.group(2));
-        mcPatchVersion = Integer.parseInt(version.group(3));
+        try {
+            if(Integer.parseInt(version.group(3))) {
+                mcPatchVersion = Integer.parseInt(version.group(3));
+            } else {
+                mcPatchVersion = 0;
+            }
+        } catch Exception (e) {
+            mcPatchVersion = 0;
+        }
+        
         Main.debug("Parsed Version -> M:" + mcMajorVersion + " MN: " + mcMinorVersion + " P:" + mcPatchVersion);
         return (version.group(1) + separator + version.group(2));
     }
