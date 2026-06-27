@@ -139,7 +139,7 @@ public class Supports {
             } else {
                 mcPatchVersion = 0;
             }
-        } catch Exception (e) {
+        } catch (final Exception (e)) {
             mcPatchVersion = 0;
         }
         
