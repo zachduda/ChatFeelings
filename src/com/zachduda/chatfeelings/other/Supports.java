@@ -112,25 +112,36 @@ public class Supports {
     static boolean invalidver = false;
 
     public static String getMCVersion(String separator) {
-        String this_ver = Bukkit.getBukkitVersion().toUpperCase().replaceAll("-.+$", "");
-
-        if (!this_ver.matches("\\d+\\.\\d+\\.\\d+")) { // ex: if 1.21, will be 1.21.0
-            this_ver += ".0";
-        }
+        String this_ver = Bukkit.getBukkitVersion()
+        .toUpperCase()
+        .replaceAll("-.+$", "");
 
         if (separator == null) {
             separator = ".";
         }
-        final Pattern versionPattern = Pattern.compile("([1-9]\\d*)\\.(\\d+)\\.(\\d+)(?:-([a-zA-Z0-9]+))?");
-        final Matcher version = versionPattern.matcher(this_ver);
-        if (!version.find()) {
+        
+        Pattern versionPattern = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?");
+        Matcher version = versionPattern.matcher(this_ver);
+        
+        if (version.find()) {
+            String major = version.group(1);
+            String minor = version.group(2);
+            String patch = version.group(3);
+        
+            if (patch == null) {
+                patch = "0";
+            }
+        
+            this_ver = major + separator + minor + separator + patch;
+        } else {
             if (!invalidver) {
                 invalidver = true;
-                Main.log(ChatColor.RED + "Unable to read Minecraft Version: " + this_ver, true ,true);
+                Main.log(ChatColor.RED + "Unable to read Minecraft Version: " + this_ver, true, true);
                 return this_ver;
             }
             return "X.XX";
         }
+
         mcMajorVersion = Integer.parseInt(version.group(1));
         mcMinorVersion = Integer.parseInt(version.group(2));
         try {
