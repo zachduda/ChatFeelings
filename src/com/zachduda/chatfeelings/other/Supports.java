@@ -134,11 +134,7 @@ public class Supports {
         mcMajorVersion = Integer.parseInt(version.group(1));
         mcMinorVersion = Integer.parseInt(version.group(2));
         try {
-            if(Integer.parseInt(version.group(3))) {
-                mcPatchVersion = Integer.parseInt(version.group(3));
-            } else {
-                mcPatchVersion = 0;
-            }
+            mcPatchVersion = Integer.parseInt(version.group(3));
         } catch (final Exception e) {
             mcPatchVersion = 0;
         }
