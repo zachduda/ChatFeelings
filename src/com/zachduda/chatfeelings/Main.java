@@ -32,6 +32,7 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
 
+@SuppressWarnings({"CatchMayIgnoreException", "CallToPrintStackTrace"})
 public class Main extends JavaPlugin implements Listener, TabExecutor {
     /* If true, metrics & update checking are skipped. */
     final public static boolean beta = false;
@@ -309,11 +310,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         }
         pl.saveConfig();
         configChecks(pl);
-        if (supported && !reducemsgs) {
-            log("Having issues? Got a question? Join our support discord: " + discord_link, false, false);
-        } else if(!supported) {
-            debug("Not showing support discord link. They are using a version that's not supported :(");
-        }
     }
 
     public static void updateConfig(JavaPlugin pl) {
@@ -364,15 +360,29 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     }
 
     public boolean hasPerm(CommandSender p, String node, Boolean admin_cmd) {
-        return (!(p instanceof Player)) || (!node.equalsIgnoreCase("none") && p.hasPermission(node)) || p.isOp() || (!admin_cmd && !useperms) || (feelings.contains(node.replaceAll("chatfeelings.", "")) && p.hasPermission("chatfeelings.all"));
+        if(!(p instanceof Player)) {
+            return true;
+        }
+        if(!node.equalsIgnoreCase("none") && p.hasPermission(node)) {
+            return true;
+        }
+        if(p.isOp()) {
+            return true;
+        }
+        if(!admin_cmd && !useperms) {
+            return true;
+        }
+        return feelings.contains(node.replaceAll("chatfeelings.", "")) && p.hasPermission("chatfeelings.all");
     }
 
     public boolean hasPerm(CommandSender p, String node) {
         return hasPerm(p, node, false);
     }
+    @SuppressWarnings("unused")
     public boolean hasPerm(CommandSender p, Boolean admin_cmd) {
         return hasPerm(p, "none", admin_cmd);
     }
+    @SuppressWarnings("unused")
     public boolean hasPerm(CommandSender p) {
         return hasPerm(p, "none", false);
     }
@@ -724,7 +734,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
         log("Checking repository to maximize support...", false, false);
 
-        api = new ChatFeelingsAPI();
         new CommandManager(this, morePaperLib);
 
         getConfig().options().copyDefaults(true);
@@ -1104,6 +1113,14 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
             return Collections.emptyList();
         }
+        if(command.getName().equalsIgnoreCase("feelings")) {
+            completions.add("");
+            completions.add("1");
+            completions.add("2");
+            completions.add("3");
+            completions.add("4");
+            return StringUtil.copyPartialMatches(args[0].toLowerCase(), completions, new ArrayList<>());
+        }
         if (args.length == 1) {
             completions.add("help");
 
@@ -1117,7 +1134,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
             if (hasPerm(sender, "chatfeelings.ignore")) {
                 completions.add("ignore");
-                completions.add("ignorelist");
             }
             if (hasPerm(sender, "chatfeelings.admin", true)) {
                 completions.add("reload");
@@ -1141,12 +1157,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         return completions;
     }
 
+    @SuppressWarnings("ReplaceAllNonRegex")
     public boolean onCommand(@NotNull CommandSender sender, Command cmd, @NotNull String cmdLabel, String[] args) {
         final String cmdlr = cmd.getName().toLowerCase();
         if (cmdlr.equals("chatfeelings") && args.length == 0) {
             Msgs.send(sender, "");
             Msgs.send(sender, msg.getString("Prefix-Header"));
-            Msgs.send(sender, "&8&l> &7/cf help &7&ofor commands & settings.");
+            Msgs.send(sender, "&8&l> &#f4fcab/cf help &7&ofor commands & settings.");
             Msgs.send(sender, "");
             pop(sender);
             return true;
@@ -1155,7 +1172,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("version")) {
             Msgs.send(sender, "");
             Msgs.send(sender, msg.getString("Prefix-Header"));
-            Msgs.send(sender, "&8&l> &7You are currently running &f&lv" + getDescription().getVersion());
+            Msgs.send(sender, "&8&l> &7You're running &fv" + getDescription().getVersion());
             Msgs.send(sender, "");
             pop(sender);
             return true;
@@ -1275,7 +1292,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     }
                 }
             } catch (Exception err) {
-                Msgs.send(sender, "&8&l> &a&l✓  &7Plugin Reloaded. &c(1 file was regenerated)");
+                Msgs.send(sender, "&8&l> &a&l✓  &7Plugin Reloaded. &#FF8C6B(1 file was regenerated)");
             }
             Msgs.send(sender, "");
             levelup(sender);
@@ -1286,27 +1303,27 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("help")) {
             Msgs.send(sender, "");
             Msgs.send(sender, msg.getString("Prefix-Header"));
-            Msgs.send(sender, "&8&l> &e&l/cf help &7" + msg.getString("Command-Help.Descriptions.Help"));
+            Msgs.send(sender, "&8&l> &#f4fcab/cf help &7" + msg.getString("Command-Help.Descriptions.Help"));
             if (hasPerm(sender, "chatfeelings.ignore")) {
-                Msgs.send(sender, "&8&l> &e&l/cf ignore (player) &7" + msg.getString("Command-Help.Descriptions.Ignore"));
-                Msgs.send(sender, "&8&l> &e&l/cf ignore all &7" + msg.getString("Command-Help.Descriptions.Ignore-All"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf ignore (player) &7" + msg.getString("Command-Help.Descriptions.Ignore"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf ignore all &7" + msg.getString("Command-Help.Descriptions.Ignore-All"));
             }
             if (hasPerm(sender, "chatfeelings.stats")) {
-                Msgs.send(sender, "&8&l> &e&l/cf stats &7" + msg.getString("Command-Help.Descriptions.Stats"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf stats &7" + msg.getString("Command-Help.Descriptions.Stats"));
             }
             if (hasPerm(sender, "chatfeelings.stats.others", true)) {
-                Msgs.send(sender, "&8&l> &e&l/cf stats (player) &7" + msg.getString("Command-Help.Descriptions.Stats-Others"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf stats (player) &7" + msg.getString("Command-Help.Descriptions.Stats-Others"));
             }
             if (hasPerm(sender, "chatfeelings.mute", true)) {
-                Msgs.send(sender, "&8&l> &e&l/cf mute (player) &7" + msg.getString("Command-Help.Descriptions.Mute"));
-                Msgs.send(sender, "&8&l> &e&l/cf unmute (player) &7" + msg.getString("Command-Help.Descriptions.Unmute"));
-                Msgs.send(sender, "&8&l> &e&l/cf mutelist &7" + msg.getString("Command-Help.Descriptions.Mute-List"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf mute (player) &7" + msg.getString("Command-Help.Descriptions.Mute"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf unmute (player) &7" + msg.getString("Command-Help.Descriptions.Unmute"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf mutelist &7" + msg.getString("Command-Help.Descriptions.Mute-List"));
             }
             if (hasPerm(sender, "chatfeelings.admin", true)) {
-                Msgs.send(sender, "&8&l> &e&l/cf version &7" + msg.getString("Command-Help.Descriptions.Plugin-Version"));
-                Msgs.send(sender, "&8&l> &e&l/cf reload &7" + msg.getString("Command-Help.Descriptions.Plugin-Reload"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf version &7" + msg.getString("Command-Help.Descriptions.Plugin-Version"));
+                Msgs.send(sender, "&8&l> &#f4fcab/cf reload &7" + msg.getString("Command-Help.Descriptions.Plugin-Reload"));
             }
-            Msgs.send(sender, "&8&l> &6&l/feelings &7" + msg.getString("Command-Help.Descriptions.Feelings"));
+            Msgs.send(sender, "&8&l> &#fcdcab&l/feelings &7" + msg.getString("Command-Help.Descriptions.Feelings"));
             Msgs.send(sender, "");
             pop(sender);
             return true;
@@ -1388,26 +1405,26 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                             if (setcache.getBoolean("Muted")) {
                                 totalmuted++;
                                 if (muteInt == 3) {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(AdvancedBan & CF)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(AdvancedBan & CF)");
                                 } else if (muteInt == 2) {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(LiteBans & CF)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(LiteBans & CF)");
                                 } else if (muteInt == 1) {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(Essentials & CF)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(Essentials & CF)");
                                 } else {
                                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))));
                                 }
                             } else {
                                 if (muteInt == 3) {
                                     totalmuted++;
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(AdvancedBan)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(AdvancedBan)");
                                 } else
                                 if (muteInt == 2) {
                                     totalmuted++;
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(LiteBans)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(LiteBans)");
                                 } else
                                 if (muteInt == 1) {
                                     totalmuted++;
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &c(Essentials)");
+                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(Essentials)");
                                 }
                             }
                         }
@@ -1424,12 +1441,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 Msgs.send(sender, "");
             });
             pop(sender);
-            return true;
-        }
-
-        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("unignore")) {
-            Msgs.sendPrefix(sender, "&c&lOops! &fRetype to unignore as &7/cf ignore (player)");
-            bass(sender);
             return true;
         }
 
@@ -1471,14 +1482,14 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
             if (!f.exists()) {
                 try {
-                    Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
+                    Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find that player's file.");
                     bass(sender);
                     return true;
                 } catch (Exception err) {}
             }
 
             if (!setcache.contains("Muted")) {
-                Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
+                Msgs.sendPrefix(sender, "&#FF8C6BOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
             }
 
             final String playername = setcache.getString("Username");
@@ -1518,7 +1529,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 });
             } else {
                 bass(sender);
-                Msgs.sendPrefix(sender, "&c&lError. &fWe couldn't find mute status in your data files.");
+                Msgs.sendPrefix(sender, "&#FF8C6B&lError. &fWe couldn't find mute status in your data files.");
                 log("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.", false, true);
             }
 
@@ -1562,13 +1573,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
 
             if (!f.exists()) {
-                Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find that player's file.");
+                Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find that player's file.");
                 bass(sender);
                 return true;
             }
 
             if (!setcache.contains("Muted")) {
-                Msgs.sendPrefix(sender, "&cOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
+                Msgs.sendPrefix(sender, "&#FF8C6BOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
             }
 
             final String playername = setcache.getString("Username");
@@ -1610,21 +1621,21 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 }
             } else {
                 bass(sender);
-                Msgs.sendPrefix(sender, "&cError. &fWe couldn't find your mute status in your data file.");
+                Msgs.sendPrefix(sender, "&#FF8C6BError. &fWe couldn't find your mute status in your data file.");
                 log("Something went wrong when trying to get " + sender.getName() + "'s mute status in the player file.", false, true);
             }
 
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("ignore")) {
+        if (cmdlr.equals("chatfeelings") && (args[0].equalsIgnoreCase("ignore") || args[0].equalsIgnoreCase("unignore"))) {
             if (!hasPerm(sender, "chatfeelings.ignore")) {
                 noPermission(sender);
                 return true;
             }
 
             if (!(sender instanceof Player p)) {
-                Msgs.sendPrefix(sender, "&c&lSorry. &fOnly players can ignore other players.");
+                Msgs.sendPrefix(sender, "&#FF8C6B&lSorry. &fOnly players can ignore other players.");
                 return true;
             }
 
@@ -1702,7 +1713,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
             if (!f.exists()) {
                 try {
-                    Msgs.sendPrefix(sender, "&cSorry!&f We couldn't find your player file.");
+                    Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find your player file.");
                     bass(sender);
                     return true;
                 } catch (Exception err) {}
@@ -1817,7 +1828,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             final int end = start + page_length;
 
             Msgs.send(sender, "");
-            Msgs.send(sender, msg.getString("Feelings-Help") + "                        " +
+            Msgs.send(sender, msg.getString("Feelings-Help") + "                            " +
                     Objects.requireNonNull(msg.getString("Feelings-Help-Page")).replace("%page%", Integer.toString(page)).replace("%pagemax%", Integer.toString(totalpages)));
             for (int i = start; i < end; i++) {
                 if(i < enabledfeelings.size()) {
@@ -1827,7 +1838,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                         if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
                             Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
                         } else {
-                            Msgs.send(sender, "&8&l> &c/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
+                            Msgs.send(sender, "&8&l> &#FF8C6B/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
                     }
                 }
@@ -2205,7 +2216,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         if (cmdlr.equals("chatfeelings")) {
             Msgs.send(sender, "");
             Msgs.send(sender, msg.getString("Prefix-Header"));
-            Msgs.send(sender, "&8&l> &c&lHmm. &7That command does not exist.");
+            Msgs.send(sender, "&8&l> &#FF8C6B&lHmm. &7That command does not exist.");
             Msgs.send(sender, "");
             if (sender instanceof Player p) {
                 bass(p.getPlayer());
@@ -2240,7 +2251,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 if (getConfig().getBoolean("Other.Updates.Check")) {
                     if (hasPerm(p, "chatfeelings.admin", true)) {
                         if (Updater.isOutdated()) {
-                            Msgs.sendPrefix(p, "&c&lOutdated Plugin! &7Running v" + getDescription().getVersion() +
+                            Msgs.sendPrefix(p, "&#FF8C6B&lOutdated Plugin! &7Running v" + getDescription().getVersion() +
                                     " while the latest is &f&l" + Updater.getPostedVersion());
                         }
                     }

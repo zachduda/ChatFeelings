@@ -1,10 +1,8 @@
 package com.zachduda.chatfeelings.other;
 
 import com.zachduda.chatfeelings.Main;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,7 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Updater {
 
-    private final JavaPlugin javaPlugin;
     private final String localPluginVersion;
     private final MorePaperLib morePaperLib;
     
@@ -33,7 +30,6 @@ public class Updater {
     private static final long CHECK_INTERVAL = 1_728_000; //In ticks.
     
     public Updater(final JavaPlugin javaPlugin, final MorePaperLib morePaperLib) {
-        this.javaPlugin = javaPlugin;
         this.localPluginVersion = javaPlugin.getDescription().getVersion();
         this.morePaperLib = morePaperLib;
     }
@@ -93,7 +89,7 @@ public class Updater {
                         });
                     }
                 });
-            }, 100000, 100000);
+            }, CHECK_INTERVAL, CHECK_INTERVAL);
         } catch (Exception err) {
             Main.log("Hmm. Something didn't go right when trying to check for updates.", false, true);
             if (Main.debug()) {

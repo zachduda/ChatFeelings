@@ -9,8 +9,10 @@ import org.json.simple.parser.JSONParser;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
-import java.net.URL;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,10 +42,18 @@ public class Supports {
             try {
                 final String dottedver = getMCVersion();
                 final String this_version = getMCVersion("_");
-                JSONParser reader = new JSONParser();
-                JSONObject json = new JSONObject((JSONObject) reader.parse(new InputStreamReader(new URL("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/"
-                        + support_v + ".json").openStream(),
-                        StandardCharsets.UTF_8)));
+
+                HttpClient client = HttpClient.newHttpClient();
+                HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://raw.githubusercontent.com/zachduda/ChatFeelings/master/supports/" + support_v + ".json"))
+                .GET()
+                .build();
+
+                String body = client.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8)).body();
+                Main.debug("Git Update Endpoint Body: " + body);
+
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(body);
 
                 if (!Main.reducemsgs || (json.get("Msg_Critical") != null && ((boolean) json.get("Msg_Critical")))) {
                     if (json.get("Console_Message") != null && json.get("Console_Message") != "") {

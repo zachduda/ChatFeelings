@@ -2,7 +2,7 @@ name: ChatFeelings
 main: com.zachduda.chatfeelings.Main
 website: https://zachduda.com/chatfeelings
 authors: [zach_attack]
-version: 4.15-B99
+version: 4.15-B101
 api-version: 1.13
 softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
 description: Allow your players to show their love, or hatred, with unique emotes!
@@ -64,6 +64,7 @@ commands:
 permissions:
   chatfeelings.*:
     description: Allows all ChatFeelings emotes, commands, including administrative actions.
+    default: op
     children:
       chatfeelings.admin: true
       chatfeelings.stats: true
@@ -74,7 +75,7 @@ permissions:
       chatfeelings.all: true
   chatfeelings.all:
     description: Allows access all ChatFeelings emotes.
-    default: true
+    default: op
     children:
       chatfeelings.hug: true
       chatfeelings.slap: true
@@ -99,53 +100,53 @@ permissions:
       chatfeelings.welcomeback: true
       chatfeelings.boop: true
   chatfeelings.hug:
-    default: true
+    default: op
   chatfeelings.slap:
-    default: true
+    default: op
   chatfeelings.poke:
-    default: true
+    default: op
   chatfeelings.highfive:
-    default: true
+    default: op
   chatfeelings.facepalm:
-    default: true
+    default: op
   chatfeelings.yell:
-    default: true
+    default: op
   chatfeelings.bite:
-    default: true
+    default: op
   chatfeelings.snuggle:
-    default: true
+    default: op
   chatfeelings.shake:
-    default: true
+    default: op
   chatfeelings.kiss:
-    default: true
+    default: op
   chatfeelings.punch:
-    default: true
+    default: op
   chatfeelings.murder:
-    default: true
+    default: op
   chatfeelings.cry:
-    default: true
+    default: op
   chatfeelings.boi:
-    default: true
+    default: op
   chatfeelings.dab:
-    default: true
+    default: op
   chatfeelings.lick:
-    default: true
+    default: op
   chatfeelings.pat:
-    default: true
+    default: op
   chatfeelings.stalk:
-    default: true
+    default: op
   chatfeelings.sus:
-    default: true
+    default: op
   chatfeelings.wave:
-    default: true
+    default: op
   chatfeelings.welcomeback:
-    default: true
+    default: op
   chatfeelings.boop:
-    default: true
+    default: op
   chatfeelings.admin:
     default: op
   chatfeelings.stats:
-    default: true
+    default: op
   chatfeelings.stats.others:
     default: op
   chatfeelings.mute:

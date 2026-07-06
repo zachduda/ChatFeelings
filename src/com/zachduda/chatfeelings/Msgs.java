@@ -10,18 +10,21 @@ public class Msgs {
 	private static final Main plugin = Main.getPlugin(Main.class);
 
 	static String color(String msg) {
-		msg = msg.replaceAll("&#", "#");
-		Pattern pattern = Pattern.compile("(?<!\\w)(?:#|&x)([A-Fa-f0-9]{6})(?!\\w)");
-		Matcher matcher = pattern.matcher(msg);
+		final Pattern HEX = Pattern.compile("(?i)(?:&#|#|&x)([0-9a-f]{6})");
+		Matcher matcher = HEX.matcher(msg);
+		StringBuilder sb = new StringBuilder();
+
 		while (matcher.find()) {
-			String hexCode = matcher.group(0);
 			String hex = matcher.group(1);
-			String replace = "&x&" + hex.charAt(0) + "&" + hex.charAt(1) + "&" + hex.charAt(2)
-					+ "&" + hex.charAt(3) + "&" + hex.charAt(4) + "&" + hex.charAt(5);
-			msg = msg.replace(hexCode, replace);
-			matcher = pattern.matcher(msg);
+			StringBuilder replacement = new StringBuilder("&x");
+			for (char c : hex.toCharArray()) {
+				replacement.append('&').append(c);
+			}
+			matcher.appendReplacement(sb, replacement.toString());
 		}
-		return ChatColor.translateAlternateColorCodes('&', msg);
+		matcher.appendTail(sb);
+
+		return ChatColor.translateAlternateColorCodes('&', sb.toString());
 	}
 
 	static void sendPrefix(CommandSender sender, String msg) {
