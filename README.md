@@ -16,12 +16,13 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
 <dependency>
   <groupId>com.zachduda</groupId>
   <artifactId>chatfeelings</artifactId>
-  <version>4.15.0</version>
+  <version>4.16.0</version>
 </dependency>
 ```
 
 # Spigot
-ChatFeelings is a Minecraft plugin (supporting 1.13 up to 1.21).
+
+ChatFeelings is a Minecraft plugin (26.2-1.13).
 Please check out the [Spigot Page](https://www.spigotmc.org/resources/chatfeelings.12987/). for full documentation.
 
 # License
