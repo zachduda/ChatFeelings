@@ -80,8 +80,8 @@ public class Updater {
                         morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
                             Main.log(
                                     ChatColor.translateAlternateColorCodes('&',
-                                            "&e&l&nUpdate Available&r&e&l!&r You're running &7v" + localPluginVersion +
-                                                    "&r, while the latest is &av" + posted)
+                                            "&#f4fcabUpdate Available &8› &7Download @ &fzachduda.com/chatfeelings &7(" + localPluginVersion +
+                                                    "→ &f" + posted + "&r&7)")
                             , true, false);
                             if(updatetimer != null) {
                                 updatetimer.cancel();
@@ -91,7 +91,7 @@ public class Updater {
                 });
             }, CHECK_INTERVAL, CHECK_INTERVAL);
         } catch (Exception err) {
-            Main.log("Hmm. Something didn't go right when trying to check for updates.", false, true);
+            Main.log("Update Check Failed: " + err.getMessage(), false, true);
             if (Main.debug()) {
                 err.printStackTrace();
             }

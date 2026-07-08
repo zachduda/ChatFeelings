@@ -19,6 +19,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.MetadataValue;
@@ -544,6 +546,62 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 pl.reloadConfig();
             }
         }
+    }
+
+    // Only for debug, internal use and timing. Available if debug mode is
+    // Enabled in the config.yml and player has OP or admin permissions.
+    private void generatePlayerTestFile(CommandSender sender) {
+        final long start = System.currentTimeMillis();
+        morePaperLib.scheduling().asyncScheduler().run(() -> {
+            final UUID UUID = java.util.UUID.randomUUID();
+            final String strud = UUID.toString();
+
+            File cache = new File(this.getDataFolder(), File.separator + "Data");
+            File f = new File(cache, File.separator + strud + ".yml");
+            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+
+            if (!f.exists()) {
+                try {
+                    setcache.save(f);
+                } catch (Exception err) {
+                    if (debug) {
+                        log("Unable to update last seen var in player file:", true, true);
+                        err.printStackTrace();
+                    }
+                }
+            }
+
+            String IPAdd = "127.0.0.1";
+            int fileversion = setcache.getInt("Version");
+            int currentfileversion = 2;
+
+            if (!setcache.contains(strud)) {
+                setcache.set("UUID", strud);
+                setcache.set("Allow-Feelings", true);
+                setcache.set("Muted", false);
+            }
+
+            if (fileversion != currentfileversion || !setcache.contains("Version")) {
+                setcache.set("Version", currentfileversion);
+            }
+
+            setcache.set("IP", IPAdd);
+            setcache.set("Username", "User-" + strud);
+            setcache.set("Last-On", System.currentTimeMillis());
+            try {
+                setcache.save(f);
+                final long end = System.currentTimeMillis();
+                final long time = (end - start);
+                Msgs.sendPrefix(sender, "&a&lDone! &7Player test file created in &f" + time + "ms");
+                pop(sender);
+            } catch (Exception err) {
+                if (debug) {
+                    err.printStackTrace();
+                    Msgs.sendPrefix(sender, "&7See console. File creation failed.");
+                    bass(sender);
+                }
+            }
+        });
     }
 
     private void updateLastOn(Player p) {
@@ -1079,7 +1137,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     }
 
                     if (fl.equalsIgnoreCase("welcomeback")) {
-                        flcap = "Welcome";
+                        flcap = "Welcomes";
                     }
 
                     if (fl.equalsIgnoreCase("punch")) {
@@ -1218,6 +1276,19 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             return true;
         }
 
+        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("debug-generate-file")) {
+            if (!hasPerm(sender, "chatfeelings.admin", true)) {
+                noPermission(sender);
+                return true;
+            }
+            if (!debug) {
+                Msgs.sendPrefix(sender, "&7Enabled debug mode in your config to use this.");
+                bass(sender);
+                return true;
+            }
+            generatePlayerTestFile(sender);
+            return true;
+        }
         if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("reload")) {
             if (!hasPerm(sender, "chatfeelings.admin", true)) {
                 noPermission(sender);
@@ -1919,7 +1990,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 if (target.getName().equalsIgnoreCase(sender.getName())) {
                     if (getConfig().getBoolean("General.Prevent-Self-Feelings")) {
                         bass(sender);
-                        Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Sender-Is-Target")).replace("%command%", cmdconfig));
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Sender-Is-Target")).replace("%command%", cmd.getName().toLowerCase()).replace("welcomeback", "welcome-back").replace("yell", "yell at").replace("cry", "cry on"));
                         return;
                     }
                 }
@@ -2251,12 +2322,19 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 if (getConfig().getBoolean("Other.Updates.Check")) {
                     if (hasPerm(p, "chatfeelings.admin", true)) {
                         if (Updater.isOutdated()) {
-                            Msgs.sendPrefix(p, "&#FF8C6B&lOutdated Plugin! &7Running v" + getDescription().getVersion() +
-                                    " while the latest is &f&l" + Updater.getPostedVersion());
+                            Msgs.sendPrefix(p, "&#f4fcabUpdate Available &8› &7Download @ &fzachduda.com/chatfeelings &7("
+                                    + getDescription().getVersion() + "→ &f"
+                                    + Updater.getPostedVersion()
+                                    + "&r&7)");
                         }
                     }
                 }
-            } catch (Exception err) {}
+            } catch (Exception err) {
+                Main.debug("onJoin Update Err: " + err.getMessage());
+                if (debug) {
+                    err.printStackTrace();
+                }
+            }
 
             if (!Cooldowns.playerFileUpdate.contains(name)) {
                 updateLastOn(p);
