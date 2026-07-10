@@ -78,10 +78,7 @@ public class Updater {
                     if (foundOutdated.get()) {
                         final String posted = foundVersion;
                         morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                            Main.log(
-                                    ChatColor.translateAlternateColorCodes('&',
-                                            "&#f4fcabUpdate Available &8› &7Download @ &fzachduda.com/chatfeelings &7(" + localPluginVersion +
-                                                    "→ &f" + posted + "&r&7)")
+                            Main.log(ChatColor.GREEN + "Update Available: " + ChatColor.RESET + "Download @ " + ChatColor.YELLOW + "zduda.dev/cf" + ChatColor.RESET + "(" + localPluginVersion + "→ &f" + posted + "&r&7)"
                             , true, false);
                             if(updatetimer != null) {
                                 updatetimer.cancel();
@@ -89,7 +86,7 @@ public class Updater {
                         });
                     }
                 });
-            }, CHECK_INTERVAL, CHECK_INTERVAL);
+            }, 0, CHECK_INTERVAL);
         } catch (Exception err) {
             Main.log("Update Check Failed: " + err.getMessage(), false, true);
             if (Main.debug()) {
