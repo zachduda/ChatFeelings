@@ -78,7 +78,7 @@ public class Updater {
                     if (foundOutdated.get()) {
                         final String posted = foundVersion;
                         morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                            Main.log("Update Available: Download @ zduda.dev/cf -> (" + localPluginVersion + " → " + posted + ")"
+                            Main.log("Update Available: Download @ zduda.dev/cf  (" + localPluginVersion + " —> " + posted + ")"
                             , true, false);
                             if(updatetimer != null) {
                                 updatetimer.cancel();
