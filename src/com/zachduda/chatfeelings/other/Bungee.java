@@ -1,5 +1,6 @@
 package com.zachduda.chatfeelings.other;
 
+@SuppressWarnings({"unused", "JavaPrintToLogpoint", "SpellCheckingInspection"})
 public class Bungee {
 	  public void onEnable()
 	  {

@@ -74,10 +74,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     private boolean hasess = false;
     private boolean haslitebans = false;
     private boolean hasadvancedban = false;
-    // These flags are flipped from async tasks (join handling, command handling) and read from the
-    // main/region threads and other async tasks, so they're marked volatile for visibility across
-    // threads. This doesn't make the read-then-write patterns below atomic, just visible.
-    private static volatile boolean usevanishcheck = false;
+    private static boolean usevanishcheck = false;
 
     protected static volatile boolean particles = true;
 
@@ -194,7 +191,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 File f = new File(cachefile.getPath());
 
                 if(f.getName().toLowerCase().contains(".ds_store")) {
-                    // Ignore macOS created files in the DATA folder.
+                    // Ignore MAC OS created files in the DATA folder.
                     return;
                 }
 
@@ -505,7 +502,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         }
     }
 
-    public static void configChecks(JavaPlugin pl) {
+        public static void configChecks(JavaPlugin pl) {
         if (pl.getConfig().getBoolean("General.Radius.Enabled")) {
             if (pl.getConfig().getInt("General.Radius.Radius-In-Blocks") == 0) {
                 log("Feeling radius cannot be 0, disabling the radius.", true, true);
@@ -769,7 +766,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         try {
             if (this.getServer().getPluginManager().isPluginEnabled(plugin) &&
                     this.getServer().getPluginManager().getPlugin(plugin) != null) {
-                log("Hooking into " + plugin + "...", false, false);
+                    log("Hooking into " + plugin + "...", false, false);
                 return true;
             }
             debug("Skipping hooks for " + plugin + " (Not Found)");
@@ -1106,8 +1103,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     }
 
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
-        File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + uuid + ".yml");
+        File f = new File(folder, File.separator + uuid + ".yml");
         FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
         final String name = setcache.getString("Username");
         if (isown) {
@@ -1986,9 +1982,9 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     //if(Cooldowns.nicknames.containsKey(args[0])) {
                     //    target = Cooldowns.nicknames.get(args[0]);
                     //} else {
-                    bass(sender);
-                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
-                    return;
+                        bass(sender);
+                        Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Offline")).replace("%player%", args[0]));
+                        return;
                     //}
                 }
 
@@ -2314,74 +2310,6 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         }
         removeAll(p);
     }
-//
-//    private void knockSound(Location l, String sound) {
-//        if (!sounds) return;
-//
-//        if (l.getWorld() == null) return;
-//
-//        var world = getServer().getWorld(l.getWorld().getName());
-//        if (world == null) return;
-//
-//        var key = NamespacedKey.fromString(sound.toLowerCase());
-//        if (key == null) return;
-//
-//        var scheck = Registry.SOUNDS.get(key);
-//        if (scheck == null) return;
-//
-//        float volume = (float) emotes.getDouble("Feelings.Knock.Sounds.Sound1.Volume");
-//        float pitch = (float) emotes.getDouble("Feelings.Knock.Sounds.Sound1.Pitch");
-//
-//        for (int i = 0; i < 3; i++) {
-//            int delay = i * 6;
-//            morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> {
-//                world.playSound(l, sound, volume, pitch);
-//            }, delay);
-//        }
-//    }
-//
-//    @EventHandler(priority = EventPriority.MONITOR)
-//    public void onInteraction(PlayerInteractEvent e) {
-//        if (e.getAction() != Action.LEFT_CLICK_BLOCK) return;
-//
-//        Block block = e.getClickedBlock();
-//        if (block == null) return;
-//
-//        if (!(block.getBlockData() instanceof Door)) return;
-//
-//        Player p = e.getPlayer();
-//        Location l = block.getLocation();
-//
-//        if (l.getWorld() == null) return;
-//
-//        if (disabledreceivingworlds.contains(l.getWorld().getName())) {
-//            bass(p);
-//            Msgs.sendPrefix(p, msg.getString("Receiving-World-Disabled"));
-//            return;
-//        }
-//
-//        Cooldowns.setKnockcooldown(p.getName());
-//
-//        Player knockTarget = null;
-//        FeelingSendEvent fse = new FeelingSendEvent(p, knockTarget, "Knock");
-//        FeelingRecieveEvent fre = new FeelingRecieveEvent(knockTarget, p, "Knock");
-//
-//        morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-//            Bukkit.getPluginManager().callEvent(fse);
-//            if (fse.isCancelled()) {
-//                return;
-//            }
-//
-//            Bukkit.getPluginManager().callEvent(fre);
-//        });
-//
-//        for (Player opl : block.getWorld().getPlayers()) {
-//            if (opl.getLocation().distanceSquared(l) <= 20 * 20) {
-//                opl.sendMessage(msg);
-//                knockSound(p, l, "BLOCK_WOOD_HIT");
-//            }
-//        }
-//    }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e) {
