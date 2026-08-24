@@ -224,7 +224,7 @@ public class FileSetup {
         File emotesfile = new File(folder, File.separator + "emotes.yml");
         FileConfiguration emotes = YamlConfiguration.loadConfiguration(emotesfile);
 
-        final int msgfilever = 12;
+        final int msgfilever = 13;
         if (!msgsfile.exists() || !msgs.contains("Version")) {
 
             List<String> confighead = new ArrayList<>();
@@ -249,7 +249,7 @@ public class FileSetup {
         } else {
             final int currentmsgv = msgs.getInt("Version");
             if (currentmsgv != msgfilever) {
-                plugin.getLogger().info("Updating your messages.yml with new additional messages...");
+                Main.log("Updating your messages.yml with new additional messages...", false, false);
             }
             if (currentmsgv < 6) {
                 forceMsgs("Reload", "&8&l> &#c3ff9b&l✓  &7Plugin reloaded in &f%time%");
@@ -291,6 +291,9 @@ public class FileSetup {
                     setMsgs("Command_Descriptions.Welcomeback", msgs.getString("Command_Descriptions.Wb"));
                     forceMsgs("Command_Descriptions.Wb", null);
                 }
+            }
+            if (currentmsgv < 13) {
+                Main.log("[New] Now supporting HEX color codes! We'll keep your old messages.yml as it is, but figured we'd tell you! :)", true, true);
             }
         }
 
@@ -371,14 +374,14 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Yell", "Yell at someone as loud as possible!");
         setMsgs("Command_Descriptions.Bite", "Bite a player right on the arm.");
         setMsgs("Command_Descriptions.Snuggle", "Snuggle up with the power of warm hugs!");
-        setMsgs("Command_Descriptions.Shake", "Shake a player to their feet.");
+        setMsgs("Command_Descriptions.Shake", "Shake someone to their core.");
         setMsgs("Command_Descriptions.Stab", "Stab someone with a knife. Ouch!");
         setMsgs("Command_Descriptions.Kiss", "Give a kiss on the cheek. How sweet!");
         setMsgs("Command_Descriptions.Punch", "Punch someone back from insanity!");
         setMsgs("Command_Descriptions.Murder", "Finna kill someone here.");
-        setMsgs("Command_Descriptions.Boi", "Living in 2016? Boi at a player.");
-        setMsgs("Command_Descriptions.Cry", "Real sad hours? Cry at someone.");
-        setMsgs("Command_Descriptions.Dab", "Freshly dab on someone.");
+        setMsgs("Command_Descriptions.Boi", "Still in iFunny hell? Here's this!");
+        setMsgs("Command_Descriptions.Cry", "Down in the dumps? Let it all out.");
+        setMsgs("Command_Descriptions.Dab", "Cringe never dies! Prove it to the world.");
         setMsgs("Command_Descriptions.Scorn", "Shame a player for what they've done.");
         setMsgs("Command_Descriptions.Lick", "Lick someone like an ice-cream sundae!");
         setMsgs("Command_Descriptions.Pat", "Pat a players head for being good.");
@@ -387,7 +390,7 @@ public class FileSetup {
         setMsgs("Command_Descriptions.Wave", "Say frewell, and wave aideu. How elegant!");
         setMsgs("Command_Descriptions.Welcomeback", "Give a warm welcome-back to returning players!");
         setMsgs("Command_Descriptions.Boop", "Boop someone right on their nose!");
-        setMsgsVersion(12);
+        setMsgsVersion(13);
 
         if (!emotesfile.exists() || !emotes.contains("Version")) {
             if (saveFile(emotes, emotesfile)) {
@@ -396,7 +399,7 @@ public class FileSetup {
                 }
             }
         } else {
-            if (emotes.getInt("Version") != 7) {
+            if (emotes.getInt("Version") != 8) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
                     if(!emotes.contains("Feelings.Welcomeback.Msgs.Sender") || Objects.requireNonNull(emotes.getString("Feelings.Welcomeback.Msgs.Sender")).equalsIgnoreCase("&7You told &#c3ff9b&l%player% welcome back!")) {
@@ -434,7 +437,7 @@ public class FileSetup {
                         }
                     }
                 }
-                setEmotesVersion(7);
+                setEmotesVersion(8);
             }
         }
 
@@ -726,7 +729,18 @@ public class FileSetup {
         setEmotesDouble("Feelings.Boop.Sounds.Sound2.Volume", 0.0);
         setEmotesDouble("Feelings.Boop.Sounds.Sound2.Pitch", 0.0);
 
-        setEmotesVersion(7);
+        setEmotesBoolean("Feelings.Knock.Enable", true);
+        setEmotes("Feelings.Knock.Msgs.Sender", "&7You knock on &#c3ff9b&l%player%&7's door!");
+        setEmotes("Feelings.Knock.Msgs.Target", "&#c3ff9b&l%player% &r&7has knocked at your door!");
+        setEmotes("Feelings.Knock.Msgs.Global", "&#c3ff9b&l%target% &r&7has knocked on &#c3ff9b&l%sender%&r&7 door.");
+        setEmotes("Feelings.Knock.Sounds.Sound1.Name", "BLOCK.IRON.HIT");
+        setEmotesDouble("Feelings.Knock.Sounds.Sound1.Volume", 2.0);
+        setEmotesDouble("Feelings.Knock.Sounds.Sound1.Pitch", 1.75);
+        setEmotes("Feelings.Knock.Sounds.Sound2.Name", "None");
+        setEmotesDouble("Feelings.Knock.Sounds.Sound2.Volume", 0.0);
+        setEmotesDouble("Feelings.Knock.Sounds.Sound2.Pitch", 0.0);
+
+        setEmotesVersion(8);
         reloadFiles();
     }
 

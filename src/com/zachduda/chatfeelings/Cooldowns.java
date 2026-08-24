@@ -1,9 +1,10 @@
 package com.zachduda.chatfeelings;
 
 import org.bukkit.entity.Player;
-import space.arim.morepaperlib.scheduling.ScheduledTask;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Cooldowns {
 	private static final Main plugin = Main.getPlugin(Main.class);
@@ -11,7 +12,7 @@ public class Cooldowns {
 	static HashMap<Player, Long> cooldown = new HashMap<>();
 	static HashMap<Player, String> ignorecooldown = new HashMap<>();
 	static HashMap<Player, String> ignorelistcooldown = new HashMap<>();
-	static HashMap<String, ScheduledTask> spook = new HashMap<String, ScheduledTask>();
+	static HashSet<String> knockcooldown = new HashSet<>();
 
 	static ArrayList<String> playerFileUpdate = new ArrayList<>();
 	
@@ -48,5 +49,11 @@ public class Cooldowns {
 
 		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> playerFileUpdate.remove(p), 1200L); // 1 minute
 	}
+
+	static void setKnockcooldown(String p) {
+		knockcooldown.add(p);
+		plugin.morePaperLib.scheduling().globalRegionalScheduler().runDelayed(() -> knockcooldown.remove(p), 40L);
+	}
+
 
 }
