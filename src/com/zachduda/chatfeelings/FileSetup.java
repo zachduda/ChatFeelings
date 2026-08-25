@@ -12,11 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class FileSetup {
@@ -224,7 +220,7 @@ public class FileSetup {
 
     private static boolean validSound(String sound) {
         try {
-            return Objects.requireNonNull(Registry.SOUNDS.match(sound)).isRegistered();
+            return Registry.SOUNDS.match(sound) != null;
         } catch(Exception e) {
             return false;
         }
