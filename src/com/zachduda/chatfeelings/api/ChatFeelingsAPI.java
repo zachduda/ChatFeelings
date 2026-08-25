@@ -1,5 +1,6 @@
 package com.zachduda.chatfeelings.api;
 
+import com.zachduda.chatfeelings.FileSetup;
 import com.zachduda.chatfeelings.Main;
 import org.bukkit.Bukkit;
 
@@ -117,7 +118,7 @@ public class ChatFeelingsAPI {
     }
 
 	/**
-	 * Fetches a feelings message from the emotes.yml
+	 * Fetches a feelings message from its Feelings/&lt;name&gt;.yml file.
 	 *
 	 * @param feeling The string of the feelings messages you want to get (ie: "hug")
 	 */
@@ -127,12 +128,11 @@ public class ChatFeelingsAPI {
 			Main.log("[API] getGlobalEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		String titleCase = Character.toUpperCase(flc.charAt(0)) + flc.substring(1);
-		return plugin.emotes.getString("Feelings."+titleCase+".Msgs.Global");
+		return FileSetup.getFeelingString(flc, "Msgs.Global");
 	}
 
 	/**
-	 * Fetches a feelings message from the emotes.yml
+	 * Fetches a feelings message from its Feelings/&lt;name&gt;.yml file.
 	 *
 	 * @param feeling The string of the feelings messages you want to get (ie: "hug")
 	 */
@@ -142,12 +142,11 @@ public class ChatFeelingsAPI {
 			Main.log("[API] getSenderEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		String titleCase = Character.toUpperCase(flc.charAt(0)) + flc.substring(1);
-		return plugin.emotes.getString("Feelings."+titleCase+".Msgs.Sender");
+		return FileSetup.getFeelingString(flc, "Msgs.Sender");
 	}
 
 	/**
-	 * Fetches a feelings message from the emotes.yml
+	 * Fetches a feelings message from its Feelings/&lt;name&gt;.yml file.
 	 *
 	 * @param feeling The string of the feelings messages you want to get (ie: "hug")
 	 */
@@ -157,8 +156,7 @@ public class ChatFeelingsAPI {
 			Main.log("[API] getTargetEmoteMessage method failed. No such feeling: " + flc, true, true);
 			return null;
 		}
-		String titleCase = Character.toUpperCase(flc.charAt(0)) + flc.substring(1);
-		return plugin.emotes.getString("Feelings."+titleCase+".Msgs.Target");
+		return FileSetup.getFeelingString(flc, "Msgs.Target");
 	}
 	
 	public static int getSentStats(String name, String feeling) {

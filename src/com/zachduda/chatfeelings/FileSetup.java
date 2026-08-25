@@ -3,6 +3,7 @@ package com.zachduda.chatfeelings;
 import com.zachduda.chatfeelings.other.Supports;
 import org.bukkit.Bukkit;
 import org.bukkit.Registry;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -13,10 +14,25 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class FileSetup {
     private static final Main plugin = Main.getPlugin(Main.class);
+
+    /** Sub-folder of the plugin's data folder that holds one .yml file per feeling. */
+    private static final String FEELINGS_FOLDER = "Feelings";
+
+    /** A feeling's file name (minus ".yml") doubles as its command name, so it must be a safe/sane command name. */
+    private static final Pattern VALID_FEELING_NAME = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_-]{0,31}$");
+
+    /** Names ChatFeelings already uses for its own commands. A feeling can never claim one of these. */
+    private static final Set<String> RESERVED_FEELING_NAMES = Set.of("chatfeelings", "cf", "feelings", "emotions", "help");
+
+    /** Built-in feelings that are intentionally scaffolded but not yet wired up as usable commands. */
+    private static final Set<String> INACTIVE_BUILTIN_FEELINGS = Set.of("knock");
 
     private static boolean saveFile(FileConfiguration fc, File f) {
         try {
@@ -214,6 +230,252 @@ public class FileSetup {
         }
     }
 
+    private static boolean isSilentSound(String sound) {
+        return sound.equalsIgnoreCase("none") || sound.equalsIgnoreCase("off") || sound.equalsIgnoreCase("null");
+    }
+
+    // ---------------------------------------------------------------------
+    // Feelings/ folder: one .yml file per feeling (built-in or custom).
+    // ---------------------------------------------------------------------
+
+    private static File getFeelingsFolder() {
+        File folder = new File(getFolder(), File.separator + FEELINGS_FOLDER);
+        if (!folder.exists() && !folder.mkdirs()) {
+            Main.log("Unable to create the Feelings folder at " + folder.getPath(), true, true);
+        }
+        return folder;
+    }
+
+    private static File getFeelingFile(String name) {
+        return new File(getFeelingsFolder(), File.separator + name.toLowerCase(Locale.ROOT) + ".yml");
+    }
+
+    /** Always returns a usable (possibly empty) config, so callers don't need to null-check a missing/deleted file. */
+    public static FileConfiguration loadFeelingConfig(String name) {
+        return YamlConfiguration.loadConfiguration(getFeelingFile(name));
+    }
+
+    public static boolean getFeelingBoolean(String name, String path) {
+        return loadFeelingConfig(name).getBoolean(path);
+    }
+
+    public static String getFeelingString(String name, String path) {
+        return loadFeelingConfig(name).getString(path);
+    }
+
+    public static double getFeelingDouble(String name, String path) {
+        return loadFeelingConfig(name).getDouble(path);
+    }
+
+    private static boolean setIfMissing(FileConfiguration fc, String path, String value) {
+        if (!fc.contains(path)) {
+            fc.set(path, value);
+            return true;
+        }
+        if (fc.getString(path) == null) {
+            Main.log("Replacing '" + path + "' in a Feelings/ file, it was left blank.", false, true);
+            fc.set(path, value);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean setIfMissing(FileConfiguration fc, String path, double value) {
+        if (!fc.contains(path)) {
+            fc.set(path, value);
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean setIfMissing(FileConfiguration fc, String path, boolean value) {
+        if (!fc.contains(path)) {
+            fc.set(path, value);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Writes the default values for one of ChatFeelings' built-in feelings into Feelings/&lt;name&gt;.yml,
+     * without touching anything a server admin has already customized.
+     */
+    private static void writeFeelingDefaults(String name, boolean enable,
+                                              String senderMsg, String targetMsg, String globalMsg,
+                                              String sound1Name, double sound1Volume, double sound1Pitch,
+                                              String sound2Name, double sound2Volume, double sound2Pitch) {
+        File f = getFeelingFile(name);
+        FileConfiguration fc = YamlConfiguration.loadConfiguration(f);
+        boolean changed = !f.exists();
+
+        changed |= setIfMissing(fc, "Enable", enable);
+        changed |= setIfMissing(fc, "Msgs.Sender", senderMsg);
+        changed |= setIfMissing(fc, "Msgs.Target", targetMsg);
+        changed |= setIfMissing(fc, "Msgs.Global", globalMsg);
+        changed |= setIfMissing(fc, "Sounds.Sound1.Name", sound1Name);
+        changed |= setIfMissing(fc, "Sounds.Sound1.Volume", sound1Volume);
+        changed |= setIfMissing(fc, "Sounds.Sound1.Pitch", sound1Pitch);
+        changed |= setIfMissing(fc, "Sounds.Sound2.Name", sound2Name);
+        changed |= setIfMissing(fc, "Sounds.Sound2.Volume", sound2Volume);
+        changed |= setIfMissing(fc, "Sounds.Sound2.Pitch", sound2Pitch);
+
+        if (changed) {
+            saveFile(fc, f);
+        }
+    }
+
+    /**
+     * Moves any "Feelings.*" entries left over in an old-style emotes.yml into their own file
+     * inside the Feelings folder. Safe to call every startup: it's a no-op once migrated.
+     */
+    private static void migrateLegacyFeelingsToFolder(FileConfiguration emotes, File emotesfile) {
+        ConfigurationSection legacy = emotes.getConfigurationSection("Feelings");
+        if (legacy == null) {
+            return;
+        }
+
+        int migrated = 0;
+        for (String key : legacy.getKeys(false)) {
+            File target = getFeelingFile(key);
+            if (target.exists()) {
+                continue; // don't clobber a file that's already been split out
+            }
+
+            ConfigurationSection section = legacy.getConfigurationSection(key);
+            if (section == null) {
+                continue;
+            }
+
+            FileConfiguration fc = new YamlConfiguration();
+            for (String path : section.getKeys(true)) {
+                if (!section.isConfigurationSection(path)) {
+                    fc.set(path, section.get(path));
+                }
+            }
+
+            if (saveFile(fc, target)) {
+                migrated++;
+            }
+        }
+
+        if (migrated > 0) {
+            Main.log("Migrated " + migrated + " feeling(s) out of emotes.yml and into the new Feelings/ folder.", true, false);
+        }
+
+        emotes.set("Feelings", null);
+        saveFile(emotes, emotesfile);
+    }
+
+    // ---------------------------------------------------------------------
+    // Custom feeling validation & discovery
+    // ---------------------------------------------------------------------
+
+    private static List<String> validateMessage(FileConfiguration fc, String path) {
+        List<String> errors = new ArrayList<>();
+        String value = fc.getString(path);
+        if (value == null || value.isBlank()) {
+            errors.add("Missing or empty '" + path + "'.");
+        }
+        return errors;
+    }
+
+    private static List<String> validateSound(FileConfiguration fc, String base) {
+        List<String> errors = new ArrayList<>();
+        String name = fc.getString(base + ".Name");
+
+        if (name == null || name.isBlank()) {
+            errors.add("Missing '" + base + ".Name' (use 'None' if you don't want this sound).");
+            return errors;
+        }
+        if (!isSilentSound(name) && !validSound(name)) {
+            errors.add("'" + base + ".Name' isn't a recognized sound: " + name);
+        }
+
+        if (!fc.isSet(base + ".Volume") || !(fc.get(base + ".Volume") instanceof Number)) {
+            errors.add("Missing or invalid '" + base + ".Volume' (must be a number).");
+        } else if (fc.getDouble(base + ".Volume") < 0 || fc.getDouble(base + ".Volume") > 10) {
+            errors.add("'" + base + ".Volume' must be between 0 and 10.");
+        }
+
+        if (!fc.isSet(base + ".Pitch") || !(fc.get(base + ".Pitch") instanceof Number)) {
+            errors.add("Missing or invalid '" + base + ".Pitch' (must be a number).");
+        } else if (fc.getDouble(base + ".Pitch") < 0 || fc.getDouble(base + ".Pitch") > 2) {
+            errors.add("'" + base + ".Pitch' must be between 0 and 2.");
+        }
+
+        return errors;
+    }
+
+    /** Validates that a feeling's name and file contents are safe & complete enough to register as a command. */
+    static List<String> validateFeelingConfig(String name, FileConfiguration fc) {
+        List<String> errors = new ArrayList<>();
+
+        if (!VALID_FEELING_NAME.matcher(name).matches()) {
+            errors.add("Invalid name: must start with a letter and contain only letters, numbers, '-' or '_' (max 32 characters).");
+        }
+        if (RESERVED_FEELING_NAMES.contains(name.toLowerCase(Locale.ROOT))) {
+            errors.add("'" + name + "' is reserved for a ChatFeelings command and can't be used as a feeling name.");
+        }
+
+        if (!fc.isBoolean("Enable")) {
+            errors.add("Missing or invalid 'Enable' (must be true or false).");
+        }
+
+        errors.addAll(validateMessage(fc, "Msgs.Sender"));
+        errors.addAll(validateMessage(fc, "Msgs.Target"));
+        errors.addAll(validateMessage(fc, "Msgs.Global"));
+
+        errors.addAll(validateSound(fc, "Sounds.Sound1"));
+        errors.addAll(validateSound(fc, "Sounds.Sound2"));
+
+        return errors;
+    }
+
+    /**
+     * Scans the Feelings folder for any .yml file that isn't a built-in feeling, validates it,
+     * and returns the names of the ones that are safe to register as commands. Invalid files are
+     * logged and skipped rather than breaking plugin startup.
+     */
+    private static List<String> discoverCustomFeelings() {
+        List<String> found = new ArrayList<>();
+        File[] files = getFeelingsFolder().listFiles((dir, filename) -> filename.toLowerCase(Locale.ROOT).endsWith(".yml"));
+
+        if (files == null) {
+            return found;
+        }
+
+        for (File f : files) {
+            String name = f.getName().substring(0, f.getName().length() - 4);
+            String lower = name.toLowerCase(Locale.ROOT);
+
+            if (Main.BUILTIN_FEELINGS.contains(lower) || INACTIVE_BUILTIN_FEELINGS.contains(lower)) {
+                continue; // already handled as a built-in (or intentionally inactive) feeling
+            }
+
+            FileConfiguration fc;
+            try {
+                fc = YamlConfiguration.loadConfiguration(new InputStreamReader(Files.newInputStream(f.toPath()), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                Main.log("Skipping custom feeling '" + name + "': couldn't read Feelings/" + f.getName() + " (" + e.getMessage() + ")", true, true);
+                continue;
+            }
+
+            List<String> errors = validateFeelingConfig(name, fc);
+            if (!errors.isEmpty()) {
+                Main.log("Skipping invalid custom feeling '" + name + "' in Feelings/" + f.getName() + ":", true, true);
+                for (String error : errors) {
+                    Main.log("   - " + error, true, true);
+                }
+                continue;
+            }
+
+            found.add(lower);
+            Main.log("Loaded custom feeling: /" + lower, false, false);
+        }
+
+        return found;
+    }
+
     @SuppressWarnings("SpellCheckingInspection")
     static void enableFiles() {
         File folder = getFolder();
@@ -399,7 +661,7 @@ public class FileSetup {
                 }
             }
         } else {
-            if (emotes.getInt("Version") != 8) {
+            if (emotes.getInt("Version") != 9) {
                 plugin.getLogger().info("Updating your emotes.yml for the latest update...");
                 if(emotes.getInt("Version") <= 4) {
                     if(!emotes.contains("Feelings.Welcomeback.Msgs.Sender") || Objects.requireNonNull(emotes.getString("Feelings.Welcomeback.Msgs.Sender")).equalsIgnoreCase("&7You told &#c3ff9b&l%player% welcome back!")) {
@@ -437,310 +699,172 @@ public class FileSetup {
                         }
                     }
                 }
-                setEmotesVersion(8);
+                setEmotesVersion(9);
             }
         }
 
-        setEmotesBoolean("Feelings.Hug.Enable", true);
-        setEmotes("Feelings.Hug.Msgs.Sender", "&7You give &#c3ff9b&l%player% &r&7a warm hug. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Hug.Msgs.Target", "&#c3ff9b&l%player% &r&7gives you a warm hug. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Hug.Msgs.Global", "&#c3ff9b&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &#FF8C6BAwww &4❤");
-        //	setEmotes("Feelings.Hug.Msgs.Everyone", "&#c3ff9b&l%player% &r&7gives everyone a warm hug. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Hug.Sounds.Sound1.Name", "ENTITY.CAT.PURREOW");
-        setEmotesDouble("Feelings.Hug.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Hug.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Hug.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Hug.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Hug.Sounds.Sound2.Pitch", 0.0);
+        // One-time move of any "Feelings.*" entries still sitting in emotes.yml into Feelings/*.yml.
+        migrateLegacyFeelingsToFolder(emotes, emotesfile);
 
-        setEmotesBoolean("Feelings.Bite.Enable", true);
-        setEmotes("Feelings.Bite.Msgs.Sender", "&7You sink your teeth into &#FF8C6B&l%player%&r&7's skin.");
-        setEmotes("Feelings.Bite.Msgs.Target", "&#FF8C6B&l%player% &r&7sinks their teeth into your skin.");
-        setEmotes("Feelings.Bite.Msgs.Global", "&#FF8C6B&l%sender% &r&7sank their teeth into &4&l%target%&r&7's skin");
-        //	setEmotes("Feelings.Bite.Msgs.Everyone", "&#FF8C6B&l%player% &r&7sinks their teeth into everyone's skin.");
-        setEmotes("Feelings.Bite.Sounds.Sound1.Name", "ENTITY.ZOMBIE.ATTACK_WOODEN_DOOR");
-        setEmotesDouble("Feelings.Bite.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Bite.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Bite.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Bite.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Bite.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Hug", true,
+                "&7You give &#c3ff9b&l%player% &r&7a warm hug. &#FF8C6BAwww &4❤",
+                "&#c3ff9b&l%player% &r&7gives you a warm hug. &#FF8C6BAwww &4❤",
+                "&#c3ff9b&l%sender% &r&7gave &2&l%target% &r&7a warm hug. &#FF8C6BAwww &4❤",
+                "ENTITY.CAT.PURREOW", 2.0, 2.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Punch.Enable", true);
-        setEmotes("Feelings.Punch.Msgs.Sender", "&7You strike &#FF8C6B&l%player% &r&7with a punch. Ouch!");
-        setEmotes("Feelings.Punch.Msgs.Target", "&#FF8C6B&l%player% &r&7strikes you with a punch. Ouch!");
-        setEmotes("Feelings.Punch.Msgs.Global", "&#FF8C6B&l%sender% &r&7punched &4&l%target% &r&7right in the face.");
-        //	setEmotes("Feelings.Punch.Msgs.Everyone", "&#FF8C6B&l%player% &r&7punches everyone in the face.");
-        setEmotes("Feelings.Punch.Sounds.Sound1.Name", "ENTITY.IRON_GOLEM.ATTACK");
-        setEmotesDouble("Feelings.Punch.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Punch.Sounds.Sound1.Pitch", 0.6);
-        setEmotes("Feelings.Punch.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Punch.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Punch.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Bite", true,
+                "&7You sink your teeth into &#FF8C6B&l%player%&r&7's skin.",
+                "&#FF8C6B&l%player% &r&7sinks their teeth into your skin.",
+                "&#FF8C6B&l%sender% &r&7sank their teeth into &4&l%target%&r&7's skin",
+                "ENTITY.ZOMBIE.ATTACK_WOODEN_DOOR", 2.0, 2.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Murder.Enable", true);
-        setEmotes("Feelings.Murder.Msgs.Sender", "&7You murder &#FF8C6B&l%player% &r&7and have no regrets.");
-        setEmotes("Feelings.Murder.Msgs.Target", "&#FF8C6B&l%player% &r&7just murdered you. Bandaid anyone?");
-        setEmotes("Feelings.Murder.Msgs.Global", "&#FF8C6B&l%sender% &r&7just murdered &4&l%target%&r&7. &7&lRIP");
-        setEmotes("Feelings.Murder.Sounds.Sound1.Name", "ENTITY.BLAZE.DEATH");
-        setEmotesDouble("Feelings.Murder.Sounds.Sound1.Volume", 1.0);
-        setEmotesDouble("Feelings.Murder.Sounds.Sound1.Pitch", 0.7);
-        setEmotes("Feelings.Murder.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Murder.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Murder.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Punch", true,
+                "&7You strike &#FF8C6B&l%player% &r&7with a punch. Ouch!",
+                "&#FF8C6B&l%player% &r&7strikes you with a punch. Ouch!",
+                "&#FF8C6B&l%sender% &r&7punched &4&l%target% &r&7right in the face.",
+                "ENTITY.IRON_GOLEM.ATTACK", 2.0, 0.6, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Boi.Enable", true);
-        setEmotes("Feelings.Boi.Msgs.Sender", "&7You inhale at &#f4fcab&l%player%&r&7... &6&lBOI");
-        setEmotes("Feelings.Boi.Msgs.Target", "&#f4fcab&l%player% &r&7inhales at you... &6&lBOI");
-        setEmotes("Feelings.Boi.Msgs.Global", "&#f4fcab&l%sender% &r&7inhales at &6&l%target%&r&7... &6&l&oBOI");
-        setEmotes("Feelings.Boi.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
-        setEmotesDouble("Feelings.Boi.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Boi.Sounds.Sound1.Pitch", 0.1);
-        setEmotes("Feelings.Boi.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Boi.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Boi.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Murder", true,
+                "&7You murder &#FF8C6B&l%player% &r&7and have no regrets.",
+                "&#FF8C6B&l%player% &r&7just murdered you. Bandaid anyone?",
+                "&#FF8C6B&l%sender% &r&7just murdered &4&l%target%&r&7. &7&lRIP",
+                "ENTITY.BLAZE.DEATH", 1.0, 0.7, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Dab.Enable", true);
-        setEmotes("Feelings.Dab.Msgs.Sender", "&7You freshly dab on &#c3ff9b&l%player%&r&7... &7&oGot'em.");
-        setEmotes("Feelings.Dab.Msgs.Target", "&#c3ff9b&l%player% &r&7freshly dabs on you... &7&oGot'em.");
-        setEmotes("Feelings.Dab.Msgs.Global", "&#c3ff9b&l%sender% &r&7freshly dabs on &2&l%target%&r&7... &7&oGot'em.");
-        setEmotes("Feelings.Dab.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
-        setEmotesDouble("Feelings.Dab.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Dab.Sounds.Sound1.Pitch", 0.1);
-        setEmotes("Feelings.Dab.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Dab.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Dab.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Boi", true,
+                "&7You inhale at &#f4fcab&l%player%&r&7... &6&lBOI",
+                "&#f4fcab&l%player% &r&7inhales at you... &6&lBOI",
+                "&#f4fcab&l%sender% &r&7inhales at &6&l%target%&r&7... &6&l&oBOI",
+                "ENTITY.CHICKEN.EGG", 2.0, 0.1, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Cry.Enable", true);
-        setEmotes("Feelings.Cry.Msgs.Sender", "&7You cry on &b&l%player%&r&7's shoulder.");
-        setEmotes("Feelings.Cry.Msgs.Target", "&b&l%player% &r&7cries on your shoulder.");
-        setEmotes("Feelings.Cry.Msgs.Global", "&b&l%sender% &r&7leans on &3&l%target%&r&7's shoulder and cries.");
-        setEmotes("Feelings.Cry.Sounds.Sound1.Name", "ENTITY.GHAST.DEATH");
-        setEmotesDouble("Feelings.Cry.Sounds.Sound1.Volume", 1.0);
-        setEmotesDouble("Feelings.Cry.Sounds.Sound1.Pitch", 0.8);
-        setEmotes("Feelings.Cry.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Cry.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Cry.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Dab", true,
+                "&7You freshly dab on &#c3ff9b&l%player%&r&7... &7&oGot'em.",
+                "&#c3ff9b&l%player% &r&7freshly dabs on you... &7&oGot'em.",
+                "&#c3ff9b&l%sender% &r&7freshly dabs on &2&l%target%&r&7... &7&oGot'em.",
+                "ENTITY.CHICKEN.EGG", 2.0, 0.1, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Facepalm.Enable", true);
-        setEmotes("Feelings.Facepalm.Msgs.Sender", "&7You facepalm at what &#f4fcab&l%player% &r&7just said.");
-        setEmotes("Feelings.Facepalm.Msgs.Target", "&#f4fcab&l%player% &r&7facepalmed at what you just said.");
-        setEmotes("Feelings.Facepalm.Msgs.Global", "&#f4fcab&l%sender% &r&7facepalms at &6&l%target%&r&7 for being dumb.");
-        setEmotes("Feelings.Facepalm.Sounds.Sound1.Name", "ENTITY.VILLAGER.NO");
-        setEmotesDouble("Feelings.Facepalm.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Facepalm.Sounds.Sound1.Pitch", 1.0);
-        setEmotes("Feelings.Facepalm.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Facepalm.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Facepalm.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Cry", true,
+                "&7You cry on &b&l%player%&r&7's shoulder.",
+                "&b&l%player% &r&7cries on your shoulder.",
+                "&b&l%sender% &r&7leans on &3&l%target%&r&7's shoulder and cries.",
+                "ENTITY.GHAST.DEATH", 1.0, 0.8, "None", 0.0, 0.0);
 
-        // need pitch & volume values:
+        writeFeelingDefaults("Facepalm", true,
+                "&7You facepalm at what &#f4fcab&l%player% &r&7just said.",
+                "&#f4fcab&l%player% &r&7facepalmed at what you just said.",
+                "&#f4fcab&l%sender% &r&7facepalms at &6&l%target%&r&7 for being dumb.",
+                "ENTITY.VILLAGER.NO", 2.0, 1.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Highfive.Enable", true);
-        setEmotes("Feelings.Highfive.Msgs.Sender", "&7You give a mighty highfive to &#c3ff9b&l%player%&7.");
-        setEmotes("Feelings.Highfive.Msgs.Target", "&#c3ff9b&l%player% &7gives you a mighty highfive.");
-        setEmotes("Feelings.Highfive.Msgs.Global", "&#c3ff9b&l%sender% &7gives &2&l%target% &r&7a mighty highfive.");
-        setEmotes("Feelings.Highfive.Sounds.Sound1.Name", "ENTITY.VILLAGER.YES");
-        setEmotesDouble("Feelings.Highfive.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Highfive.Sounds.Sound1.Pitch", 1.0);
-        setEmotes("Feelings.Highfive.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Highfive.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Highfive.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Highfive", true,
+                "&7You give a mighty highfive to &#c3ff9b&l%player%&7.",
+                "&#c3ff9b&l%player% &7gives you a mighty highfive.",
+                "&#c3ff9b&l%sender% &7gives &2&l%target% &r&7a mighty highfive.",
+                "ENTITY.VILLAGER.YES", 2.0, 1.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Kiss.Enable", true);
-        setEmotes("Feelings.Kiss.Msgs.Sender", "&7You give &#c3ff9b&l%player% &r&7a kiss. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Kiss.Msgs.Target", "&#c3ff9b&l%player% &r&7gives you a kiss. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Kiss.Msgs.Global", "&#c3ff9b&l%sender% &7gives &2&l%target% &7a kiss. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Kiss.Sounds.Sound1.Name", "ENTITY.ARROW.HIT_PLAYER");
-        setEmotesDouble("Feelings.Kiss.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Kiss.Sounds.Sound1.Pitch", 1.0);
-        setEmotes("Feelings.Kiss.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Kiss.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Kiss.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Kiss", true,
+                "&7You give &#c3ff9b&l%player% &r&7a kiss. &#FF8C6BAwww &4❤",
+                "&#c3ff9b&l%player% &r&7gives you a kiss. &#FF8C6BAwww &4❤",
+                "&#c3ff9b&l%sender% &7gives &2&l%target% &7a kiss. &#FF8C6BAwww &4❤",
+                "ENTITY.ARROW.HIT_PLAYER", 2.0, 1.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Lick.Enable", true);
-        setEmotes("Feelings.Lick.Msgs.Sender", "&7You lick &#f4fcab&l%player% &7like ice-cream. &6Gross!");
-        setEmotes("Feelings.Lick.Msgs.Target", "&#f4fcab&l%player% &r&7licks you like ice-cream. &6Gross!");
-        setEmotes("Feelings.Lick.Msgs.Global", "&#f4fcab&l%target% &r&7got licked by &6&l%sender%&r&7. &8Gross.");
-        setEmotes("Feelings.Lick.Sounds.Sound1.Name", "ENTITY.GENERIC.DRINK");
-        setEmotesDouble("Feelings.Lick.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Lick.Sounds.Sound1.Pitch", 0.1); // not sure
-        setEmotes("Feelings.Lick.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Lick.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Lick.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Lick", true,
+                "&7You lick &#f4fcab&l%player% &7like ice-cream. &6Gross!",
+                "&#f4fcab&l%player% &r&7licks you like ice-cream. &6Gross!",
+                "&#f4fcab&l%target% &r&7got licked by &6&l%sender%&r&7. &8Gross.",
+                "ENTITY.GENERIC.DRINK", 2.0, 0.1, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Shake.Enable", true);
-        setEmotes("Feelings.Shake.Msgs.Sender", "&7You shake &#FF8C6B&l%player%&r&7's entire body.");
-        setEmotes("Feelings.Shake.Msgs.Target", "&#FF8C6B&l%player% &r&7shakes your entire body.");
-        setEmotes("Feelings.Shake.Msgs.Global", "&#FF8C6B&l%sender% &r&7picks up &4&l%target%&r&7's body, and shakes it.");
-        setEmotes("Feelings.Shake.Sounds.Sound1.Name", "ENTITY.WOLF.SHAKE");
-        setEmotesDouble("Feelings.Shake.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Shake.Sounds.Sound1.Pitch", 0.7); // not sure
-        setEmotes("Feelings.Shake.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Shake.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Shake.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Shake", true,
+                "&7You shake &#FF8C6B&l%player%&r&7's entire body.",
+                "&#FF8C6B&l%player% &r&7shakes your entire body.",
+                "&#FF8C6B&l%sender% &r&7picks up &4&l%target%&r&7's body, and shakes it.",
+                "ENTITY.WOLF.SHAKE", 2.0, 0.7, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Snuggle.Enable", true);
-        setEmotes("Feelings.Snuggle.Msgs.Sender", "&7You snuggle &#c3ff9b&l%player% &r&7with love. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Snuggle.Msgs.Target", "&#c3ff9b&l%player% &r&7snuggles you with love. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Snuggle.Msgs.Global", "&#c3ff9b&l%sender% &r&7snuggles &2&l%target% &r&7them with hugs. &#FF8C6BAwww &4❤");
-        setEmotes("Feelings.Snuggle.Sounds.Sound1.Name", "ENTITY.CAT.PURR");
-        setEmotesDouble("Feelings.Snuggle.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Snuggle.Sounds.Sound1.Pitch", 1.0); // not sure
-        setEmotes("Feelings.Snuggle.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Snuggle.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Snuggle.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Snuggle", true,
+                "&7You snuggle &#c3ff9b&l%player% &r&7with love. &#FF8C6BAwww &4❤",
+                "&#c3ff9b&l%player% &r&7snuggles you with love. &#FF8C6BAwww &4❤",
+                "&#c3ff9b&l%sender% &r&7snuggles &2&l%target% &r&7them with hugs. &#FF8C6BAwww &4❤",
+                "ENTITY.CAT.PURR", 2.0, 1.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Yell.Enable", true);
-        setEmotes("Feelings.Yell.Msgs.Sender", "&7You yell at &#FF8C6B&l%player%&r&7 at the top of your lungs.");
-        setEmotes("Feelings.Yell.Msgs.Target", "&#FF8C6B&l%player% &r&7yells at you from the top of their lungs.");
-        setEmotes("Feelings.Yell.Msgs.Global", "&#FF8C6B&l%sender% &r&7yells right at &4&l%target% &r&7from the top of their lungs.");
-        setEmotes("Feelings.Yell.Sounds.Sound1.Name", "ENTITY.GHAST.SCREAM");
-        setEmotesDouble("Feelings.Yell.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Yell.Sounds.Sound1.Pitch", 1.0); // not sure
-        setEmotes("Feelings.Yell.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Yell.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Yell.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Yell", true,
+                "&7You yell at &#FF8C6B&l%player%&r&7 at the top of your lungs.",
+                "&#FF8C6B&l%player% &r&7yells at you from the top of their lungs.",
+                "&#FF8C6B&l%sender% &r&7yells right at &4&l%target% &r&7from the top of their lungs.",
+                "ENTITY.GHAST.SCREAM", 2.0, 1.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Poke.Enable", true);
-        setEmotes("Feelings.Poke.Msgs.Sender", "&7You poked &#f4fcab&l%player%&7. Maybe they're on vacation?");
-        setEmotes("Feelings.Poke.Msgs.Target", "&#f4fcab&l%player% &r&7has poked you. Anyone there?");
-        setEmotes("Feelings.Poke.Msgs.Global", "&#f4fcab&l%target% &r&7was poked by &6&l%sender%&r&7. &7&oAnyone home?");
-        setEmotes("Feelings.Poke.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
-        setEmotesDouble("Feelings.Poke.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Poke.Sounds.Sound1.Pitch", 0.1); // not sure
-        setEmotes("Feelings.Poke.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Poke.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Poke.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Poke", true,
+                "&7You poked &#f4fcab&l%player%&7. Maybe they're on vacation?",
+                "&#f4fcab&l%player% &r&7has poked you. Anyone there?",
+                "&#f4fcab&l%target% &r&7was poked by &6&l%sender%&r&7. &7&oAnyone home?",
+                "ENTITY.CHICKEN.EGG", 2.0, 0.1, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Slap.Enable", true);
-        setEmotes("Feelings.Slap.Msgs.Sender", "&7You slap &#FF8C6B&l%player% &r&7with some spaghetti.");
-        setEmotes("Feelings.Slap.Msgs.Target", "&#FF8C6B&l%player% &r&7slaps you with some spaghetti.");
-        setEmotes("Feelings.Slap.Msgs.Global", "&#FF8C6B&l%target% &r&7was slapped by &4&l%sender%&r&7.");
-        setEmotes("Feelings.Slap.Sounds.Sound1.Name", "ENTITY.BLAZE.HURT");
-        setEmotesDouble("Feelings.Slap.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Slap.Sounds.Sound1.Pitch", 0.7); // not sure
-        setEmotes("Feelings.Slap.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Slap.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Slap.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Slap", true,
+                "&7You slap &#FF8C6B&l%player% &r&7with some spaghetti.",
+                "&#FF8C6B&l%player% &r&7slaps you with some spaghetti.",
+                "&#FF8C6B&l%target% &r&7was slapped by &4&l%sender%&r&7.",
+                "ENTITY.BLAZE.HURT", 2.0, 0.7, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Stab.Enable", true);
-        setEmotes("Feelings.Stab.Msgs.Sender", "&7You stab &#FF8C6B&l%player% &r&7with a knife. Got Bandaids?");
-        setEmotes("Feelings.Stab.Msgs.Target", "&#FF8C6B&l%player% &r&7grabs a knife and stabs you. Got Bandaids?");
-        setEmotes("Feelings.Stab.Msgs.Global", "&#FF8C6B&l%sender% &r&7grabs a knife and stabs &4&l%target%&r&7.");
-        setEmotes("Feelings.Stab.Sounds.Sound1.Name", "ENTITY.GENERIC.HURT");
-        setEmotesDouble("Feelings.Stab.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Stab.Sounds.Sound1.Pitch", 0.7); // not sure
-        setEmotes("Feelings.Stab.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Stab.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Stab.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Stab", true,
+                "&7You stab &#FF8C6B&l%player% &r&7with a knife. Got Bandaids?",
+                "&#FF8C6B&l%player% &r&7grabs a knife and stabs you. Got Bandaids?",
+                "&#FF8C6B&l%sender% &r&7grabs a knife and stabs &4&l%target%&r&7.",
+                "ENTITY.GENERIC.HURT", 2.0, 0.7, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Pat.Enable", true);
-        setEmotes("Feelings.Pat.Msgs.Sender", "&7You gently pat &#c3ff9b&l%player%&r&7's head for being good.");
-        setEmotes("Feelings.Pat.Msgs.Target", "&#c3ff9b&l%player% &r&7gently pats your head for being good.");
-        setEmotes("Feelings.Pat.Msgs.Global", "&#c3ff9b&l%sender% &r&7gently pats &2&l%target%&r&7's head for being good.");
-        setEmotes("Feelings.Pat.Sounds.Sound1.Name", "ENTITY.WOLF.PANT");
-        setEmotesDouble("Feelings.Pat.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Pat.Sounds.Sound1.Pitch", 0.8); // not sure
-        setEmotes("Feelings.Pat.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Pat.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Pat.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Pat", true,
+                "&7You gently pat &#c3ff9b&l%player%&r&7's head for being good.",
+                "&#c3ff9b&l%player% &r&7gently pats your head for being good.",
+                "&#c3ff9b&l%sender% &r&7gently pats &2&l%target%&r&7's head for being good.",
+                "ENTITY.WOLF.PANT", 2.0, 0.8, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Scorn.Enable", true);
-        setEmotes("Feelings.Scorn.Msgs.Sender", "&7You scorn &#FF8C6B&l%player% &r&7for what they've done.");
-        setEmotes("Feelings.Scorn.Msgs.Target", "&#FF8C6B&l%player% &r&7scorns you for what you've done.");
-        setEmotes("Feelings.Scorn.Msgs.Global", "&#FF8C6B&l%sender% &r&7scorns &4&l%target% &r&7for what they've done.");
-        setEmotes("Feelings.Scorn.Sounds.Sound1.Name", "ENTITY.ENDERMAN.STARE");
-        setEmotesDouble("Feelings.Scorn.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Scorn.Sounds.Sound1.Pitch", 0.8); // not sure
-        setEmotes("Feelings.Scorn.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Scorn.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Scorn.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Scorn", true,
+                "&7You scorn &#FF8C6B&l%player% &r&7for what they've done.",
+                "&#FF8C6B&l%player% &r&7scorns you for what you've done.",
+                "&#FF8C6B&l%sender% &r&7scorns &4&l%target% &r&7for what they've done.",
+                "ENTITY.ENDERMAN.STARE", 2.0, 0.8, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Stalk.Enable", true);
-        setEmotes("Feelings.Stalk.Msgs.Sender", "&7You carefully stalk &#f4fcab&l%player%&r&7, &7&oHeh Heh.");
-        setEmotes("Feelings.Stalk.Msgs.Target", "&#f4fcab&l%player% &r&7stalks you from a nearby tree.");
-        setEmotes("Feelings.Stalk.Msgs.Global", "&#f4fcab&l%sender% &r&7stalks &6&l%target% &r&7from a nearby tree.");
-        setEmotes("Feelings.Stalk.Sounds.Sound1.Name", "AMBIENT.CAVE");
-        setEmotesDouble("Feelings.Stalk.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Stalk.Sounds.Sound1.Pitch", 2.0); // not sure
-        setEmotes("Feelings.Stalk.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Stalk.Sounds.Sound2.Pitch", 0.0);
+        writeFeelingDefaults("Stalk", true,
+                "&7You carefully stalk &#f4fcab&l%player%&r&7, &7&oHeh Heh.",
+                "&#f4fcab&l%player% &r&7stalks you from a nearby tree.",
+                "&#f4fcab&l%sender% &r&7stalks &6&l%target% &r&7from a nearby tree.",
+                "AMBIENT.CAVE", 2.0, 2.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Sus.Enable", true);
-        setEmotes("Feelings.Sus.Msgs.Sender", "&7You look at &#f4fcab&l%player%&r&7's single-boned body in suspicion.");
-        setEmotes("Feelings.Sus.Msgs.Target", "&#f4fcab&l%player% &r&7suspiciously looks at your single-boned body.");
-        setEmotes("Feelings.Sus.Msgs.Global", "&#f4fcab&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.");
+        writeFeelingDefaults("Sus", true,
+                "&7You look at &#f4fcab&l%player%&r&7's single-boned body in suspicion.",
+                "&#f4fcab&l%player% &r&7suspiciously looks at your single-boned body.",
+                "&#f4fcab&l%sender% &r&7looks at &6&l%target% &r&7in single-boned suspicion.",
+                validSound("AMBIENT_NETHER_WASTES_MOOD") ? "AMBIENT.NETHER_WASTES.MOOD" : "AMBIENT.CAVE", 2.0, 1.2,
+                validSound("BLOCK_RESPAWN_ANCHOR_DEPLETE") ? "BLOCK.RESPAWN_ANCHOR.DEPLETE" : "None", 0.25, 0.1);
 
-        if(validSound("AMBIENT_NETHER_WASTES_MOOD")) {
-            setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT.NETHER_WASTES.MOOD");
-        } else {
-            setEmotes("Feelings.Sus.Sounds.Sound1.Name", "AMBIENT.CAVE");
-        }
+        writeFeelingDefaults("Wave", true,
+                "&7You wave adieu to &#c3ff9b&l%player%&r&7!",
+                "&#c3ff9b&l%player% &r&7waves adieu to you.",
+                "&#c3ff9b&l%sender% &r&7waves adieu to &2&l%target%.",
+                validSound("BLOCK_AMETHYST_BLOCK_RESONATE") ? "BLOCK.AMETHYST_BLOCK.RESONATE" : "BLOCK.NOTE_BLOCK.BELL", 2.0, 2.0,
+                "None", 0.0, 0.0);
 
-        setEmotesDouble("Feelings.Sus.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Sus.Sounds.Sound1.Pitch", 1.2);
+        writeFeelingDefaults("Welcomeback", true,
+                "&7You told &#c3ff9b&l%player%&r &7welcome back!",
+                "&#c3ff9b&l%player% &r&7gave you a warm welcome back!",
+                "&#c3ff9b&l%sender% &r&7welcomed &2&l%target% &r&7back.",
+                "BLOCK.BEACON.POWER_SELECT", 2.0, 2.0, "None", 0.0, 0.0);
 
-        if(validSound("BLOCK_RESPAWN_ANCHOR_DEPLETE")) {
-            setEmotes("Feelings.Sus.Sounds.Sound2.Name", "BLOCK.RESPAWN_ANCHOR.DEPLETE");
-        } else {
-            setEmotes("Feelings.Sus.Sounds.Sound2.Name", "None");
-        }
-        setEmotesDouble("Feelings.Sus.Sounds.Sound2.Volume", 0.25);
-        setEmotesDouble("Feelings.Sus.Sounds.Sound2.Pitch", 0.1);
+        writeFeelingDefaults("Boop", true,
+                "&7You boop &#c3ff9b&l%player%&7 right on their nose!",
+                "&#c3ff9b&l%player% &r&7boops you right on your nose!",
+                "&#c3ff9b&l%target% &r&7was booped on their nose by &#c3ff9b&l%sender%&r&7!",
+                "ENTITY.CHICKEN.EGG", 2.0, 2.0, "None", 0.0, 0.0);
 
-        setEmotesBoolean("Feelings.Wave.Enable", true);
-        setEmotes("Feelings.Wave.Msgs.Sender", "&7You wave adieu to &#c3ff9b&l%player%&r&7!");
-        setEmotes("Feelings.Wave.Msgs.Target", "&#c3ff9b&l%player% &r&7waves adieu to you.");
-        setEmotes("Feelings.Wave.Msgs.Global", "&#c3ff9b&l%sender% &r&7waves adieu to &2&l%target%.");
+        // Still moot: scaffolded but intentionally left out of Main.BUILTIN_FEELINGS / plugin.yml.
+        writeFeelingDefaults("Knock", true,
+                "&7You knock on &#c3ff9b&l%player%&7's door!",
+                "&#c3ff9b&l%player% &r&7has knocked at your door!",
+                "&#c3ff9b&l%target% &r&7has knocked on &#c3ff9b&l%sender%&r&7 door.",
+                "BLOCK.IRON.HIT", 2.0, 1.75, "None", 0.0, 0.0);
 
-        if(validSound("BLOCK_AMETHYST_BLOCK_RESONATE")) {
-            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK.AMETHYST_BLOCK.RESONATE");
-        } else {
-            setEmotes("Feelings.Wave.Sounds.Sound1.Name", "BLOCK.NOTE_BLOCK.BELL");
-        }
+        setEmotesVersion(9);
 
-        setEmotesDouble("Feelings.Wave.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Wave.Sounds.Sound1.Pitch", 2.0);
+        List<String> customFeelings = discoverCustomFeelings();
+        Main.setCustomFeelings(customFeelings);
+        CommandManager.updateCustomFeelingCommands(customFeelings);
 
-        setEmotes("Feelings.Wave.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Wave.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Wave.Sounds.Sound2.Pitch", 0.0);
-
-        setEmotesBoolean("Feelings.Welcomeback.Enable", true);
-        setEmotes("Feelings.Welcomeback.Msgs.Sender", "&7You told &#c3ff9b&l%player%&r &7welcome back!");
-        setEmotes("Feelings.Welcomeback.Msgs.Target", "&#c3ff9b&l%player% &r&7gave you a warm welcome back!");
-        setEmotes("Feelings.Welcomeback.Msgs.Global", "&#c3ff9b&l%sender% &r&7welcomed &2&l%target% &r&7back.");
-        setEmotes("Feelings.Welcomeback.Sounds.Sound1.Name", "BLOCK.BEACON.POWER_SELECT");
-        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Welcomeback.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Welcomeback.Sounds.Sound2.Pitch", 0.0);
-
-
-        setEmotesBoolean("Feelings.Boop.Enable", true);
-        setEmotes("Feelings.Boop.Msgs.Sender", "&7You boop &#c3ff9b&l%player%&7 right on their nose!");
-        setEmotes("Feelings.Boop.Msgs.Target", "&#c3ff9b&l%player% &r&7boops you right on your nose!");
-        setEmotes("Feelings.Boop.Msgs.Global", "&#c3ff9b&l%target% &r&7was booped on their nose by &#c3ff9b&l%sender%&r&7!");
-        setEmotes("Feelings.Boop.Sounds.Sound1.Name", "ENTITY.CHICKEN.EGG");
-        setEmotesDouble("Feelings.Boop.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Boop.Sounds.Sound1.Pitch", 2.0);
-        setEmotes("Feelings.Boop.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Boop.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Boop.Sounds.Sound2.Pitch", 0.0);
-
-        setEmotesBoolean("Feelings.Knock.Enable", true);
-        setEmotes("Feelings.Knock.Msgs.Sender", "&7You knock on &#c3ff9b&l%player%&7's door!");
-        setEmotes("Feelings.Knock.Msgs.Target", "&#c3ff9b&l%player% &r&7has knocked at your door!");
-        setEmotes("Feelings.Knock.Msgs.Global", "&#c3ff9b&l%target% &r&7has knocked on &#c3ff9b&l%sender%&r&7 door.");
-        setEmotes("Feelings.Knock.Sounds.Sound1.Name", "BLOCK.IRON.HIT");
-        setEmotesDouble("Feelings.Knock.Sounds.Sound1.Volume", 2.0);
-        setEmotesDouble("Feelings.Knock.Sounds.Sound1.Pitch", 1.75);
-        setEmotes("Feelings.Knock.Sounds.Sound2.Name", "None");
-        setEmotesDouble("Feelings.Knock.Sounds.Sound2.Volume", 0.0);
-        setEmotesDouble("Feelings.Knock.Sounds.Sound2.Pitch", 0.0);
-
-        setEmotesVersion(8);
         reloadFiles();
     }
 
