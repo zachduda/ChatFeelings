@@ -44,7 +44,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
     public MorePaperLib morePaperLib = new MorePaperLib(this);
 
-    public final static List< String > feelings = Arrays.asList(
+    /** The feelings ChatFeelings ships with. Defaults for each are written to Feelings/&lt;name&gt;.yml by FileSetup. */
+    public final static List<String> BUILTIN_FEELINGS = Collections.unmodifiableList(Arrays.asList(
             "hug",
             "slap",
             "poke",
@@ -69,7 +70,24 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             "wave",
             "welcomeback",
             "boop"
-    );
+    ));
+
+    /**
+     * Every usable feeling: the built-ins above plus any valid custom feelings discovered in the
+     * Feelings folder. Kept in sync by FileSetup.enableFiles() via setCustomFeelings(); the List
+     * instance itself never changes so other classes can keep a reference to it.
+     */
+    public final static List<String> feelings = new ArrayList<>(BUILTIN_FEELINGS);
+
+    static void setCustomFeelings(List<String> customFeelings) {
+        feelings.clear();
+        feelings.addAll(BUILTIN_FEELINGS);
+        for (String custom : customFeelings) {
+            if (!feelings.contains(custom)) {
+                feelings.add(custom);
+            }
+        }
+    }
 
     private boolean hasess = false;
     private boolean haslitebans = false;
@@ -1877,7 +1895,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
             List<String> enabledfeelings = new ArrayList<>();
             for(String fl : feelings) {
-                if (emotes.getBoolean("Feelings." + capitalizeString(fl) + ".Enable")) {
+                if (FileSetup.getFeelingBoolean(fl, "Enable")) {
                     enabledfeelings.add(fl);
                 }
             }
@@ -1906,9 +1924,16 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 if(i < enabledfeelings.size()) {
                     final String flcap = capitalizeString(enabledfeelings.get(i));
                     final String cfl = enabledfeelings.get(i).toLowerCase();
-                    if (emotes.getBoolean("Feelings." + flcap + ".Enable")) {
+                    if (FileSetup.getFeelingBoolean(cfl, "Enable")) {
+                        String description = msg.getString(path + flcap);
+                        if (description == null) {
+                            description = FileSetup.getFeelingString(cfl, "Description");
+                        }
+                        if (description == null) {
+                            description = "&7A custom feeling.";
+                        }
                         if (hasPerm(sender, "chatfeelings." + cfl) || hasPerm(sender, "chatfeelings.all")) {
-                            Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + msg.getString(path + flcap));
+                            Msgs.send(sender, "&8&l> &f&l/" + cfl + plyr + "&7 " + description);
                         } else {
                             Msgs.send(sender, "&8&l> &#FF8C6B/" + cfl + plyr + "&7 " + msg.getString("Command-List-NoPerm"));
                         }
@@ -1955,6 +1980,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 }
 
                 final String cmdconfig = (capitalizeString(cmd.getName()));
+                final FileConfiguration feelingConfig = FileSetup.loadFeelingConfig(cmdlr);
 
                 if (sender instanceof Player p) {
                     if (disabledsendingworlds.contains(p.getWorld().getName())) {
@@ -1964,7 +1990,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     }
                 }
 
-                if (!emotes.getBoolean("Feelings." + cmdconfig + ".Enable")) {
+                if (!feelingConfig.getBoolean("Enable")) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Emote-Disabled"));
                     return;
@@ -2130,7 +2156,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                             if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player p)) {
                                 // ONLY for CONSOLE Global notify here.
-                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
+                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, target));
                             } else {
                                 // Global for PLAYER below
                                 if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
@@ -2139,7 +2165,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                         Bukkit.getPluginManager().callEvent(fgne);
 
                                         if (!fgne.isCancelled()) {
-                                            Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, finalTarget));
+                                            Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, finalTarget));
                                         }
                                     });
 
@@ -2151,7 +2177,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                     // Global Console Broadcast Msg ------------------------------------------------
                     if (getConfig().getBoolean("General.Global-Feelings.Broadcast-To-Console")) {
-                        Msgs.send(getServer().getConsoleSender(), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Global"), sender, target));
+                        Msgs.send(getServer().getConsoleSender(), NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, target));
 
                     }
                     // Global Console End --------------------------------------------------
@@ -2159,9 +2185,9 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 } else {
                     // if not global (normal)
                     // send to target
-                    Msgs.send(Objects.requireNonNull(target.getPlayer()), NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Target"), sender));
+                    Msgs.send(Objects.requireNonNull(target.getPlayer()), NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Target"), sender));
                     // send to cmd sender
-                    Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(emotes.getString("Feelings." + cmdconfig + ".Msgs.Sender"), target));
+                    Msgs.send(sender, NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Sender"), target));
                 } // end of global else
 
 
@@ -2209,7 +2235,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // Sound Handler ----------------------------------------
                 if (sounds) {
                     try {
-                        String sound1 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound1.Name");
+                        String sound1 = feelingConfig.getString("Sounds.Sound1.Name");
                         if (!Objects.requireNonNull(sound1).equalsIgnoreCase("none") && !sound1.equalsIgnoreCase("off") && !sound1.equals("null")) {
                             Sound sound1var;
                             try {
@@ -2220,13 +2246,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                             }
                             target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                     sound1var,
-                                    (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
-                                    (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
+                                    (float) feelingConfig.getDouble("Sounds.Sound1.Volume"),
+                                    (float) feelingConfig.getDouble("Sounds.Sound1.Pitch"));
                             if (sender instanceof Player p) {
                                 p.playSound(p.getLocation(),
                                         Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase())))),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Volume"),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound1.Pitch"));
+                                        (float) feelingConfig.getDouble("Sounds.Sound1.Volume"),
+                                        (float) feelingConfig.getDouble("Sounds.Sound1.Pitch"));
                             }
                         }
                     } catch (Exception sounderr1) { // err test for sounds
@@ -2237,7 +2263,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                         sounds = false;
                     }
                     try {
-                        String sound2 = emotes.getString("Feelings." + cmdconfig + ".Sounds.Sound2.Name");
+                        String sound2 = feelingConfig.getString("Sounds.Sound2.Name");
                         if (!Objects.requireNonNull(sound2).equalsIgnoreCase("none") && !sound2.equalsIgnoreCase("off") && !sound2.equals("null")) {
                             Sound sound2var;
                             try {
@@ -2255,14 +2281,14 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                             } else {
                                 target.playSound(Objects.requireNonNull(target.getPlayer()).getLocation(),
                                         sound2var,
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
-                                        (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
+                                        (float) feelingConfig.getDouble("Sounds.Sound2.Volume"),
+                                        (float) feelingConfig.getDouble("Sounds.Sound2.Pitch"));
 
                                 if (sender instanceof Player p && !sound2.contains("DISC")) {
                                     p.playSound(p.getLocation(),
                                             sound2var,
-                                            (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Volume"),
-                                            (float) emotes.getDouble("Feelings." + cmdconfig + ".Sounds.Sound2.Pitch"));
+                                            (float) feelingConfig.getDouble("Sounds.Sound2.Volume"),
+                                            (float) feelingConfig.getDouble("Sounds.Sound2.Pitch"));
                                 }
                             }
                         }

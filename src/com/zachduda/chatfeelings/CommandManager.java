@@ -5,16 +5,22 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.SimplePluginManager;
 import org.jetbrains.annotations.NotNull;
 import space.arim.morepaperlib.MorePaperLib;
 
 import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class CommandManager {
     private static Plugin plugin = null;
@@ -22,6 +28,9 @@ public class CommandManager {
     private static Map<String, Command> knownCommands;
     private static boolean cfAliasRegistered = false;
     private static MorePaperLib mpl;
+
+    /** Custom feeling commands currently registered with the server's CommandMap. */
+    private static final Set<String> registeredCustomFeelings = new HashSet<>();
 
     public CommandManager(Plugin plugin, MorePaperLib morePaperLib) {
         CommandManager.plugin = plugin;
@@ -91,5 +100,73 @@ public class CommandManager {
 
         cfAliasRegistered = false;
         Main.debug("Unregistered /cf command alias");
+    }
+
+    /**
+     * Registers/unregisters custom feeling commands (from the Feelings folder) with the server's
+     * CommandMap so /&lt;customfeeling&gt; works, the same way the /cf alias is registered above.
+     * Called by FileSetup after every enableFiles()/reload, so it stays in sync with what's on disk.
+     */
+    public static void updateCustomFeelingCommands(List<String> customFeelings) {
+        if (commandMap == null) return;
+
+        Iterator<String> it = registeredCustomFeelings.iterator();
+        while (it.hasNext()) {
+            String name = it.next();
+            if (!customFeelings.contains(name)) {
+                unregisterFeelingCommand(name);
+                it.remove();
+            }
+        }
+
+        for (String name : customFeelings) {
+            if (!registeredCustomFeelings.contains(name)) {
+                registerFeelingCommand(name);
+                registeredCustomFeelings.add(name);
+            }
+        }
+    }
+
+    private static void registerFeelingCommand(String name) {
+        if (commandMap == null || !(plugin instanceof TabExecutor)) return;
+        final TabExecutor executor = (TabExecutor) plugin;
+
+        String description = FileSetup.getFeelingString(name, "Description");
+        if (description == null || description.isBlank()) {
+            description = "A custom feeling added via the Feelings folder.";
+        }
+
+        Command feelingCommand = new Command(name) {
+            @Override
+            public boolean execute(@NotNull CommandSender sender, @NotNull String label, String[] args) {
+                return executor.onCommand(sender, this, label, args);
+            }
+
+            @Override
+            public @NotNull List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, String[] args) {
+                return executor.onTabComplete(sender, this, alias, args);
+            }
+        };
+
+        feelingCommand.setDescription(description);
+        feelingCommand.setUsage("/" + name + " <player>");
+
+        String permissionNode = "chatfeelings." + name;
+        if (Bukkit.getPluginManager().getPermission(permissionNode) == null) {
+            Bukkit.getPluginManager().addPermission(new Permission(permissionNode, PermissionDefault.OP));
+        }
+        feelingCommand.setPermission(permissionNode);
+
+        commandMap.register(plugin.getName(), feelingCommand);
+        Main.log("Registered custom feeling command: /" + name, false, false);
+    }
+
+    private static void unregisterFeelingCommand(String name) {
+        if (knownCommands == null) return;
+
+        knownCommands.remove(name);
+        knownCommands.remove(plugin.getName().toLowerCase() + ":" + name);
+
+        Main.log("Unregistered custom feeling command: /" + name, false, false);
     }
 }
