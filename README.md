@@ -9,14 +9,14 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
 ```[code=xml]
 <repository>
       <id>zachduda</id>
-      <url>https://zachduda.com/maven</url>
+      <url>https://maven.zachduda.com/releases</url>
   </repository>
 ```
 ```[code=xml]
 <dependency>
   <groupId>com.zachduda</groupId>
   <artifactId>chatfeelings</artifactId>
-  <version>4.16.0</version>
+  <version>5.0.0</version>
 </dependency>
 ```
 
@@ -24,13 +24,6 @@ For information on how to use the API, [click here](https://www.spigotmc.org/wik
 
 ChatFeelings is a Minecraft plugin (26.2-1.13).
 Please check out the [Spigot Page](https://www.spigotmc.org/resources/chatfeelings.12987/). for full documentation.
-
-### MySQL Storage
-Player data (mutes, ignore lists and stats) is stored in the `Data` folder by default. To share it between
-servers, set `Other.Storage.Type` to `MySQL` in `config.yml` and fill in `Other.Storage.MySQL`, then restart.
-ChatFeelings uses the MySQL driver that ships with Spigot/Paper, creates its own tables (prefixed with `cf_`),
-and on first start copies any existing `Data` folder into the database. MariaDB works too. If the database
-can't be reached, the plugin logs why and falls back to the `Data` folder.
 
 # License
 This project is licensed under [Creative Commons (CC-BY-NC-4)](https://creativecommons.org/licenses/by-nc/4.0/).
