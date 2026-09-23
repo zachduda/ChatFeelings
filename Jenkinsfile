@@ -1,18 +1,13 @@
 // Build pipeline for ChatFeelings.
 //
-// The container image supplies the JDK and ./mvnw supplies Maven, so the build
-// no longer depends on a Maven being installed -- and on PATH -- on whichever
-// node Jenkins happens to pick. The Maven version is pinned in
-// .mvn/wrapper/maven-wrapper.properties.
-//
-// Needs the Docker Pipeline plugin and a reachable Docker daemon on the node.
+// ./mvnw supplies Maven itself, so the build only needs a JDK on the node --
+// no system Maven, and no Docker Pipeline plugin / Docker daemon required.
+// The Maven version is pinned in .mvn/wrapper/maven-wrapper.properties.
+// The node running this must have a JDK on PATH matching the project's
+// target release (21).
 
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9-eclipse-temurin-21'
-        }
-    }
+    agent any
 
     options {
         disableConcurrentBuilds()
