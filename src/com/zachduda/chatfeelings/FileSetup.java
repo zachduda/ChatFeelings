@@ -536,13 +536,13 @@ public class FileSetup {
                 }
 
                 if (msgs.getString("Ingoring-On-All") != null) {
-                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-On-Player", null);
+                    setMsgs("Ignoring-On-All", msgs.getString("Ingoring-On-All"));
+                    forceMsgs("Ingoring-On-All", null);
                 }
 
                 if (msgs.getString("Ingoring-Off-All") != null) {
-                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-Player"));
-                    forceMsgs("Ingoring-Off-Player", null);
+                    setMsgs("Ignoring-Off-All", msgs.getString("Ingoring-Off-All"));
+                    forceMsgs("Ingoring-Off-All", null);
                 }
                 // Wb -> Welcome Back
                 if (msgs.getString("Command_Descriptions.Wb") != null) {
