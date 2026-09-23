@@ -24,8 +24,8 @@ public class Updater {
     private final String localPluginVersion;
     private final MorePaperLib morePaperLib;
     
-    static String posted_version = "???";
-    static boolean outdated = false;
+    static volatile String posted_version = "???";
+    static volatile boolean outdated = false;
 
     private static final long CHECK_INTERVAL = 1_728_000; //In ticks.
     
@@ -77,6 +77,9 @@ public class Updater {
 
                     if (foundOutdated.get()) {
                         final String posted = foundVersion;
+                        // Used by the join message that tells admins an update is available.
+                        posted_version = posted;
+                        outdated = true;
                         morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
                             Main.log("Update Available: Download @ zduda.dev/cf  (" + localPluginVersion + " —> " + posted + ")"
                             , true, false);

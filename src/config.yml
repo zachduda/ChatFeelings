@@ -37,6 +37,22 @@ Other:
     Cleanup: true
     Cleanup-After-Days: 185
     Erase-If-Banned: true
+  Storage:
+    # Where player data (mutes, ignore lists & stats) is kept.
+    # YAML = one file per player in the Data folder. MySQL = share data across servers (MariaDB works too).
+    Type: YAML
+    MySQL:
+      Host: localhost
+      Port: 3306
+      Database: chatfeelings
+      Username: root
+      Password: ""
+      Use-SSL: false
+      Table-Prefix: "cf_"
+      # Extra JDBC URL parameters, ie: "serverTimezone=UTC"
+      Properties: ""
+      # When the MySQL tables are empty, copy the existing Data folder into them on startup.
+      Import-From-YAML: true
   Updates:
     Check: true
   Metrics: true

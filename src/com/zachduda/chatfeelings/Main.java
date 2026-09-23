@@ -4,6 +4,9 @@ import com.earth2me.essentials.Essentials;
 import com.zachduda.chatfeelings.api.*;
 import com.zachduda.chatfeelings.other.Supports;
 import com.zachduda.chatfeelings.other.Updater;
+import com.zachduda.chatfeelings.storage.PlayerData;
+import com.zachduda.chatfeelings.storage.PlayerStorage;
+import com.zachduda.chatfeelings.storage.StorageFactory;
 import litebans.api.Database;
 import me.leoko.advancedban.manager.PunishmentManager;
 import org.bstats.bukkit.Metrics;
@@ -17,7 +20,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,6 +35,8 @@ import space.arim.morepaperlib.MorePaperLib;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @SuppressWarnings({"CatchMayIgnoreException", "CallToPrintStackTrace"})
@@ -106,6 +110,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     private static volatile boolean punishmentError = false;
     private Metrics metrics;
 
+    /** Player data backend (YAML Data folder or MySQL). Only touch it from async tasks. */
+    private volatile PlayerStorage storage;
+    private String storageType;
+
     private long lastreload = 0;
     private long lastmutelist = 0;
 
@@ -177,6 +185,15 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         }
 
         morePaperLib.scheduling().cancelGlobalTasks();
+
+        if (storage != null) {
+            storage.close();
+            storage = null;
+        }
+    }
+
+    public PlayerStorage getStorage() {
+        return storage;
     }
 
     public static String capitalizeString(String string) {
@@ -194,109 +211,51 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     }
 
     private void purgeOldFiles() {
-        boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
+        final boolean useclean = getConfig().getBoolean("Other.Player-Files.Cleanup");
+        final boolean eraseBanned = getConfig().getBoolean("Other.Player-Files.Erase-If-Banned");
+        final int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
+        final PlayerStorage store = storage;
 
         morePaperLib.scheduling().asyncScheduler().run(() -> {
+            store.cleanupInvalid();
 
-            File folder = new File(this.getDataFolder(), File.separator + "Data");
-            if (!folder.exists()) {
-                return;
-            }
+            final long today = System.currentTimeMillis() / 86400000;
+            for (PlayerData data : store.loadAll()) {
+                try {
+                    final String playername = data.getUsername();
+                    final long daysAgo = Math.abs((data.getLastOn() / 86400000) - today);
 
-            int maxDays = getConfig().getInt("Other.Player-Files.Cleanup-After-Days");
-
-            for (File cachefile: Objects.requireNonNull(folder.listFiles())) {
-                File f = new File(cachefile.getPath());
-
-                if(f.getName().toLowerCase().contains(".ds_store")) {
-                    // Ignore MAC OS created files in the DATA folder.
-                    return;
-                }
-
-                if (!f.getName().equalsIgnoreCase("global.yml")) {
-                    try {
-                        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-                        if (!setcache.contains("Last-On") || (!setcache.contains("Username")) || (!setcache.contains("UUID"))) {
-                            if(f.delete()) {
-                                debug("Deleted file: " + f.getName() + "... It was invalid!");
-                            } else {
-                                debug("Unable to delete invalid player file: " + f.getName());
-                            }
-                        } else {
-
-                            long daysAgo = Math
-                                    .abs(((setcache.getLong("Last-On")) / 86400000) - (System.currentTimeMillis() / 86400000));
-
-                            String playername = setcache.getString("Username");
-                            String uuid = setcache.getString("UUID");
-                            String IPAdd = setcache.getString("IP");
-                            assert uuid != null;
-                            UUID puuid = UUID.fromString(uuid);
-
-                            int banInt;
-
-                            if (getConfig().getBoolean("Other.Player-Files.Erase-If-Banned")) {
-                                banInt = isBanned(puuid, IPAdd);
-                            } else {
-                                banInt = 0;
-                            }
-
-                            if (banInt == 1) {
-                                debug("Deleted " + playername + "'s data file. They were banned! (Essentials)");
-                                f.delete();
-                            } else if (banInt == 2) {
-                                debug("Deleted " + playername + "'s data file. They were banned! (LiteBans)");
-                                f.delete();
-                            } else if (banInt == 3) {
-                                debug("Deleted " + playername + "'s data file. They were banned! (AdvancedBan)");
-                                f.delete();
-                            } else if (banInt == 4) {
-                                debug("Deleted " + playername + "'s data file. They were banned! (Vanilla)");
-                                f.delete();
-                            } else { // Ban int = 0 means not banned.
-
-                                if (daysAgo >= maxDays && useclean) {
-                                    f.delete();
-                                    debug("Deleted " + playername + "'s data file because it's " + daysAgo +
-                                            "s old. (Max is " + maxDays + " Days)");
-                                } else {
-
-                                    if (!setcache.contains("Muted") || !setcache.contains("Version")) {
-                                        setcache.set("Muted", false);
-                                        setcache.set("Version", 2);
-                                        debug("Updated " + playername + "'s data file to work with new mute system.");
-
-                                        try {
-                                            setcache.save(f);
-                                        } catch (Exception err) {
-                                            if(debug) {
-                                                log("Unable to update file:", true, true);
-                                                err.printStackTrace();
-                                            }
-                                        }
-                                    }
-
-                                    if (useclean) {
-                                        debug("Keeping " + playername + "'s data file. (" + daysAgo + "/" + maxDays +
-                                                " days left)");
-                                    } else {
-                                        debug("Found " + playername + "'s data file. (" + daysAgo + " days");
-                                    }
-
-                                } // end of not too old check.
-                            } // end of not banned check.
-                        } // end of contains variables check.
-                    } catch (Exception err) {
-                        if (debug) {
-                            debug("Error when trying to work with player file: " + f.getName() + ", see below:");
-                            err.printStackTrace();
-                        }
+                    final int banInt = eraseBanned ? isBanned(data.getUuid(), data.getIp()) : 0;
+                    if (banInt != 0) {
+                        store.delete(data.getUuid());
+                        debug("Deleted " + playername + "'s data. They were banned! (" + banSource(banInt) + ")");
+                    } else if (useclean && daysAgo >= maxDays) {
+                        store.delete(data.getUuid());
+                        debug("Deleted " + playername + "'s data because it's " + daysAgo +
+                                " days old. (Max is " + maxDays + " Days)");
+                    } else if (useclean) {
+                        debug("Keeping " + playername + "'s data. (" + daysAgo + "/" + maxDays + " days)");
+                    } else {
+                        debug("Found " + playername + "'s data. (" + daysAgo + " days)");
                     }
-                } // end of if not global check
-            } // end of For loop
+                } catch (Exception err) {
+                    if (debug) {
+                        debug("Error when trying to purge player data for " + data.getUuid() + ", see below:");
+                        err.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
 
-        }); // End of Async;
+    private static String banSource(int banInt) {
+        return switch (banInt) {
+            case 1 -> "Essentials";
+            case 2 -> "LiteBans";
+            case 3 -> "AdvancedBan";
+            case 4 -> "Vanilla";
+            default -> "Unknown";
+        };
     }
 
     public static void updateConfigHeaders(JavaPlugin pl) {
@@ -394,7 +353,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         if(!admin_cmd && !useperms) {
             return true;
         }
-        return feelings.contains(node.replaceAll("chatfeelings.", "")) && p.hasPermission("chatfeelings.all");
+        return node.startsWith("chatfeelings.") && feelings.contains(node.substring("chatfeelings.".length())) && p.hasPermission("chatfeelings.all");
     }
 
     public boolean hasPerm(CommandSender p, String node) {
@@ -462,14 +421,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         }));
 
         metrics.addCustomChart(new SimpleBarChart("feeling_usage", () -> {
-            File folder = new File(getDataFolder(), File.separator + "Data");
-            File fstats = new File(folder, File.separator + "global.yml");
-            FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
+            final PlayerStorage store = storage;
+            final Map<String, Integer> sent = store == null ? Collections.emptyMap() : store.getGlobalSent();
 
             Map<String, Integer> map = new HashMap<>();
             for (String fl : feelings) {
                 final String flc = capitalizeString(fl);
-                map.put(flc, setstats.getInt("Feelings.Sent." + flc, setstats.getInt("Feelings.Sent." + flc) + 1));
+                map.put(flc, sent.getOrDefault(flc, 1));
             }
             return map;
         }));
@@ -573,211 +531,59 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     private void generatePlayerTestFile(CommandSender sender) {
         final long start = System.currentTimeMillis();
         morePaperLib.scheduling().asyncScheduler().run(() -> {
-            final UUID UUID = java.util.UUID.randomUUID();
-            final String strud = UUID.toString();
-
-            File cache = new File(this.getDataFolder(), File.separator + "Data");
-            File f = new File(cache, File.separator + strud + ".yml");
-            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-            if (!f.exists()) {
-                try {
-                    setcache.save(f);
-                } catch (Exception err) {
-                    if (debug) {
-                        log("Unable to update last seen var in player file:", true, true);
-                        err.printStackTrace();
-                    }
-                }
-            }
-
-            String IPAdd = "127.0.0.1";
-            int fileversion = setcache.getInt("Version");
-            int currentfileversion = 2;
-
-            if (!setcache.contains(strud)) {
-                setcache.set("UUID", strud);
-                setcache.set("Allow-Feelings", true);
-                setcache.set("Muted", false);
-            }
-
-            if (fileversion != currentfileversion || !setcache.contains("Version")) {
-                setcache.set("Version", currentfileversion);
-            }
-
-            setcache.set("IP", IPAdd);
-            setcache.set("Username", "User-" + strud);
-            setcache.set("Last-On", System.currentTimeMillis());
+            final UUID uuid = UUID.randomUUID();
             try {
-                setcache.save(f);
-                final long end = System.currentTimeMillis();
-                final long time = (end - start);
-                Msgs.sendPrefix(sender, "&a&lDone! &7Player test file created in &f" + time + "ms");
+                storage.recordLogin(uuid, "User-" + uuid, "127.0.0.1", System.currentTimeMillis());
+                Msgs.sendPrefix(sender, "&a&lDone! &7Player test data (" + storage.getName() + ") created in &f"
+                        + (System.currentTimeMillis() - start) + "ms");
                 pop(sender);
             } catch (Exception err) {
                 if (debug) {
                     err.printStackTrace();
-                    Msgs.sendPrefix(sender, "&7See console. File creation failed.");
-                    bass(sender);
                 }
+                Msgs.sendPrefix(sender, "&7See console. Test data creation failed.");
+                bass(sender);
             }
         });
+    }
+
+    private static String getIp(Player p) {
+        final java.net.InetSocketAddress address = p.getAddress();
+        if (address == null || address.getAddress() == null) {
+            return null;
+        }
+        return address.getAddress().getHostAddress();
     }
 
     private void updateLastOn(Player p) {
-        morePaperLib.scheduling().asyncScheduler().run(() -> {
-            final String UUID = p.getUniqueId().toString();
-
-            File cache = new File(this.getDataFolder(), File.separator + "Data");
-            File f = new File(cache, File.separator + UUID + ".yml");
-            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-            if (!f.exists()) {
-                try {
-                    setcache.save(f);
-                } catch (Exception err) {
-                    if(debug) {
-                        log("Unable to update last seen var in player file:",true,true);
-                        err.printStackTrace();
-                    }
-                }
-            }
-
-            String IPAdd = Objects.requireNonNull(p.getAddress()).getAddress().toString().replace(p.getAddress().getHostString() + "/", "").replace("/", "");
-            int fileversion = setcache.getInt("Version");
-            int currentfileversion = 2; // <--------------------- CHANGE when UPDATING
-
-            if (!setcache.contains(UUID)) {
-                setcache.set("UUID", UUID);
-                setcache.set("Allow-Feelings", true);
-                setcache.set("Muted", false);
-            }
-
-            if (fileversion != currentfileversion || !setcache.contains("Version")) {
-                setcache.set("Version", currentfileversion);
-            }
-
-            setcache.set("IP", IPAdd);
-            setcache.set("Username", p.getName());
-            setcache.set("Last-On", System.currentTimeMillis());
-            try {
-                setcache.save(f);
-            } catch (Exception err) {
-                if(debug) {
-                    log("Unable to update player file:", true, true);
-                    err.printStackTrace();
-                }
-            }
-        });
+        final UUID uuid = p.getUniqueId();
+        final String name = p.getName();
+        final String ip = getIp(p);
+        final PlayerStorage store = storage;
+        morePaperLib.scheduling().asyncScheduler().run(() -> store.recordLogin(uuid, name, ip, System.currentTimeMillis()));
     }
 
     private void statsAdd(Player p, String emotion) {
+        final UUID uuid = p.getUniqueId();
+        final PlayerStorage store = storage;
         morePaperLib.scheduling().asyncScheduler().run(() -> {
-
-            // Global Stats -------------------------------------
-            File folder = new File(getDataFolder(), File.separator + "Data");
-            File fstats = new File(folder, File.separator + "global.yml");
-            FileConfiguration setstats = YamlConfiguration.loadConfiguration(fstats);
-
-            if (!fstats.exists()) {
-                debug("Global stats file didn't exist, creating one now!");
-                try {
-                    setstats.save(fstats);
-                } catch (Exception err) {
-                    if(debug) {
-                        log("Unable to create or save global stats file:", true, true);
-                        err.printStackTrace();
-                    }
-                }
-            }
-
-            setstats.set("Feelings.Sent." + emotion, setstats.getInt("Feelings.Sent." + emotion) + 1);
-            try {
-                setstats.save(fstats);
-            } catch (Exception err) {}
-
-            // Global Stats ----------------------------------
-
-            final String UUID = p.getUniqueId().toString();
-
-            File f = new File(folder, File.separator + UUID + ".yml");
-            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-            if (!f.exists()) {
-                return;
-            }
-
-            int ftotal = setcache.getInt("Stats.Sent." + emotion);
-            int total = setcache.getInt("Stats.Sent.Total");
-
-            setcache.set("Stats.Sent." + emotion, ftotal + 1);
-            setcache.set("Stats.Sent.Total", total + 1);
-
-            try {
-                setcache.save(f);
-            } catch (Exception err) {}
+            store.incrementGlobalSent(emotion);
+            store.incrementSent(uuid, emotion);
         });
     }
 
+    /** Finds the UUID of a player who has joined before. Checks online players first, then storage (slow, use async). */
     public UUID hasPlayedNameGetUUID(String inputsearch) {
-        File folder = new File(this.getDataFolder(), File.separator + "Data");
-        if(!folder.exists()) {
-            return null;
+        final Player online = Bukkit.getPlayerExact(inputsearch);
+        if (online != null) {
+            return online.getUniqueId();
         }
-        try {
-            for (File AllData : Objects.requireNonNull(folder.listFiles())) {
-                File f = new File(AllData.getPath());
-
-                if (!f.getName().equalsIgnoreCase("global.yml")) {
-
-                    FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-                    String playername = setcache.getString("Username");
-                    String u = setcache.getString("UUID");
-
-                    if (inputsearch.equalsIgnoreCase(playername)) {
-                        return UUID.fromString(Objects.requireNonNull(u));
-                    }
-                }
-            }
-        } catch (NullPointerException err) {
-            // No match found, data files are missing.
-            return null;
-        }
-        // No Match Found
-        return null;
-    }
-
-    private boolean isTargetIgnoringSender(Player target, Player sender) {
-        File cache = new File(this.getDataFolder(), File.separator + "Data");
-        if(!cache.exists()) {
-            return false;
-        }
-        File f = new File(cache, File.separator + target.getUniqueId() + ".yml");
-        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-        List<String> ignoredplayers = new ArrayList<>(setcache.getStringList("Ignoring"));
-
-        if (ignoredplayers.contains(sender.getUniqueId().toString())) {
-            ignoredplayers.clear();
-            return true;
-        }
-
-        ignoredplayers.clear();
-        return false;
+        return storage.findUUIDByName(inputsearch);
     }
 
     public String hasPlayedUUIDGetName(UUID uuid) {
-        File cache = new File(this.getDataFolder(), File.separator + "Data");
-        if(!cache.exists()) {
-            return "0";
-        }
-        File f = new File(cache, File.separator + uuid + ".yml");
-        if (!f.exists()) {
-            return "0";
-        }
-        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-        return setcache.getString("Username", "0");
+        final PlayerData data = storage.load(uuid);
+        return data == null ? "0" : data.getUsername();
     }
 
     public boolean hasPlugin(String plugin) {
@@ -851,6 +657,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         CommandManager.updateCommands(getConfig());
 
         FileSetup.enableFiles();
+
+        storageType = StorageFactory.configuredType(getConfig());
+        storage = StorageFactory.create(getConfig(), getDataFolder());
+        debug("Using " + storage.getName() + " for player data storage.");
 
         int onlinecount = Bukkit.getOnlinePlayers().size();
         if (onlinecount >= 1) {
@@ -955,14 +765,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         if (!feelings.contains(feeling.toLowerCase())) {
             return 0;
         }
-        File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + u + ".yml");
-        if (!f.exists()) {
-            return 0;
-        }
-        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-        return setcache.getInt("Stats.Sent." + capitalizeString(feeling.toLowerCase()));
+        final PlayerData data = storage.load(u);
+        return data == null ? 0 : data.getSent(capitalizeString(feeling.toLowerCase()));
     }
 
     public List < String > APIgetFeelings() {
@@ -970,20 +774,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     }
 
     public int APIgetTotalSent(UUID u) {
-        File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + u + ".yml");
-        if (!f.exists()) {
-            return 0;
-        }
-        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-        return setcache.getInt("Stats.Sent.Total");
+        final PlayerData data = storage.load(u);
+        return data == null ? 0 : data.getTotalSent();
     }
 
     public boolean APIisAcceptingFeelings(UUID u) {
-        File cache = new File(this.getDataFolder(), File.separator + "Data");
-        File f = new File(cache, File.separator + u + ".yml");
-        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-        return setcache.getBoolean("Allow-Feelings");
+        final PlayerData data = storage.load(u);
+        return data == null || data.isAllowingFeelings();
     }
 
     // END OF API CALLS ------------------------------------
@@ -1120,17 +917,22 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
         return false;
     }
 
+    /** Must be called async: loads player data from storage. */
     private void getStats(CommandSender p, UUID uuid, boolean isown) {
-        File f = new File(folder, File.separator + uuid + ".yml");
-        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-        final String name = setcache.getString("Username");
+        final PlayerData data = storage.load(uuid);
+        if (data == null) {
+            bass(p);
+            Msgs.sendPrefix(p, msg.getString("Folder-Not-Found"));
+            return;
+        }
+        final String name = data.getUsername();
         if (isown) {
-            Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Own")).replace("%player%", Objects.requireNonNull(name)));
+            Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Own")).replace("%player%", name));
         } else {
-            Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Other")).replace("%player%", Objects.requireNonNull(name)));
+            Msgs.send(p, Objects.requireNonNull(msg.getString("Stats-Header-Other")).replace("%player%", name));
         }
 
-        final int totalsent = setcache.getInt("Stats.Sent.Total", 0);
+        final int totalsent = data.getTotalSent();
 
         if(totalsent == 0) {
             if(isown) {
@@ -1140,27 +942,17 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
         } else {
             for (String fl : feelings) {
-                String flcap;
-                flcap = capitalizeString(fl);
+                String flcap = capitalizeString(fl);
 
-                final int fsent = setcache.getInt("Stats.Sent." + flcap);
+                final int fsent = data.getSent(flcap);
 
                 if(fsent > 0) {
                     // grammatical adjustment logic
-                    if (fl.equalsIgnoreCase("kiss")) {
-                        flcap = "Kisse";
-                    }
-
-                    if (fl.equalsIgnoreCase("cry")) {
-                        flcap = "Crie";
-                    }
-
-                    if (fl.equalsIgnoreCase("welcomeback")) {
-                        flcap = "Welcomes";
-                    }
-
-                    if (fl.equalsIgnoreCase("punch")) {
-                        flcap = "Punche";
+                    switch (fl.toLowerCase()) {
+                        case "kiss" -> flcap = "Kisse";
+                        case "cry" -> flcap = "Crie";
+                        case "welcomeback" -> flcap = "Welcome";
+                        case "punch" -> flcap = "Punche";
                     }
 
                     Msgs.send(p, "&f   &8&l> &7" + flcap + "s: &f&l" + fsent);
@@ -1172,6 +964,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
             Msgs.send(p, "&f   &8&l> &e" + you + " Sent: &f&l" + totalsent);
         }
+        pop(p);
     }
 
     private void noPermission(CommandSender sender) {
@@ -1266,8 +1059,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     Msgs.sendPrefix(sender, msg.getString("No-Player"));
                     return true;
                 }
-                getStats(sender, p.getUniqueId(), true);
-                pop(sender);
+                final UUID own = p.getUniqueId();
+                morePaperLib.scheduling().asyncScheduler().run(() -> getStats(sender, own, true));
                 return true;
             }
 
@@ -1276,22 +1069,22 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 return true;
             }
 
-            final UUID getUUID = hasPlayedNameGetUUID(args[1]);
-            if (getUUID == null) {
-
-                if (args[1].equalsIgnoreCase("console")) {
-                    Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
-                    bass(sender);
-                    return true;
-                }
-
+            if (args[1].equalsIgnoreCase("console")) {
+                Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
                 bass(sender);
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
-            getStats(sender, getUUID, false);
-            pop(sender);
+            final String lookup = args[1];
+            morePaperLib.scheduling().asyncScheduler().run(() -> {
+                final UUID getUUID = hasPlayedNameGetUUID(lookup);
+                if (getUUID == null) {
+                    bass(sender);
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", lookup));
+                    return;
+                }
+                getStats(sender, getUUID, false);
+            });
             return true;
         }
 
@@ -1338,6 +1131,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 FileSetup.enableFiles();
                 configChecks(this);
                 CommandManager.updateCommands(getConfig());
+
+                if (!StorageFactory.configuredType(getConfig()).equals(storageType)) {
+                    Msgs.send(sender, "&8&l> &#FF8C6BHeads up! &7Changing the storage type requires a full server restart.");
+                }
             } catch (Exception err2) {
                 if (debug) {
                     log("Error occurred when trying to reload your config: ----------", false, false);
@@ -1431,23 +1228,28 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 return true;
             }
 
-            final UUID getUUID = hasPlayedNameGetUUID(args[1]);
-            if (getUUID == null) {
-
-                if (args[1].equalsIgnoreCase("console")) {
-                    Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
-                    bass(sender);
-                    return true;
-                }
-
+            if (args[1].equalsIgnoreCase("console")) {
+                Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
                 bass(sender);
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
                 return true;
             }
 
-            String getName = hasPlayedUUIDGetName(getUUID);
-            Msgs.sendPrefix(sender, "&fThe UUID of " + getName + " is &7" + getUUID);
-            pop(sender);
+            final String lookup = args[1];
+            morePaperLib.scheduling().asyncScheduler().run(() -> {
+                final UUID getUUID = hasPlayedNameGetUUID(lookup);
+                if (getUUID == null) {
+                    bass(sender);
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", lookup));
+                    return;
+                }
+
+                String getName = hasPlayedUUIDGetName(getUUID);
+                if (getName.equals("0")) {
+                    getName = lookup;
+                }
+                Msgs.sendPrefix(sender, "&fThe UUID of " + getName + " is &7" + getUUID);
+                pop(sender);
+            });
             return true;
         }
 
@@ -1457,68 +1259,42 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 return true;
             }
 
-            File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-
-            if (!datafolder.exists()) {
-                Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-                bass(sender);
-                return true;
-            }
             final long secsLeft = ((lastmutelist / 1000) + 60) - (System.currentTimeMillis() / 1000);
             if (secsLeft > 0) {
                 Msgs.sendPrefix(sender, "&7Please wait &f&l" + secsLeft + "s &7before checking the mute list.");
                 return true;
             }
             // We need a 60s global cooldown in case they use MySQL. Doing this command w/ MySQL can suck up LOTS of CPU.
-            if (haslitebans || hasadvancedban) {
+            if (haslitebans || hasadvancedban || storage instanceof com.zachduda.chatfeelings.storage.MySQLStorage) {
                 lastmutelist = System.currentTimeMillis();
             }
             morePaperLib.scheduling().asyncScheduler().run(() -> {
+                final List<PlayerData> all = storage.loadAll();
+                if (all.isEmpty()) {
+                    Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+                    bass(sender);
+                    return;
+                }
+
                 Msgs.send(sender, "");
                 Msgs.send(sender, msg.getString("Mute-List-Header"));
 
+                final String listFormat = Objects.requireNonNull(msg.getString("Mute-List-Player"));
                 int totalmuted = 0;
 
-                for (File cachefile: Objects.requireNonNull(datafolder.listFiles())) {
-                    File f = new File(cachefile.getPath());
-
-                    if (!f.getName().equalsIgnoreCase("global.yml")) {
-                        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-                        String uuid = setcache.getString("UUID");
-                        String IPAdd = setcache.getString("IP");
-                        UUID puuid = UUID.fromString(Objects.requireNonNull(uuid));
-
-                        int muteInt = isMuted(puuid, IPAdd);
-
-                        if (setcache.contains("Muted") && setcache.contains("Username")) {
-                            if (setcache.getBoolean("Muted")) {
-                                totalmuted++;
-                                if (muteInt == 3) {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(AdvancedBan & CF)");
-                                } else if (muteInt == 2) {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(LiteBans & CF)");
-                                } else if (muteInt == 1) {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(Essentials & CF)");
-                                } else {
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))));
-                                }
-                            } else {
-                                if (muteInt == 3) {
-                                    totalmuted++;
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(AdvancedBan)");
-                                } else
-                                if (muteInt == 2) {
-                                    totalmuted++;
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(LiteBans)");
-                                } else
-                                if (muteInt == 1) {
-                                    totalmuted++;
-                                    Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Player")).replace("%player%", (String) Objects.requireNonNull(setcache.get("Username"))) + " &#FF8C6B(Essentials)");
-                                }
-                            }
-                        }
+                for (PlayerData data : all) {
+                    final int muteInt = isMuted(data.getUuid(), data.getIp());
+                    final boolean cfMuted = data.isMuted();
+                    if (!cfMuted && muteInt == 0) {
+                        continue;
                     }
+
+                    totalmuted++;
+                    String line = listFormat.replace("%player%", data.getUsername());
+                    if (muteInt != 0) {
+                        line += " &#FF8C6B(" + banSource(muteInt) + (cfMuted ? " & CF)" : ")");
+                    }
+                    Msgs.send(sender, line);
                 }
 
                 if (totalmuted == 1) {
@@ -1529,104 +1305,13 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     Msgs.send(sender, Objects.requireNonNull(msg.getString("Mute-List-Total-Many")).replace("%total%", Integer.toString(totalmuted)));
                 }
                 Msgs.send(sender, "");
-            });
-            pop(sender);
-            return true;
-        }
-
-        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("unmute")) {
-            if (!hasPerm(sender, "chatfeelings.mute", true)) {
-                noPermission(sender);
-                if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
-                    if (getConfig().getBoolean("General.Extra-Help")) {
-                        Msgs.sendPrefix(sender, msg.getString("No-Perm-Mute-Suggestion"));
-                    }
-                }
-                return true;
-            }
-
-            if (args.length == 1) {
-                Msgs.sendPrefix(sender, msg.getString("No-Player-Unmute"));
-                bass(sender);
-                return true;
-            }
-
-            final UUID muteUUID = hasPlayedNameGetUUID(args[1]);
-
-            if (muteUUID == null) {
-                bass(sender);
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
-                return true;
-            }
-
-            File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-
-            if (!datafolder.exists()) {
-                Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-                bass(sender);
-                return true;
-            }
-
-            File f = new File(datafolder, File.separator + muteUUID + ".yml");
-            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-            if (!f.exists()) {
-                try {
-                    Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find that player's file.");
-                    bass(sender);
-                    return true;
-                } catch (Exception err) {}
-            }
-
-            if (!setcache.contains("Muted")) {
-                Msgs.sendPrefix(sender, "&#FF8C6BOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
-            }
-
-            final String playername = setcache.getString("Username");
-            final String uuid = setcache.getString("UUID");
-            final String IPAdd = setcache.getString("IP");
-            final UUID puuid = UUID.fromString(Objects.requireNonNull(uuid));
-
-            if (setcache.getBoolean("Muted")) {
-                setcache.set("Muted", false);
-
-                try {
-                    setcache.save(f);
-                } catch (Exception err) {
-                    log("Unable to save " + playername + "'s data file:", true, true);
-                    err.printStackTrace();
-                    log("-----------------------------------------------------",false, true);
-                    log("Please message us on discord or spigot about this error.", false, true);
-                }
-
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Unmuted")).replace("%player%", Objects.requireNonNull(playername)));
                 pop(sender);
-            } else if (!setcache.getBoolean("Muted")) {
-                bass(sender);
-                morePaperLib.scheduling().asyncScheduler().run(() -> {
-                    final int muteInt = isMuted(puuid, IPAdd);
-                    if (muteInt == 3) {
-                        Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-AdvancedBan"));
-                    } else
-                    if (muteInt == 2) {
-                        Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-LiteBans"));
-                    } else
-                    if (muteInt == 1) {
-                        Msgs.sendPrefix(sender, msg.getString("Player-Muted-Via-Essentials"));
-                    } else {
-                        Msgs.sendPrefix(sender, msg.getString("Player-Already-Unmuted"));
-                    }
-                });
-            } else {
-                bass(sender);
-                Msgs.sendPrefix(sender, "&#FF8C6B&lError. &fWe couldn't find mute status in your data files.");
-                log("Something went wrong when trying to get " + sender.getName() + "'s (un)mute status in the player file.", false, true);
-            }
-
+            });
             return true;
         }
 
-        if (cmdlr.equals("chatfeelings") && args[0].equalsIgnoreCase("mute")) {
+        if (cmdlr.equals("chatfeelings") && (args[0].equalsIgnoreCase("mute") || args[0].equalsIgnoreCase("unmute"))) {
+            final boolean muting = args[0].equalsIgnoreCase("mute");
             if (!hasPerm(sender, "chatfeelings.mute", true)) {
                 noPermission(sender);
                 if (getConfig().contains("General.Extra-Help") && msg.contains("No-Perm-Mute-Suggestion")) {
@@ -1638,83 +1323,76 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
 
             if (args.length == 1) {
-                Msgs.sendPrefix(sender, msg.getString("No-Player-Mute"));
+                Msgs.sendPrefix(sender, msg.getString(muting ? "No-Player-Mute" : "No-Player-Unmute"));
                 bass(sender);
                 return true;
             }
 
-            final UUID muteUUID = hasPlayedNameGetUUID(args[1]);
-
-            if (muteUUID == null) {
-                bass(sender);
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
-                return true;
-            }
-
-            File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-
-            if (!datafolder.exists()) {
-                Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-                bass(sender);
-                return true;
-            }
-
-            File f = new File(datafolder, File.separator + hasPlayedNameGetUUID(args[1]).toString() + ".yml");
-            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-            if (!f.exists()) {
-                Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find that player's file.");
-                bass(sender);
-                return true;
-            }
-
-            if (!setcache.contains("Muted")) {
-                Msgs.sendPrefix(sender, "&#FF8C6BOutdated Data. &fPlease erase your ChatFeeling's &7&lData &ffolder & try again.");
-            }
-
-            final String playername = setcache.getString("Username");
-            final String uuid = setcache.getString("UUID");
-            final String IPAdd = setcache.getString("IP");
-            final UUID puuid = UUID.fromString(Objects.requireNonNull(uuid));
-
-            if (args[1].equalsIgnoreCase(sender.getName())) {
+            if (muting && args[1].equalsIgnoreCase(sender.getName())) {
                 bass(sender);
                 Msgs.sendPrefix(sender, msg.getString("Cant-Mute-Self"));
                 return true;
             }
 
-            if (!setcache.getBoolean("Muted")) {
-                setcache.set("Muted", true);
-                try {
-                    setcache.save(f);
-                } catch (Exception err) {
-                    log("Unable to save " + playername + "'s data file:", true, true);
-                    err.printStackTrace();
-                    log("-----------------------------------------------------", false, true);
-                    log("Please message us on discord or spigot about this error.", false, true);
+            final String lookup = args[1];
+            morePaperLib.scheduling().asyncScheduler().run(() -> {
+                final UUID muteUUID = hasPlayedNameGetUUID(lookup);
+                final PlayerData data = muteUUID == null ? null : storage.load(muteUUID);
+
+                if (data == null) {
+                    bass(sender);
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", lookup));
+                    return;
                 }
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Muted")).replace("%player%", Objects.requireNonNull(playername)));
-                morePaperLib.scheduling().asyncScheduler().run(() -> {
-                    final int muteInt = isMuted(puuid, IPAdd);
-                    if (muteInt != 0) {
+
+                final String playername = data.getUsername();
+
+                if (muting) {
+                    if (data.isMuted()) {
+                        bass(sender);
+                        Msgs.sendPrefix(sender, msg.getString("Player-Already-Muted"));
+                        if (getConfig().getBoolean("General.Extra-Help") && msg.contains("Already-Mute-Unmute-Suggestion")) {
+                            Msgs.sendPrefix(sender, msg.getString("Already-Mute-Unmute-Suggestion"));
+                        }
+                        return;
+                    }
+
+                    if (!storage.setMuted(data.getUuid(), true)) {
+                        bass(sender);
+                        Msgs.sendPrefix(sender, "&#FF8C6BError. &fWe couldn't save that player's mute status. Check console.");
+                        return;
+                    }
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Muted")).replace("%player%", playername));
+                    pop(sender);
+                    if (isMuted(data.getUuid(), data.getIp()) != 0) {
                         Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Extra-Mute-Present")).replace("%player%", playername));
                     }
-                });
-                pop(sender);
-            } else if (setcache.getBoolean("Muted")) {
-                bass(sender);
-                Msgs.sendPrefix(sender, msg.getString("Player-Already-Muted"));
-                if (getConfig().contains("General.Extra-Help") && msg.contains("Already-Mute-Unmute-Suggestion")) {
-                    if (getConfig().getBoolean("General.Extra-Help")) {
-                        Msgs.sendPrefix(sender, msg.getString("Already-Mute-Unmute-Suggestion"));
-                    }
+                    return;
                 }
-            } else {
-                bass(sender);
-                Msgs.sendPrefix(sender, "&#FF8C6BError. &fWe couldn't find your mute status in your data file.");
-                log("Something went wrong when trying to get " + sender.getName() + "'s mute status in the player file.", false, true);
-            }
 
+                // Unmuting
+                if (data.isMuted()) {
+                    if (!storage.setMuted(data.getUuid(), false)) {
+                        bass(sender);
+                        Msgs.sendPrefix(sender, "&#FF8C6BError. &fWe couldn't save that player's mute status. Check console.");
+                        return;
+                    }
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Has-Been-Unmuted")).replace("%player%", playername));
+                    pop(sender);
+                    return;
+                }
+
+                bass(sender);
+                final int muteInt = isMuted(data.getUuid(), data.getIp());
+                final String key = switch (muteInt) {
+                    case 3 -> "Player-Muted-Via-AdvancedBan";
+                    case 2 -> "Player-Muted-Via-LiteBans";
+                    case 1 -> "Player-Muted-Via-Essentials";
+                    default -> "Player-Already-Unmuted";
+                };
+                // Older messages.yml defaults used "%player" without the closing %, so handle both.
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString(key)).replace("%player%", playername).replace("%player", playername));
+            });
             return true;
         }
 
@@ -1729,48 +1407,51 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 return true;
             }
 
+            final UUID self = p.getUniqueId();
+
             if (args.length == 1) {
-                if (Cooldowns.ignorelistcooldown.containsKey(p)) {
-                    Msgs.sendPrefix(sender, msg.getString("Ignore-List-Cooldown"));
-                    bass(sender);
-                    return true;
-                }
-
-                Cooldowns.ignoreListCooldown(p);
-
-                File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-
-                if (!datafolder.exists()) {
-                    Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
-                    bass(sender);
-                    return true;
-                }
-
-                File f = new File(datafolder, File.separator + p.getUniqueId() + ".yml");
-                FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-                List<String> ignoredplayers = new ArrayList<>(setcache.getStringList("Ignoring"));
-
-                Msgs.send(sender, " ");
-                Msgs.send(sender, msg.getString("Ignore-List-Header"));
-                if (ignoredplayers.isEmpty()) {
-                    if (setcache.getBoolean("Allow-Feelings")) {
-                        Msgs.send(sender, msg.getString("Ignore-List-None"));
-                    } else {
-                        Msgs.send(sender, msg.getString("Ignore-List-All"));
+                if (getConfig().getBoolean("General.Cooldowns.Ignore-List.Enabled", true)) {
+                    if (Cooldowns.isIgnoreListCooldown(self)) {
+                        Msgs.sendPrefix(sender, msg.getString("Ignore-List-Cooldown"));
+                        bass(sender);
+                        return true;
                     }
-                } else {
-                    for (String ignoredUUID: ignoredplayers) {
-                        String name = hasPlayedUUIDGetName(UUID.fromString(ignoredUUID));
-                        if (name != null && !name.equals("0")) {
-                            Msgs.send(sender, "  &8&l> &f&l" + name);
+
+                    Cooldowns.ignoreListCooldown(p);
+                }
+
+                morePaperLib.scheduling().asyncScheduler().run(() -> {
+                    final PlayerData data = storage.load(self);
+                    if (data == null) {
+                        Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+                        bass(sender);
+                        return;
+                    }
+
+                    Msgs.send(sender, " ");
+                    Msgs.send(sender, msg.getString("Ignore-List-Header"));
+                    if (data.getIgnoring().isEmpty()) {
+                        if (data.isAllowingFeelings()) {
+                            Msgs.send(sender, msg.getString("Ignore-List-None"));
+                        } else {
+                            Msgs.send(sender, msg.getString("Ignore-List-All"));
+                        }
+                    } else {
+                        for (String ignoredUUID : data.getIgnoring()) {
+                            try {
+                                String name = hasPlayedUUIDGetName(UUID.fromString(ignoredUUID));
+                                if (!name.equals("0")) {
+                                    Msgs.send(sender, "  &8&l> &f&l" + name);
+                                }
+                            } catch (IllegalArgumentException badUuid) {
+                                debug("Skipping invalid UUID in " + p.getName() + "'s ignore list: " + ignoredUUID);
+                            }
                         }
                     }
-                }
 
-                Msgs.send(sender, " ");
-                ignoredplayers.clear();
-                pop(sender);
+                    Msgs.send(sender, " ");
+                    pop(sender);
+                });
                 return true;
             }
 
@@ -1781,7 +1462,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
             }
 
             if (getConfig().getBoolean("General.Cooldowns.Ignoring.Enabled") && !sender.isOp() && !hasPerm(sender, "chatfeelings.bypasscooldowns", true)) {
-                if (Cooldowns.ignorecooldown.containsKey(p)) {
+                if (Cooldowns.isIgnoreCooldown(self)) {
                     bass(sender);
                     Msgs.sendPrefix(sender, msg.getString("Ignore-Cooldown"));
                     return true;
@@ -1790,86 +1471,49 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 Cooldowns.ignoreCooldown(p);
             }
 
-            File datafolder = new File(this.getDataFolder(), File.separator + "Data");
-
-            if (!datafolder.exists()) {
-                Msgs.sendPrefix(sender, msg.getString("Folder-Not-Found"));
+            if (args[1].equalsIgnoreCase("console")) {
+                Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
                 bass(sender);
                 return true;
             }
 
-            File f = new File(datafolder, File.separator + p.getUniqueId() + ".yml");
-            FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
-
-            if (!f.exists()) {
-                try {
-                    Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find your player file.");
-                    bass(sender);
-                    return true;
-                } catch (Exception err) {}
-            }
-
-            if (args[1].equalsIgnoreCase("all")) {
-                if (setcache.getBoolean("Allow-Feelings")) {
-                    setcache.set("Allow-Feelings", false);
-                    Msgs.sendPrefix(sender, msg.getString("Ignoring-On-All"));
-                } else {
-                    setcache.set("Allow-Feelings", true);
-                    Msgs.sendPrefix(sender, msg.getString("Ignoring-Off-All"));
-                }
-
-                pop(sender);
-
-                try {
-                    setcache.save(f);
-                } catch (Exception err) {}
-                return true;
-            }
-
-            List<String> ignoredplayers = new ArrayList<>(setcache.getStringList("Ignoring"));
-
-            final UUID ignoreUUID = hasPlayedNameGetUUID(args[1]);
-            if (ignoreUUID == null) {
-
-                if (args[1].equalsIgnoreCase("console")) {
-                    Msgs.sendPrefix(sender, msg.getString("Console-Not-Player"));
-                    bass(sender);
-                    return true;
-                }
-
-                bass(sender);
-                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", args[1]));
-                return true;
-            }
-
-            final String iuuids = ignoreUUID.toString();
-
-            try {
-                if (ignoredplayers.contains(iuuids)) {
-                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ignoring-Off-Player")).replace("%player%", args[1]));
-
-                    ignoredplayers.remove(iuuids);
-                    setcache.set("Ignoring", ignoredplayers);
-                    try {
-                        setcache.save(f);
-                    } catch (Exception err) {}
-
+            final String lookup = args[1];
+            morePaperLib.scheduling().asyncScheduler().run(() -> {
+                if (lookup.equalsIgnoreCase("all")) {
+                    final Boolean allow = storage.toggleAllowFeelings(self);
+                    if (allow == null) {
+                        Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find your player data.");
+                        bass(sender);
+                        return;
+                    }
+                    Msgs.sendPrefix(sender, msg.getString(allow ? "Ignoring-Off-All" : "Ignoring-On-All"));
                     pop(sender);
-                    ignoredplayers.clear();
-                    return true;
+                    return;
                 }
-            } catch (Exception searcherr) {
-                log("Error trying to search for: " + args[1] + " in the Data folder.", false, true);
-            }
 
-            ignoredplayers.add(ignoreUUID.toString());
-            setcache.set("Ignoring", ignoredplayers);
-            try {
-                setcache.save(f);
-            } catch (Exception err) {}
-            Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Ignoring-On-Player")).replace("%player%", args[1]));
-            pop(sender);
-            ignoredplayers.clear();
+                final UUID ignoreUUID = hasPlayedNameGetUUID(lookup);
+                if (ignoreUUID == null) {
+                    bass(sender);
+                    Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Player-Never-Joined")).replace("%player%", lookup));
+                    return;
+                }
+
+                if (ignoreUUID.equals(self)) {
+                    bass(sender);
+                    Msgs.sendPrefix(sender, msg.getString("Cant-Ignore-Self"));
+                    return;
+                }
+
+                final Boolean nowIgnoring = storage.toggleIgnoring(self, ignoreUUID);
+                if (nowIgnoring == null) {
+                    Msgs.sendPrefix(sender, "&#FF8C6BSorry!&f We couldn't find your player data.");
+                    bass(sender);
+                    return;
+                }
+
+                Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString(nowIgnoring ? "Ignoring-On-Player" : "Ignoring-Off-Player")).replace("%player%", lookup));
+                pop(sender);
+            });
             return true;
         }
 
@@ -1960,9 +1604,10 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                 if (getConfig().getBoolean("General.Cooldowns.Feelings.Enabled") && !hasPerm(sender,"chatfeelings.bypasscooldowns", true)) {
                     if (sender instanceof Player p) {
-                        if (Cooldowns.cooldown.containsKey(p.getPlayer())) {
+                        final Long lastSent = Cooldowns.cooldown.get(p.getUniqueId());
+                        if (lastSent != null) {
                             int cooldownTime = getConfig().getInt("General.Cooldowns.Feelings.Seconds");
-                            long secondsLeft = ((Cooldowns.cooldown.get(p.getPlayer()) / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
+                            long secondsLeft = ((lastSent / 1000) + cooldownTime) - (System.currentTimeMillis() / 1000);
                             if (secondsLeft > 0) {
                                 Msgs.sendPrefix(sender, Objects.requireNonNull(msg.getString("Cooldown-Active")).replace("%time%",
                                         secondsLeft + "s"));
@@ -2050,65 +1695,41 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
 
                 // Ignoring & Mute Check ----------------
 
-                File playerfiles = new File(this.getDataFolder(), File.separator + "Data");
-
                 if (sender instanceof Player p) {
-                    File myf = new File(playerfiles, File.separator + p.getUniqueId() + ".yml");
-                    FileConfiguration me = YamlConfiguration.loadConfiguration(myf);
-
                     final int muteInt = isMuted(p.getUniqueId(), null);
 
                     if (muteInt != 0) {
-                        if (muteInt == 3) {
-                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by AdvancedBan.");
-                        }
-                        if (muteInt == 2) {
-                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by LiteBans.");
-                        }
-                        if (muteInt == 1) {
-                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by Essentials.");
-                        }
+                        debug(sender.getName() + " tried to use /" + cmdLabel + ", but is muted by " + banSource(muteInt) + ".");
                         bass(sender);
                         Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
                         return;
                     }
 
-                    if (myf.exists()) {
-                        if (me.getBoolean("Muted")) {
-                            debug(sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
-                            bass(sender);
-                            Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
-                            return;
-                        }
-
-                        if (isTargetIgnoringSender(target, p)) {
-                            bass(sender);
-                            Msgs.sendPrefix(sender,
-                                    Objects.requireNonNull(msg.getString("Target-Is-Ignoring")).replace("%player%", target.getName()));
-
-                            debug("Not sending feeling to " + target.getName() + " because they are ignoring " + p.getName());
-                            return;
-                        }
+                    final PlayerData me = storage.load(p.getUniqueId());
+                    if (me != null && me.isMuted()) {
+                        debug(sender.getName() + " tried to use /" + cmdLabel + ", but was muted (via CF).");
+                        bass(sender);
+                        Msgs.sendPrefix(sender, msg.getString("Is-Muted"));
+                        return;
                     }
                 }
 
-                File tfraw = new File(playerfiles, File.separator + target.getUniqueId() + ".yml");
-                try {
-                    FileConfiguration targetfile = YamlConfiguration.loadConfiguration(tfraw);
+                final PlayerData targetData = storage.load(target.getUniqueId());
+                if (targetData != null) {
+                    if (sender instanceof Player p && targetData.isIgnoring(p.getUniqueId())) {
+                        bass(sender);
+                        Msgs.sendPrefix(sender,
+                                Objects.requireNonNull(msg.getString("Target-Is-Ignoring")).replace("%player%", target.getName()));
 
-                    if (tfraw.exists()) {
-                        if (!targetfile.getBoolean("Allow-Feelings")) {
-                            bass(sender);
-                            Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
-                            debug("Blocking feeling because " + target.getName() + " is blocking ALL.");
-                            return;
-                        }
+                        debug("Not sending feeling to " + target.getName() + " because they are ignoring " + p.getName());
+                        return;
                     }
-                } catch (Exception tfe) {
-                    if(tfraw.delete()) {
-                        log.warning("Corruption in " + target.getName() + "'s data file. Deleted it!");
-                    } else {
-                        log.warning("Corruption in " + target.getName() + "'s data file. You should delete it!");
+
+                    if (!targetData.isAllowingFeelings()) {
+                        bass(sender);
+                        Msgs.sendPrefix(sender, msg.getString("Target-Is-Ignoring-All"));
+                        debug("Blocking feeling because " + target.getName() + " is blocking ALL.");
+                        return;
                     }
                 }
                 // ------------------------------------------------
@@ -2116,18 +1737,32 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 // FEELING HANDLING IS ALL BELOW -------------------------------------------------------------------------------
 
                 // API Events ----------------------------
+                // Events must be fired on the main/global thread, so wait (briefly) for listeners to decide if this is cancelled.
                 final Player finalTarget = target;
-                FeelingSendEvent fse = new FeelingSendEvent(sender, finalTarget, cmdconfig);
-                FeelingRecieveEvent fre = new FeelingRecieveEvent(finalTarget, sender, cmdconfig);
+                final FeelingSendEvent fse = new FeelingSendEvent(sender, finalTarget, cmdconfig);
+                final FeelingRecieveEvent fre = new FeelingRecieveEvent(finalTarget, sender, cmdconfig);
+                final CompletableFuture<Boolean> eventCancelled = new CompletableFuture<>();
 
                 morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                    Bukkit.getPluginManager().callEvent(fse);
-                    if (fse.isCancelled()) {
+                    try {
+                        Bukkit.getPluginManager().callEvent(fse);
+                        if (!fse.isCancelled()) {
+                            Bukkit.getPluginManager().callEvent(fre);
+                        }
+                        eventCancelled.complete(fse.isCancelled());
+                    } catch (Throwable t) {
+                        eventCancelled.completeExceptionally(t);
+                    }
+                });
+
+                try {
+                    if (eventCancelled.get(5, TimeUnit.SECONDS)) {
+                        debug("A plugin cancelled " + sender.getName() + "'s /" + cmdlr + " via FeelingSendEvent.");
                         return;
                     }
-
-                    Bukkit.getPluginManager().callEvent(fre);
-                });
+                } catch (Exception eventErr) {
+                    debug("Unable to wait for FeelingSendEvent listeners, continuing anyway: " + eventErr);
+                }
 
                 // End of API events (Except for Global event below ---------------------
 
@@ -2137,41 +1772,32 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                     for (final Player online: Bukkit.getServer().getOnlinePlayers()) {
 
                         // Global Ignoring Checks -----------------
-                        File cache = new File(this.getDataFolder(), File.separator + "Data");
-                        File f = new File(cache, File.separator + online.getUniqueId() + ".yml");
-                        FileConfiguration setcache = YamlConfiguration.loadConfiguration(f);
+                        final PlayerData onlineData = online.getUniqueId().equals(target.getUniqueId())
+                                ? targetData : storage.load(online.getUniqueId());
+                        final boolean isSender = online.getName().equals(sender.getName());
 
-                        if (!setcache.getBoolean("Allow-Feelings") && (!online.getName().equals(sender.getName()))) {
+                        if (onlineData != null && !onlineData.isAllowingFeelings() && !isSender) {
                             debug(online.getName() + " is blocking all feelings. Skipping Global Msg!");
-                        } else { // else NOT ignoring ALL
-                            if (sender instanceof Player p) {
-                                if (isTargetIgnoringSender(target, p)) {
-                                    // Player is Ignoring from sender but is not target. (GlobaL)
+                            continue;
+                        }
+                        // End of Global ignoring Checks -------------------
 
-                                    // This works but is unused. Need to remove later.
-                                    debug(online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
+                        if (!(sender instanceof Player p)) {
+                            // ONLY for CONSOLE Global notify here.
+                            Msgs.send(online, NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, target));
+                        } else if (onlineData == null || !onlineData.isIgnoring(p.getUniqueId())) {
+                            // Global for PLAYER below (only sent to those NOT ignoring the sender)
+                            morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
+                                FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, finalTarget, cmdconfig);
+                                Bukkit.getPluginManager().callEvent(fgne);
+
+                                if (!fgne.isCancelled()) {
+                                    Msgs.send(online, NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, finalTarget));
                                 }
-                            }
-                            // End of Global ignoring Checks -------------------
-
-                            if (sender.getName().equalsIgnoreCase("console") || !(sender instanceof Player p)) {
-                                // ONLY for CONSOLE Global notify here.
-                                Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, target));
-                            } else {
-                                // Global for PLAYER below
-                                if (!setcache.getStringList("Ignoring").contains(p.getUniqueId().toString())) {
-                                    morePaperLib.scheduling().globalRegionalScheduler().run(() -> {
-                                        FeelingGlobalNotifyEvent fgne = new FeelingGlobalNotifyEvent(online, sender, finalTarget, cmdconfig);
-                                        Bukkit.getPluginManager().callEvent(fgne);
-
-                                        if (!fgne.isCancelled()) {
-                                            Msgs.send(Objects.requireNonNull(online.getPlayer()), NicknamePlaceholders.replacePlaceholders(feelingConfig.getString("Msgs.Global"), sender, finalTarget));
-                                        }
-                                    });
-
-                                } // end of check to make sure message is sent to those NOT ignoring the player
-                            }
-                        } // end of else for ignore global check
+                            });
+                        } else {
+                            debug(online.getName() + " is blocking feelings from " + p.getName() + ". Skipping global msg!");
+                        }
                     } // end of for(online)
                     // End --------------------------------------------------
 
@@ -2250,7 +1876,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                                     (float) feelingConfig.getDouble("Sounds.Sound1.Pitch"));
                             if (sender instanceof Player p) {
                                 p.playSound(p.getLocation(),
-                                        Objects.requireNonNull(Registry.SOUNDS.get(Objects.requireNonNull(NamespacedKey.fromString(sound1.toLowerCase())))),
+                                        sound1var,
                                         (float) feelingConfig.getDouble("Sounds.Sound1.Volume"),
                                         (float) feelingConfig.getDouble("Sounds.Sound1.Pitch"));
                             }
@@ -2328,7 +1954,7 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
         String name = p.getName();
-        if (!Cooldowns.playerFileUpdate.contains(name)) {
+        if (!Cooldowns.recentlyUpdated(name)) {
             updateLastOn(p);
             Cooldowns.justJoined(name);
         } else {
@@ -2363,9 +1989,9 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 }
             }
 
-            if (!Cooldowns.playerFileUpdate.contains(name)) {
+            if (!Cooldowns.recentlyUpdated(name)) {
                 updateLastOn(p);
-                morePaperLib.scheduling().globalRegionalScheduler().run(() -> Cooldowns.justJoined(name));
+                Cooldowns.justJoined(name);
             }
 
             if (p.getUniqueId().toString().equals("6191ff85-e092-4e9a-94bd-63df409c2079")) {
