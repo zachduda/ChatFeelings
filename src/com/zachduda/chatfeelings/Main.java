@@ -1975,8 +1975,8 @@ public class Main extends JavaPlugin implements Listener, TabExecutor {
                 if (getConfig().getBoolean("Other.Updates.Check")) {
                     if (hasPerm(p, "chatfeelings.admin", true)) {
                         if (Updater.isOutdated()) {
-                            Msgs.sendPrefix(p, "&#f4fcabUpdate Available &8› &7Download @ &fzachduda.com/chatfeelings &7("
-                                    + getDescription().getVersion() + "→ &f"
+                            Msgs.sendPrefix(p, "&#f4fcabUpdate Available &8› &7Download @ &fzduda.dev/cf &7("
+                                    + getDescription().getVersion() + " → &f"
                                     + Updater.getPostedVersion()
                                     + "&r&7)");
                         }
