@@ -1,0 +1,62 @@
+General:
+  Global-Feelings:
+    Enabled: false
+    Broadcast-To-Console: true
+  Prevent-Self-Feelings: true
+  Violent-Command-Harm: true
+  Cooldowns:
+    Feelings:
+      Enabled: true
+      Seconds: 10
+    Ignoring:
+      Enabled: true
+      Seconds: 5
+    Ignore-List:
+      Enabled: true
+      Seconds: 10
+  Radius:
+    Enabled: false
+    Radius-In-Blocks: 35    
+  Particles: true
+  Sounds: true
+  Extra-Help: true
+  Use-Feeling-Permissions: false
+  Disabled-Sending-Worlds: []
+  Disabled-Receiving-Worlds:
+  - world_the_end
+  Multi-Version-Support: false
+  Use-Nickname-Placeholder: false
+  Nickname-Placeholder: "%essentials_nickname%"
+  Help-Page-Length: 6
+Other:
+  CF-Alias: true
+  Vanished-Players:
+    Check: true
+    Use-Legacy: false
+  Player-Files:
+    Cleanup: true
+    Cleanup-After-Days: 185
+    Erase-If-Banned: true
+  Storage:
+    # Where player data (mutes, ignore lists & stats) is kept.
+    # YAML = one file per player in the Data folder. MySQL = share data across servers (MariaDB works too).
+    Type: YAML
+    MySQL:
+      Host: localhost
+      Port: 3306
+      Database: chatfeelings
+      Username: root
+      Password: ""
+      Use-SSL: false
+      Table-Prefix: "cf_"
+      # Extra JDBC URL parameters, ie: "serverTimezone=UTC"
+      Properties: ""
+      # When the MySQL tables are empty, copy the existing Data folder into them on startup.
+      Import-From-YAML: true
+  Updates:
+    Check: true
+  Metrics: true
+  Debug: false
+  Reduce-Console-Msgs: false
+LVU: "" # Do not touch
+Version: 8 # Do not touch

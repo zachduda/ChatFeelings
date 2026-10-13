@@ -28,8 +28,18 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.16.0</version>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -48,11 +58,11 @@
                     <relocations>
                         <relocation>
                             <pattern>org.bstats</pattern>
-                            <shadedPattern>com.zachduda.chatfeelings.other.metrics</shadedPattern>
+                            <shadedPattern>com.zachduda.chatfeelings.libs.bstats</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>space.arim.morepaperlib</pattern>
-                            <shadedPattern>com.zachduda.chatfeelings.other.morepaperlib</shadedPattern>
+                            <shadedPattern>com.zachduda.chatfeelings.libs.morepaperlib</shadedPattern>
                         </relocation>
                     </relocations>
                     <minimizeJar>true</minimizeJar>
@@ -69,15 +79,24 @@
             </plugin>
         </plugins>
         <resources>
+            <!-- Only plugin.yml & bungee.yml get ${project.version} filled in; other files are copied as-is. -->
             <resource>
-                <directory>src</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
+                <includes>
+                    <include>plugin.yml</include>
+                    <include>bungee.yml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>plugin.yml</exclude>
+                    <exclude>bungee.yml</exclude>
+                </excludes>
             </resource>
         </resources>
-        <sourceDirectory>src</sourceDirectory>
     </build>
     <repositories>
         <repository>
@@ -125,11 +144,25 @@
             <version>26.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Bundled with Spigot/Paper (the Bukkit API depends on it). -->
         <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.11.0</version>
             <scope>provided</scope>
+        </dependency>
+        <!-- Only for BungeeStub, which explains the jar belongs on Spigot/Paper if it's put on a proxy. -->
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-api</artifactId>
+            <version>1.21-R0.2</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.bstats</groupId>
@@ -160,6 +193,12 @@
             <artifactId>AdvancedBan</artifactId>
             <version>2.3.0</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

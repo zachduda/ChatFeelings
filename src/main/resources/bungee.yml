@@ -1,0 +1,6 @@
+name: ChatFeelings
+main: com.zachduda.chatfeelings.platform.BungeeStub
+website: https://zachduda.com/chatfeelings
+version: '${project.version}'
+author: zach_attack
+description: ChatFeelings IS NOT a BungeeCord plugin. Put it on your Spigot/Paper servers instead.

@@ -1,0 +1,165 @@
+name: ChatFeelings
+main: com.zachduda.chatfeelings.Main
+website: https://zachduda.com/chatfeelings
+authors: [zach_attack]
+version: '${project.version}'
+# Kept low on purpose: a server refuses plugins whose api-version is newer than itself, so raising it would
+# block servers that can otherwise run ChatFeelings. The code handles API differences between versions itself.
+api-version: '1.13'
+softdepend: [Essentials, VanishNoPacket, LiteBans, AdvancedBan, PlaceholderAPI]
+description: Allow your players to show their love, or hatred, with unique emotes!
+folia-supported: true
+commands:
+  chatfeelings:
+    description: General command for chatfeelings.
+  feelings:
+    description: Lists all the feelings you can do!
+    aliases: [ emotions ]
+  hug:
+    description: Gives somebody a nice warm hug!
+  slap:
+    description: Slap some sense back into someone.
+  poke:
+    description: Poke someone to get their attention.
+  highfive:
+    description: Show your support, and give a highfive!
+  facepalm:
+    description: Need to show some disapproval?
+  yell:
+    description: Yell at someone as loud as possible!
+  bite:
+    description: Bite a player right on the arm.
+  snuggle:
+    description: Snuggle up with the power of warm hugs!
+  shake:
+    description: Shakes a player to their feet.
+  stab:
+    description: Stab someone with a knife. Ouch!
+  kiss:
+    description: Make sweet sweet love. uwu
+  punch:
+    description: Punch the lights out of someone!
+  murder:
+    description: Finna kill someone here.
+  boi:
+    description: Living in 2016? Boi at a player.
+  cry:
+    description: Real sad hours? Cry at a player.
+  dab:
+    description: Freshly dab on someone.
+  lick:
+    description: Lick someone like an ice-cream sundae!
+  scorn:
+    description: Shame a player for what they've done.
+  pat:
+    description: Pat a players head for being good.
+  stalk:
+    description: Stalk a player carefully... carefully.
+  sus:
+    description: Pure single-boned suspicion.
+  wave:
+    description: Say farewell, and wave adieu. How elegant!
+  welcomeback:
+    description: Give a warm welcome-back to returning players!
+  boop:
+    description: Boop someone right on their nose!
+permissions:
+  chatfeelings.*:
+    description: Allows all ChatFeelings emotes, commands, including administrative actions.
+    default: op
+    children:
+      chatfeelings.admin: true
+      chatfeelings.stats: true
+      chatfeelings.stats.others: true
+      chatfeelings.mute: true
+      chatfeelings.ignore: true
+      chatfeelings.bypasscooldowns: true
+      chatfeelings.all: true
+  chatfeelings.all:
+    description: Allows access all ChatFeelings emotes.
+    default: op
+    children:
+      chatfeelings.hug: true
+      chatfeelings.slap: true
+      chatfeelings.poke: true
+      chatfeelings.highfive: true
+      chatfeelings.facepalm: true
+      chatfeelings.yell: true
+      chatfeelings.bite: true
+      chatfeelings.snuggle: true
+      chatfeelings.shake: true
+      chatfeelings.stab: true
+      chatfeelings.kiss: true
+      chatfeelings.punch: true
+      chatfeelings.murder: true
+      chatfeelings.cry: true
+      chatfeelings.boi: true
+      chatfeelings.dab: true
+      chatfeelings.lick: true
+      chatfeelings.scorn: true
+      chatfeelings.pat: true
+      chatfeelings.stalk: true
+      chatfeelings.sus: true
+      chatfeelings.wave: true
+      chatfeelings.welcomeback: true
+      chatfeelings.boop: true
+  chatfeelings.hug:
+    default: op
+  chatfeelings.slap:
+    default: op
+  chatfeelings.poke:
+    default: op
+  chatfeelings.highfive:
+    default: op
+  chatfeelings.facepalm:
+    default: op
+  chatfeelings.yell:
+    default: op
+  chatfeelings.bite:
+    default: op
+  chatfeelings.snuggle:
+    default: op
+  chatfeelings.shake:
+    default: op
+  chatfeelings.stab:
+    default: op
+  chatfeelings.kiss:
+    default: op
+  chatfeelings.punch:
+    default: op
+  chatfeelings.murder:
+    default: op
+  chatfeelings.cry:
+    default: op
+  chatfeelings.boi:
+    default: op
+  chatfeelings.dab:
+    default: op
+  chatfeelings.lick:
+    default: op
+  chatfeelings.scorn:
+    default: op
+  chatfeelings.pat:
+    default: op
+  chatfeelings.stalk:
+    default: op
+  chatfeelings.sus:
+    default: op
+  chatfeelings.wave:
+    default: op
+  chatfeelings.welcomeback:
+    default: op
+  chatfeelings.boop:
+    default: op
+  chatfeelings.admin:
+    default: op
+  chatfeelings.stats:
+    default: op
+  chatfeelings.stats.others:
+    default: op
+  chatfeelings.mute:
+    default: op
+  chatfeelings.ignore:
+    default: op
+  chatfeelings.bypasscooldowns:
+    default: op
