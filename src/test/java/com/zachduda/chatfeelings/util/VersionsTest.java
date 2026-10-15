@@ -28,4 +28,11 @@ class VersionsTest {
         assertEquals(0, Versions.compare("???", "5.0.0"));
         assertEquals(0, Versions.compare(null, "5.0.0"));
     }
+
+    @Test
+    void qualifiersAndFormatting() {
+        assertTrue(Versions.compare("5.0.0-SNAPSHOT", "5.0.0") < 0);
+        assertEquals(0, Versions.compare(" 5.0.1 ", "V5.0.1"));
+        assertTrue(Versions.compare("5", "4.99.99") > 0);
+    }
 }

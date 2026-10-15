@@ -21,6 +21,8 @@ public final class FeelingValidator {
             // ChatFeelings commands, and its permissions.
             "chatfeelings", "cf", "feelings", "emotions",
             "all", "admin", "mute", "ignore", "stats", "bypasscooldowns",
+            // Stats are kept under the capitalized name, and "Stats.Sent.Total" is every player's overall count.
+            "total",
             // Bukkit / Spigot / Paper
             "plugins", "pl", "version", "ver", "about", "icanhasbukkit", "reload", "rl", "timings", "restart",
             "spigot", "tps", "paper", "mspt", "help",

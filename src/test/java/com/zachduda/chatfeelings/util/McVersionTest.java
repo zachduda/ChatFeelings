@@ -2,6 +2,9 @@ package com.zachduda.chatfeelings.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -31,5 +34,21 @@ class McVersionTest {
     void majorMinor() {
         assertEquals("1_21", new McVersion(1, 21, 4).majorMinor("_"));
         assertEquals("26.1", new McVersion(26, 1, 0).majorMinor("."));
+    }
+
+    @Test
+    void sortsNumericallyAcrossNumberingSchemes() {
+        final List<McVersion> sorted = Stream.of("26.1", "1.21.11", "1.9.4", "26.0.1", "1.21.4")
+                .map(McVersion::parse).sorted().toList();
+        assertEquals(List.of(new McVersion(1, 9, 4), new McVersion(1, 21, 4), new McVersion(1, 21, 11),
+                new McVersion(26, 0, 1), new McVersion(26, 1, 0)), sorted);
+    }
+
+    @Test
+    void oddInput() {
+        assertEquals(new McVersion(1, 21, 0), McVersion.parse("  1.21 "));
+        assertNull(McVersion.parse("1"));
+        assertNull(McVersion.parse(""));
+        assertNull(McVersion.parse("99999999999.1"), "too big for an int");
     }
 }
