@@ -81,4 +81,47 @@ class FeelingValidatorTest {
         assertTrue(errors.stream().anyMatch(e -> e.contains("'Particle'")), errors.toString());
         assertTrue(errors.stream().anyMatch(e -> e.contains("'Violent'")), errors.toString());
     }
+
+    @Test
+    void nameEdgeCases() {
+        assertTrue(FeelingValidator.validateName("a").isEmpty());
+        assertTrue(FeelingValidator.validateName("a".repeat(32)).isEmpty());
+        assertFalse(FeelingValidator.validateName("").isEmpty());
+        assertFalse(FeelingValidator.validateName("caf\u00e9").isEmpty());
+        // A '.' would split the feeling's stats key (Stats.Sent.<Name>) into nested YAML sections.
+        assertFalse(FeelingValidator.validateName("high.five").isEmpty());
+        assertFalse(FeelingValidator.validateName("KILL").isEmpty(), "reserved names ignore case");
+    }
+
+    @Test
+    void totalIsReserved() {
+        // Its stats would land on Stats.Sent.Total, every player's overall count, and count each use twice.
+        assertFalse(FeelingValidator.validateName("Total").isEmpty());
+    }
+
+    @Test
+    void volumeAndPitchLimitsAreInclusive() {
+        YamlConfiguration c = valid();
+        c.set("Sounds.Sound1.Volume", 0);
+        c.set("Sounds.Sound1.Pitch", 2.0);
+        assertEquals(List.of(), validate("tickle", c));
+        c.set("Sounds.Sound1.Volume", 10);
+        c.set("Sounds.Sound1.Pitch", 0);
+        assertEquals(List.of(), validate("tickle", c));
+
+        for (Object[] bad : new Object[][]{{"Volume", 10.5}, {"Volume", -0.1}, {"Pitch", 2.01}, {"Volume", "2"}}) {
+            c = valid();
+            c.set("Sounds.Sound1." + bad[0], bad[1]);
+            assertEquals(1, validate("tickle", c).size(), bad[0] + ": " + bad[1]);
+        }
+    }
+
+    @Test
+    void particleCanBeABuiltinFeelingsName() {
+        final YamlConfiguration c = valid();
+        c.set("Particle", "kiss");
+        assertEquals(List.of(), validate("tickle", c));
+        c.set("Particle", 5);
+        assertEquals(1, validate("tickle", c).size());
+    }
 }

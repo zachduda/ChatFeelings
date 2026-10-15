@@ -6,7 +6,16 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -139,5 +148,96 @@ class YamlStorageTest {
         storage.delete(alice);
         assertNull(storage.load(alice));
         assertNull(storage.findUUIDByName("Alice"));
+    }
+
+    @Test
+    void globalStatsFileIsNeverTreatedAsAPlayer() {
+        final YamlStorage storage = new YamlStorage(dir);
+        storage.recordLogin(alice, "Alice", null, 1000L);
+        storage.incrementGlobalSent("Hug");
+
+        assertEquals(0, storage.cleanupInvalid(), "global.yml isn't a broken player file");
+        assertTrue(new File(dir, "Data/global.yml").exists());
+        assertEquals(1, storage.loadAll().size());
+        assertEquals(1, storage.getGlobalSent().get("Hug"));
+    }
+
+    @Test
+    void nameLookupFindsTheMostRecentOwnerOfAName() {
+        final YamlStorage storage = new YamlStorage(dir);
+        storage.recordLogin(alice, "Steve", null, 1000L);
+        storage.recordLogin(bob, "steve", null, 2000L); // the name passed from Alice to Bob
+        assertEquals(bob, new YamlStorage(dir).findUUIDByName("STEVE"), "when the index is built from the files");
+
+        assertEquals(bob, storage.findUUIDByName("Steve"));
+        storage.recordLogin(alice, "Steve", null, 3000L);
+        assertEquals(alice, storage.findUUIDByName("steve"), "when a login updates the index");
+    }
+
+    @Test
+    void filesFromOlderVersionsLoadWithSafeDefaults() throws Exception {
+        final File folder = new File(dir, "Data");
+        assertTrue(folder.mkdirs());
+        // Written before mutes and "/cf ignore all" existed.
+        Files.writeString(new File(folder, alice + ".yml").toPath(), "UUID: " + alice
+                + "\nUsername: Alice\nLast-On: 1000\nStats:\n  Sent:\n    Hug: 2\n    Total: 2\n", StandardCharsets.UTF_8);
+        final YamlStorage storage = new YamlStorage(dir);
+
+        final PlayerData data = storage.load(alice);
+        assertTrue(data.isAllowingFeelings());
+        assertFalse(data.isMuted());
+        assertEquals(Map.of("Hug", 2), data.getSentStats(), "Total isn't a feeling");
+        assertEquals(2, data.getTotalSent());
+
+        storage.recordLogin(alice, "Alice", null, 2000L);
+        assertEquals(2, storage.load(alice).getSent("Hug"), "a login keeps existing stats");
+    }
+
+    @Test
+    void movingAsideNeverOverwritesAnEarlierBrokenFile() throws Exception {
+        final YamlStorage storage = new YamlStorage(dir);
+        final File folder = new File(dir, "Data");
+        assertTrue(folder.mkdirs());
+        final File broken = new File(folder, "broken.yml");
+        Files.writeString(broken.toPath(), "Username: first\n", StandardCharsets.UTF_8);
+        assertEquals(1, storage.cleanupInvalid());
+        Files.writeString(broken.toPath(), "Username: second\n", StandardCharsets.UTF_8);
+        assertEquals(1, storage.cleanupInvalid());
+
+        final Set<String> kept = new HashSet<>();
+        for (File f : new File(folder, "invalid").listFiles()) {
+            kept.add(Files.readString(f.toPath(), StandardCharsets.UTF_8));
+        }
+        assertEquals(Set.of("Username: first\n", "Username: second\n"), kept);
+    }
+
+    /** Every method is synchronized so concurrent async tasks can't read-modify-write a file over each other. */
+    @Test
+    void concurrentUpdatesAreNotLost() throws Exception {
+        final YamlStorage storage = new YamlStorage(dir);
+        storage.recordLogin(alice, "Alice", null, 1000L);
+        final int threads = 8;
+        final int perThread = 25;
+        final ExecutorService pool = Executors.newFixedThreadPool(threads);
+        try {
+            final List<Future<?>> tasks = new ArrayList<>();
+            for (int t = 0; t < threads; t++) {
+                tasks.add(pool.submit(() -> {
+                    for (int i = 0; i < perThread; i++) {
+                        storage.incrementSent(alice, "Hug");
+                        storage.incrementGlobalSent("Hug");
+                    }
+                }));
+            }
+            for (Future<?> task : tasks) {
+                task.get(60, TimeUnit.SECONDS);
+            }
+        } finally {
+            pool.shutdownNow();
+        }
+        final PlayerData data = storage.load(alice);
+        assertEquals(threads * perThread, data.getSent("Hug"));
+        assertEquals(threads * perThread, data.getTotalSent());
+        assertEquals(threads * perThread, storage.getGlobalSent().get("Hug"));
     }
 }

@@ -1,5 +1,7 @@
 package com.zachduda.chatfeelings.config;
 
+import com.zachduda.chatfeelings.feeling.BuiltinFeelings;
+import com.zachduda.chatfeelings.util.Text;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -10,6 +12,7 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -78,5 +81,21 @@ class MessagesTest {
         final Messages messages = Messages.defaults();
         assertEquals("", messages.get("Does-Not-Exist"));
         assertFalse(messages.get("Prefix").isEmpty());
+    }
+
+    @Test
+    void migrationsOnlyRunOnce() throws Exception {
+        Files.writeString(new File(dir, "messages.yml").toPath(), "Version: 9\nPrefix: \"[CF]\"\n", StandardCharsets.UTF_8);
+        Messages.load(dir);
+        assertEquals("[CF] &f", Messages.load(dir).get("Prefix"), "a restart doesn't add to the prefix again");
+    }
+
+    /** /feelings looks up Command_Descriptions.<Name>, so each built-in should ship with one. */
+    @Test
+    void everyBuiltinFeelingHasADescription() {
+        for (String name : BuiltinFeelings.NAMES) {
+            final String key = "Command_Descriptions." + Text.capitalize(name);
+            assertNotNull(DefaultMessages.VALUES.get(key), key);
+        }
     }
 }

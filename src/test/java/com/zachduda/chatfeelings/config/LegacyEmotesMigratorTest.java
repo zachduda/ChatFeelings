@@ -82,4 +82,17 @@ class LegacyEmotesMigratorTest {
         LegacyEmotesMigrator.migrate(dir, new File(dir, "Feelings"));
         assertFalse(new File(dir, "emotes.yml").exists());
     }
+
+    @Test
+    void unreadableEmotesFileIsLeftAsIs() throws Exception {
+        final File emotes = new File(dir, "emotes.yml");
+        final String broken = "Version: 3\nFeelings:\n  Hug: [unclosed\n";
+        Files.writeString(emotes.toPath(), broken, StandardCharsets.UTF_8);
+        final File feelings = new File(dir, "Feelings");
+
+        LegacyEmotesMigrator.migrate(dir, feelings);
+
+        assertEquals(broken, Files.readString(emotes.toPath(), StandardCharsets.UTF_8));
+        assertFalse(feelings.exists(), "nothing is half-migrated");
+    }
 }
