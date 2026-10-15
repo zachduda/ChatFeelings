@@ -41,9 +41,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/** Plugin entry point: wires the pieces together and handles startup, reload and shutdown. */
 public class Main extends JavaPlugin {
-    /** Pre-release builds skip metrics and update checks. */
+    /** Skip metrics and update checks. */
     static final boolean BETA = false;
 
     private MorePaperLib morePaperLib;
@@ -111,11 +110,8 @@ public class Main extends JavaPlugin {
             bind(name, feelingCommand);
         }
         registrar = new CommandRegistrar(this, morePaperLib, scheduler);
-        // /cf is registered now, like before, so it keeps its name ahead of later plugins' aliases. Custom feelings
-        // wait for the first tick: plugins enabled after this one (and Spigot's vanilla commands) aren't in the
-        // command map yet, and a custom feeling must not take a name one of them is about to register.
+
         registrar.sync(List.of(), feelingCommand, settings.cfAlias(), chatFeelingsCommand, getCommand("chatfeelings"), false);
-        // No /cf here: if another plugin owns it, the warning above was enough.
         scheduler.globalNextTick(() -> registrar.sync(feelings.custom(), feelingCommand, settings.cfAlias(),
                 chatFeelingsCommand, null, true));
 
@@ -126,7 +122,7 @@ public class Main extends JavaPlugin {
         if (online.isEmpty()) {
             purgeOldData();
         } else {
-            online.forEach(this::recordJoin); // players who were on during a reload never "joined"
+            online.forEach(this::recordJoin);
             Log.debug("Reloaded with " + online.size() + " players online... Skipping purge.");
         }
 
@@ -171,8 +167,6 @@ public class Main extends JavaPlugin {
             updateChecker.stop();
         }
         if (playerData != null && scheduler != null) {
-            // Anyone still online (a reload, or a shutdown before players are kicked) gets their last-on saved.
-            // Queued with everything else so it all shares one bounded wait below.
             for (Player player : getServer().getOnlinePlayers()) {
                 final UUID uuid = player.getUniqueId();
                 final String name = player.getName();
@@ -181,7 +175,7 @@ public class Main extends JavaPlugin {
             }
         }
         if (scheduler != null) {
-            scheduler.shutdown(10); // let queued stats & last-on writes finish before storage closes
+            scheduler.shutdown(10);
         }
         if (playerData != null) {
             playerData.close();

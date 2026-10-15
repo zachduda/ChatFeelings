@@ -96,7 +96,6 @@ public final class UpdateChecker {
         }
     }
 
-    /** Logged once; the check keeps retrying daily in case the server was just offline. */
     private void failed(String reason) {
         Log.debug("Update check failed: " + reason);
         if (!reportedFailure) {

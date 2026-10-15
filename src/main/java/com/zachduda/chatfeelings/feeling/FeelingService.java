@@ -1,6 +1,7 @@
 package com.zachduda.chatfeelings.feeling;
 
 import com.zachduda.chatfeelings.api.FeelingGlobalNotifyEvent;
+import com.zachduda.chatfeelings.api.FeelingReceiveEvent;
 import com.zachduda.chatfeelings.api.FeelingRecieveEvent;
 import com.zachduda.chatfeelings.api.FeelingSendEvent;
 import com.zachduda.chatfeelings.command.Feedback;
@@ -30,19 +31,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-/**
- * Sends a feeling. The work is split into steps that each run on the right thread, with no step waiting on
- * another:
- * <ol>
- *     <li>command thread: arguments, permission, cooldown, target lookup ({@link #send})</li>
- *     <li>target's thread: vanish, receiving world and radius checks ({@link #checkTarget})</li>
- *     <li>background: mute and ignore checks, which may read storage ({@link #checkPlayerData})</li>
- *     <li>sender's thread: {@link FeelingSendEvent} ({@link #fireSendEvent})</li>
- *     <li>target's thread: {@link FeelingRecieveEvent}, messages, damage, particles and sounds ({@link #deliver})</li>
- * </ol>
- * On Spigot/Paper the "own thread" steps all run on the main thread; on Folia they run on the region thread
- * that owns each player.
- */
 public final class FeelingService {
     private final Supplier<Settings> settings;
     private final Supplier<Messages> messages;
@@ -75,7 +63,6 @@ public final class FeelingService {
         this.particles = particles;
     }
 
-    /** One attempt to send a feeling, carrying what's needed to give the cooldown back if it fails. */
     private final class Attempt {
         final CommandSender sender;
         final Player senderPlayer;
@@ -117,7 +104,6 @@ public final class FeelingService {
         }
     }
 
-    /** Step 1, on the thread that ran the command. */
     public void send(CommandSender sender, String commandName, String[] args) {
         final Settings s = settings.get();
         final Messages m = messages.get();
@@ -174,12 +160,10 @@ public final class FeelingService {
             return;
         }
 
-        // The sender's position is read here, on their own thread, and compared on the target's thread.
         final Location senderLocation = senderPlayer != null && s.radiusEnabled() ? senderPlayer.getLocation() : null;
         scheduler.entity(target, () -> checkTarget(attempt, target, senderLocation), attempt::targetGone);
     }
 
-    /** Step 2, on the target's thread. */
     private void checkTarget(Attempt a, Player target, Location senderLocation) {
         final Settings s = settings.get();
         if (!target.isOnline() || vanish.isVanished(target)) {
@@ -207,7 +191,6 @@ public final class FeelingService {
         scheduler.async(() -> checkPlayerData(a, target));
     }
 
-    /** Step 3, in the background: these checks can hit the disk, a database or a punishment plugin. */
     private void checkPlayerData(Attempt a, Player target) {
         if (a.senderPlayer != null) {
             final UUID sender = a.senderPlayer.getUniqueId();
@@ -244,7 +227,6 @@ public final class FeelingService {
         scheduler.forSender(a.sender, () -> fireSendEvent(a, target, recipients));
     }
 
-    /** Everyone who should see a global feeling: online players not blocking all feelings or the sender. */
     private List<Player> globalRecipients(Attempt a, Player target, PlayerData targetData) {
         final List<Player> recipients = new ArrayList<>();
         for (Player online : Bukkit.getOnlinePlayers()) {
@@ -264,7 +246,6 @@ public final class FeelingService {
         return recipients;
     }
 
-    /** Step 4, on the sender's thread. */
     private void fireSendEvent(Attempt a, Player target, List<Player> recipients) {
         final FeelingSendEvent event = new FeelingSendEvent(a.sender, target, a.feeling.displayName());
         call(event);
@@ -276,16 +257,14 @@ public final class FeelingService {
         scheduler.entity(target, () -> deliver(a, target, recipients), a::targetGone);
     }
 
-    /** Step 5, on the target's thread. */
     private void deliver(Attempt a, Player target, List<Player> recipients) {
         if (!target.isOnline()) {
             a.targetGone();
             return;
         }
         final Feeling f = a.feeling;
-        // Fired as the deprecated misspelled class, a subclass of FeelingReceiveEvent, so listeners of either get it.
-        @SuppressWarnings("deprecation")
-        final FeelingRecieveEvent received = new FeelingRecieveEvent(target, a.sender, f.displayName());
+
+        final FeelingReceiveEvent received = new FeelingReceiveEvent(target, a.sender, f.displayName());
         call(received);
         if (received.isCancelled()) {
             Log.debug("A plugin cancelled " + a.sender.getName() + "'s /" + f.name() + " via FeelingReceiveEvent.");
@@ -387,7 +366,6 @@ public final class FeelingService {
         }
     }
 
-    /** The verb in "You can't %command% yourself". */
     private static String selfVerb(String feeling) {
         return switch (feeling) {
             case "welcomeback" -> "welcome-back";

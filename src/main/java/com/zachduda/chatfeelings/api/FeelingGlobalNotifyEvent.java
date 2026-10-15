@@ -8,8 +8,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called for each player about to see a global feeling (General.Global-Feelings) sent by a player. Cancelling
- * it hides the message from that one player. Called on that player's thread (the main thread on Spigot/Paper).
+ * Called for each player about to see a global feeling (General.Global-Feelings) sent by a player.
  */
 @SuppressWarnings("unused")
 public class FeelingGlobalNotifyEvent extends Event implements Cancellable {
@@ -47,7 +46,6 @@ public class FeelingGlobalNotifyEvent extends Event implements Cancellable {
         return HANDLERS;
     }
 
-    /** The player who would see the message. */
     public Player getPlayer() {
         return player;
     }
@@ -56,7 +54,7 @@ public class FeelingGlobalNotifyEvent extends Event implements Cancellable {
         return sender;
     }
 
-    /** The feeling's capitalized name, ie: "Hug". */
+    /** The feeling capitalized ie: "Hug". */
     public String getFeeling() {
         return feeling;
     }

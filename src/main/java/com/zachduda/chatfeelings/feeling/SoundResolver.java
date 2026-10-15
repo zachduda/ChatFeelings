@@ -10,10 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Turns a sound name from a feeling file into a {@link Sound}. Accepts the namespaced key in any case
- * ("entity.cat.purreow", "ENTITY.CAT.PURREOW", "minecraft:entity.cat.purreow") as well as the enum-style
- * name from the Bukkit Javadocs ("ENTITY_CAT_PURREOW"), including multi-word names such as
- * "ENTITY_IRON_GOLEM_ATTACK".
+ * Handles sounds with a failover to accept _ or .
  */
 public final class SoundResolver {
     private volatile Map<String, Sound> byNormalizedName;

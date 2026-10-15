@@ -10,7 +10,7 @@ import org.bstats.charts.SimplePie;
 import java.util.HashMap;
 import java.util.Map;
 
-/** bStats (https://bstats.org/plugin/bukkit/ChatFeelings/1376). Charts only read in-memory values. */
+/** bStats (https://bstats.org/plugin/bukkit/ChatFeelings/1376) */
 public final class MetricsSetup {
     private static final int PLUGIN_ID = 1376;
 
@@ -40,7 +40,6 @@ public final class MetricsSetup {
         if (scheduler.isFolia()) {
             return "Folia";
         }
-        // Paper moved its config class in 1.19; check both so modern Paper isn't counted as Spigot.
         if (classExists("io.papermc.paper.configuration.Configuration") || classExists("com.destroystokyo.paper.PaperConfig")) {
             return "Paper";
         }

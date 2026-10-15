@@ -181,7 +181,7 @@ public class ChatFeelingsAPI {
         return usingAdvancedBans() || usingEssentials() || usingLiteBans();
     }
 
-    /** Every usable feeling's name (lower-case), including custom feelings. A copy, so it can't be modified. */
+    /** A read-only lsit of all available feeling's (lower-case). */
     public static List<String> getFeelingsList() {
         return plugin().getFeelings().names();
     }

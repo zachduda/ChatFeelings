@@ -20,12 +20,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
- * Stores player data in MySQL/MariaDB so it can be shared between servers on a network.
- * <p>
- * Uses the MySQL driver bundled with Spigot/Paper and a single, lazily re-opened connection.
- * ChatFeelings keeps online players' data cached, so it only touches the database on join/quit,
- * for stats and for a few admin commands; a pool isn't worth shading in. All access is serialized
- * on {@link #lock}.
+ * Stores player data in MySQL/MariaDB.
  */
 public class MySQLStorage implements PlayerStorage {
     private static final Pattern SAFE_PREFIX = Pattern.compile("^[A-Za-z0-9_]{0,32}$");
@@ -40,10 +35,7 @@ public class MySQLStorage implements PlayerStorage {
     private final String stats;
     private final String globalStats;
 
-    /** How long a connection may sit unused before it's re-validated with a round trip to the server. */
     private static final long VALIDATE_AFTER_IDLE_MILLIS = 30_000L;
-
-    /** After a failed connect, calls fail straight away for this long instead of each waiting for a timeout. */
     private static final long RECONNECT_BACKOFF_MILLIS = 5_000L;
 
     private Connection connection;
@@ -82,7 +74,6 @@ public class MySQLStorage implements PlayerStorage {
         return "MySQL";
     }
 
-    /** Connects and creates the tables if needed. Throws if the database can't be reached. */
     public void init() throws SQLException {
         loadDriver();
         synchronized (lock) {
@@ -130,14 +121,12 @@ public class MySQLStorage implements PlayerStorage {
         throw new SQLException("No MySQL JDBC driver found on this server.");
     }
 
-    /** Must be called while holding {@link #lock}. */
     private Connection conn() throws SQLException {
         if (closed) {
             throw new SQLException("ChatFeelings' MySQL storage has been closed.", "08003");
         }
         final long now = System.currentTimeMillis();
-        // Only ping the server if the connection has been idle a while; a dead connection used sooner is
-        // caught by error(), which drops it so the next call reconnects.
+
         if (connection == null || connection.isClosed()
                 || (now - lastUsed > VALIDATE_AFTER_IDLE_MILLIS && !connection.isValid(2))) {
             closeQuietly();
@@ -162,7 +151,7 @@ public class MySQLStorage implements PlayerStorage {
             try {
                 connection.close();
             } catch (SQLException ignored) {
-                // already gone
+                // meh
             }
             connection = null;
         }
@@ -216,8 +205,6 @@ public class MySQLStorage implements PlayerStorage {
     private interface SqlFunction<T> {
         T apply(Connection c) throws SQLException;
     }
-
-    // ------------------------------------------------------------------------------------------
 
     private PlayerData readPlayer(Connection c, ResultSet rs) throws SQLException {
         final String uuidStr = rs.getString("uuid");
@@ -311,8 +298,6 @@ public class MySQLStorage implements PlayerStorage {
             try (PreparedStatement ps = conn().prepareStatement("UPDATE " + players + " SET muted = ? WHERE uuid = ?")) {
                 ps.setBoolean(1, muted);
                 ps.setString(2, uuid.toString());
-                // MySQL reports "matched" rows only with useAffectedRows=false (the default), so this is true
-                // even when the value didn't change.
                 return ps.executeUpdate() > 0;
             } catch (SQLException err) {
                 error("change mute status of " + uuid, err);
@@ -484,7 +469,6 @@ public class MySQLStorage implements PlayerStorage {
         }
     }
 
-    /** Just the players table: ignore lists and stats are left empty, which purging & the mute list don't need. */
     @Override
     public List<PlayerData> listAll() {
         synchronized (lock) {
@@ -535,7 +519,6 @@ public class MySQLStorage implements PlayerStorage {
         }
     }
 
-    /** Closes the connection for good: later calls fail instead of reconnecting. */
     @Override
     public void close() {
         closed = true; // set first, so a call that's still running can't reopen the connection afterwards
@@ -554,10 +537,8 @@ public class MySQLStorage implements PlayerStorage {
     }
 
     /**
-     * Copies the YAML Data folder into MySQL when the players table is still empty, so switching
-     * backends doesn't wipe mutes, ignore lists or stats. The YAML files are left untouched.
-     *
-     * @return how many players were imported (0 if the table already had data).
+     * Copies the YAML Data folder into MySQL. YAML is kept intact.
+     * @return Number of player's data imported.
      */
     public int importFromYaml(File pluginDataFolder) {
         YamlStorage yaml = new YamlStorage(pluginDataFolder);

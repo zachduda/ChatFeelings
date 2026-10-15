@@ -8,11 +8,7 @@ import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called when a player is about to receive a feeling, after {@link FeelingSendEvent} wasn't cancelled.
- * Cancelling it stops the feeling. Called on the receiving player's thread (the main thread on Spigot/Paper).
- * <p>
- * ChatFeelings fires this as {@link FeelingRecieveEvent} (the old, misspelled class) so plugins listening to
- * either one keep working. New code should listen to this class.
+ * Called when a player is about to receive a feeling but can be cancelled.
  */
 @SuppressWarnings("unused")
 public class FeelingReceiveEvent extends Event implements Cancellable {

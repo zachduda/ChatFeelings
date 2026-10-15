@@ -157,9 +157,7 @@ public final class CommandRegistrar {
     }
 
     /**
-     * The server builds the aliases in commands.yml once, after every plugin's onEnable, and drops any alias whose
-     * target doesn't exist yet. Commands registered after that (custom feelings on the first tick or on /cf reload)
-     * would leave such aliases broken, so they're rebuilt when one of them points at a command just added.
+     * Reread/Build the Alias Map
      */
     private void reapplyServerAliases(Collection<String> added) {
         if (added.isEmpty() || !(commandMap instanceof SimpleCommandMap simple)) {
@@ -223,11 +221,6 @@ public final class CommandRegistrar {
         Log.debug("Unregistered /" + label);
     }
 
-    /**
-     * The server builds /help from the command map once, after startup, so commands registered later (custom
-     * feelings on the first tick or on /cf reload) need their help entry added here. Like the server's own
-     * entries, none are added when help.yml's ignore-plugins lists ChatFeelings (or All).
-     */
     private void addHelpTopic(Command command) {
         try {
             final HelpMap help = Bukkit.getHelpMap();
@@ -244,11 +237,6 @@ public final class CommandRegistrar {
         }
     }
 
-    /**
-     * Topics can't be replaced, and one for an unregistered command is hidden from everyone. Left in place, it would
-     * hide the entry of a command later registered under the same name (ie: a feeling file removed and restored).
-     * The console sees every topic of a registered command, so a topic it can't see belongs to an unregistered one.
-     */
     private void removeStaleHelpTopic(String label) {
         try {
             final HelpMap help = Bukkit.getHelpMap();
@@ -278,11 +266,6 @@ public final class CommandRegistrar {
         }
     }
 
-    /**
-     * chatfeelings.&lt;name&gt; for a custom feeling, default op like the built-ins, and included in chatfeelings.all.
-     * Only nodes created here are touched, so an existing node (another plugin's, or a future ChatFeelings one)
-     * is never made a child of chatfeelings.all.
-     */
     private void addPermission(String feeling) {
         final PluginManager pm = Bukkit.getPluginManager();
         final String node = "chatfeelings." + feeling;
@@ -311,10 +294,6 @@ public final class CommandRegistrar {
         pm.removePermission(node);
     }
 
-    /**
-     * Sends online players their updated command list. On Spigot, commands added after startup also need the
-     * server's command tree rebuilt (CraftServer#syncCommands, not part of the API) before clients see them.
-     */
     private void refreshPlayers() {
         try {
             Bukkit.getServer().getClass().getMethod("syncCommands").invoke(Bukkit.getServer());

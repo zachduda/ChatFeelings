@@ -9,10 +9,7 @@ import org.bukkit.OfflinePlayer;
 
 /**
  * PlaceholderAPI placeholders: %chatfeelings_total_sent%, %chatfeelings_incoming_allow% and
- * %chatfeelings_total_&lt;feeling&gt;% (also with an "s"/"es" ending, ie: total_hugs).
- * <p>
- * Placeholders are often requested every tick from the main thread (scoreboards, tab lists), so they only read
- * cached data. A player who isn't cached yet shows defaults while their data loads in the background.
+ * %chatfeelings_total_hugs% etc.
  */
 @SuppressWarnings("unused")
 public class Placeholders extends PlaceholderExpansion {

@@ -17,13 +17,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * Where ChatFeelings runs things. On Folia an entity may only be touched from the region thread that owns
- * it, so world/entity work goes through {@link #entity}; on Spigot/Paper that's simply the main thread.
- * <p>
- * Blocking work (player data storage) runs on ChatFeelings' own small worker pool rather than the server's
- * shared async pool, so it can be drained on shutdown instead of being cancelled half-done.
- */
 public final class Scheduler {
     private final Plugin plugin;
     private final GracefulScheduling scheduling;

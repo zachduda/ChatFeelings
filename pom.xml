@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--suppress ALL -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <name>ChatFeelings-${project.version}</name>
@@ -79,7 +78,6 @@
             </plugin>
         </plugins>
         <resources>
-            <!-- Only plugin.yml & bungee.yml get ${project.version} filled in; other files are copied as-is. -->
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
@@ -144,14 +142,12 @@
             <version>26.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Bundled with Spigot/Paper (the Bukkit API depends on it). -->
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
             <version>2.11.0</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Only for BungeeStub, which explains the jar belongs on Spigot/Paper if it's put on a proxy. -->
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>

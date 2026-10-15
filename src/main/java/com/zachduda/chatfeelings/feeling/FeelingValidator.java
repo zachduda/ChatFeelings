@@ -9,19 +9,16 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
-/** Checks that a custom feeling file is complete and safe to register as a command. */
+/** Checks that custom feeling file's are safe to register. */
 public final class FeelingValidator {
-    /** A feeling's file name (minus ".yml") is its command name, so it has to be a sane command name. */
+    /** A feeling's file name (minus ".yml") is its command name */
     static final Pattern VALID_NAME = Pattern.compile("^[a-zA-Z][a-zA-Z0-9_-]{0,31}$");
 
     /**
-     * Names a custom feeling can never take: ChatFeelings' own commands and permission nodes, plus vanilla and
-     * server commands.
-     * (Vanilla commands are registered after plugins on Spigot, so they can't be detected at startup.)
-     * Commands from other plugins are detected when registering instead.
+     * Names a custom feeling can never take to prevent overwritting important commands.
      */
     static final Set<String> RESERVED_NAMES = Set.of(
-            // ChatFeelings commands, and its permission nodes (a feeling's node is chatfeelings.<name>)
+            // ChatFeelings commands, and its permissions.
             "chatfeelings", "cf", "feelings", "emotions",
             "all", "admin", "mute", "ignore", "stats", "bypasscooldowns",
             // Bukkit / Spigot / Paper

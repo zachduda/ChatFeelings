@@ -2,7 +2,6 @@ package com.zachduda.chatfeelings.platform;
 
 import net.md_5.bungee.api.plugin.Plugin;
 
-/** Loaded only if the jar is put on a BungeeCord proxy by mistake, to say where it belongs. */
 public final class BungeeStub extends Plugin {
     @Override
     public void onEnable() {
