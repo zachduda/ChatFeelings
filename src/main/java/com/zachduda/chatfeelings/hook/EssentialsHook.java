@@ -4,7 +4,6 @@ import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.User;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
 import java.util.UUID;
 
 /** Only loaded when Essentials is installed. */
@@ -41,10 +40,11 @@ final class EssentialsHook extends HookSupport {
         });
     }
 
-    boolean isVanished(String playerName) {
+    /** Reads the user's own vanish flag: getVanishedPlayers() would copy the whole vanished list on every call. */
+    boolean isVanished(UUID uuid) {
         return safely("vanish", () -> {
-            final List<String> vanished = essentials.getVanishedPlayers();
-            return vanished != null && vanished.contains(playerName);
+            final User user = essentials.getUser(uuid);
+            return user != null && user.isVanished();
         });
     }
 }

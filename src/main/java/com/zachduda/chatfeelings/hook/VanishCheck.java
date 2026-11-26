@@ -30,7 +30,7 @@ public final class VanishCheck {
         if (!s.vanishCheck()) {
             return false;
         }
-        if (punishments.isVanishedInEssentials(target.getName())) {
+        if (punishments.isVanishedInEssentials(target.getUniqueId())) {
             return true;
         }
         for (MetadataValue meta : target.getMetadata("vanished")) {
