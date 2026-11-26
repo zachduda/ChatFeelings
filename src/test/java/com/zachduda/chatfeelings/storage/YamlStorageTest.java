@@ -155,11 +155,47 @@ class YamlStorageTest {
         final YamlStorage storage = new YamlStorage(dir);
         storage.recordLogin(alice, "Alice", null, 1000L);
         storage.incrementGlobalSent("Hug");
+        storage.flush();
 
         assertEquals(0, storage.cleanupInvalid(), "global.yml isn't a broken player file");
         assertTrue(new File(dir, "Data/global.yml").exists());
         assertEquals(1, storage.loadAll().size());
         assertEquals(1, storage.getGlobalSent().get("Hug"));
+    }
+
+    @Test
+    void globalCountsAreWrittenTogetherWhenFlushedOrClosed() {
+        final YamlStorage storage = new YamlStorage(dir);
+        storage.incrementGlobalSent("Hug");
+        storage.incrementGlobalSent("Hug");
+        storage.incrementGlobalSent("Slap");
+        assertFalse(new File(dir, "Data/global.yml").exists(), "sending a feeling doesn't write the file");
+        assertEquals(Map.of("Hug", 2, "Slap", 1), storage.getGlobalSent(), "but the counts are already visible");
+
+        storage.flush();
+        assertEquals(Map.of("Hug", 2, "Slap", 1), new YamlStorage(dir).getGlobalSent());
+        storage.flush(); // nothing new: must not double count
+        storage.incrementGlobalSent("Hug");
+        storage.close();
+        assertEquals(Map.of("Hug", 3, "Slap", 1), new YamlStorage(dir).getGlobalSent(), "close saves the rest");
+    }
+
+    @Test
+    void globalCountsThatFailToSaveAreKeptForTheNextFlush() throws Exception {
+        final YamlStorage storage = new YamlStorage(dir);
+        storage.incrementGlobalSent("Hug");
+        storage.flush();
+        // A folder where the new data would be written makes the next write fail, like a full disk would.
+        final File blocker = new File(dir, "Data/global.yml.tmp");
+        assertTrue(blocker.mkdir());
+        storage.incrementGlobalSent("Hug");
+        storage.flush();
+        assertEquals(1, new YamlStorage(dir).getGlobalSent().get("Hug"), "the failed write left the old file alone");
+        assertEquals(2, storage.getGlobalSent().get("Hug"), "the unsaved count wasn't dropped");
+
+        Files.deleteIfExists(blocker.toPath());
+        storage.flush();
+        assertEquals(2, new YamlStorage(dir).getGlobalSent().get("Hug"));
     }
 
     @Test
@@ -211,7 +247,7 @@ class YamlStorageTest {
         assertEquals(Set.of("Username: first\n", "Username: second\n"), kept);
     }
 
-    /** Every method is synchronized so concurrent async tasks can't read-modify-write a file over each other. */
+    /** File access is synchronized so concurrent async tasks (and the timed save) can't write a file over each other. */
     @Test
     void concurrentUpdatesAreNotLost() throws Exception {
         final YamlStorage storage = new YamlStorage(dir);
@@ -226,6 +262,9 @@ class YamlStorageTest {
                     for (int i = 0; i < perThread; i++) {
                         storage.incrementSent(alice, "Hug");
                         storage.incrementGlobalSent("Hug");
+                        if (i % 5 == 0) {
+                            storage.flush(); // the timed save running while feelings are being counted
+                        }
                     }
                 }));
             }
@@ -239,5 +278,7 @@ class YamlStorageTest {
         assertEquals(threads * perThread, data.getSent("Hug"));
         assertEquals(threads * perThread, data.getTotalSent());
         assertEquals(threads * perThread, storage.getGlobalSent().get("Hug"));
+        storage.flush();
+        assertEquals(threads * perThread, new YamlStorage(dir).getGlobalSent().get("Hug"), "and in the file");
     }
 }
