@@ -262,6 +262,11 @@ public final class PlayerDataService {
         return storage.cleanupInvalid();
     }
 
+    /** Blocking. Writes out stats the storage holds back to batch writes; Main calls this every few seconds. */
+    public void flush() {
+        storage.flush();
+    }
+
     /** True once {@link #close} has started; long-running loops check this to stop early on shutdown. */
     public boolean isClosed() {
         return closed;

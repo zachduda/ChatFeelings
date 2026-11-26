@@ -16,12 +16,16 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The original storage format: one Data/&lt;uuid&gt;.yml file per player plus Data/global.yml.
  * <p>
- * Every method is synchronized so concurrent async tasks (ie: a feeling's stat update racing a
- * quit's last-on update) can't read-modify-write the same file and lose each other's changes.
+ * Every method that touches a file is synchronized so concurrent async tasks (ie: a feeling's stat update racing
+ * a quit's last-on update) can't read-modify-write the same file and lose each other's changes.
+ * <p>
+ * The server-wide counters are kept in memory and written to global.yml by {@link #flush} (every few seconds)
+ * and {@link #close}, rather than rewriting the file for every feeling sent.
  */
 public class YamlStorage implements PlayerStorage {
     static final String GLOBAL_FILE = "global.yml";
@@ -33,6 +37,9 @@ public class YamlStorage implements PlayerStorage {
     private final Map<String, UUID> nameIndex = new HashMap<>();
     private final Map<String, Long> nameIndexLastOn = new HashMap<>();
     private boolean nameIndexBuilt = false;
+
+    /** Server-wide counts not yet written to global.yml. */
+    private final Map<String, Integer> pendingGlobalSent = new ConcurrentHashMap<>();
 
     public YamlStorage(File dataFolder) {
         this.folder = new File(dataFolder, "Data");
@@ -55,15 +62,18 @@ public class YamlStorage implements PlayerStorage {
         return folder.exists() || folder.mkdirs();
     }
 
-    private void save(FileConfiguration fc, File f) {
+    /** @return false if the file couldn't be written (already logged). */
+    private boolean save(FileConfiguration fc, File f) {
         if (!ensureFolder()) {
             Log.warn("Unable to create the Data folder at " + folder.getPath());
-            return;
+            return false;
         }
         try {
             YamlFiles.writeAtomically(fc, f);
+            return true;
         } catch (IOException err) {
             Log.warn("Unable to save " + f.getName(), err);
+            return false;
         }
     }
 
@@ -306,20 +316,50 @@ public class YamlStorage implements PlayerStorage {
         save(fc, f);
     }
 
+    /** Only counts in memory, without waiting for the file lock; {@link #flush} writes it out. */
     @Override
-    public synchronized void incrementGlobalSent(String capitalizedFeeling) {
-        File f = new File(folder, GLOBAL_FILE);
-        final FileConfiguration fc = loadForWrite(f, true);
-        if (fc == null) {
+    public void incrementGlobalSent(String capitalizedFeeling) {
+        pendingGlobalSent.merge(capitalizedFeeling, 1, Integer::sum);
+    }
+
+    /** What's in global.yml plus the counts not written yet. */
+    @Override
+    public synchronized Map<String, Integer> getGlobalSent() {
+        final Map<String, Integer> out = readGlobalSent(new File(folder, GLOBAL_FILE));
+        pendingGlobalSent.forEach((feeling, sent) -> out.merge(feeling, sent, Integer::sum));
+        return out;
+    }
+
+    /** Adds the pending counts to global.yml in one write. If it can't be written they're kept for the next try. */
+    @Override
+    public synchronized void flush() {
+        if (pendingGlobalSent.isEmpty()) {
             return;
         }
-        fc.set("Feelings.Sent." + capitalizedFeeling, fc.getInt("Feelings.Sent." + capitalizedFeeling) + 1);
-        save(fc, f);
+        final Map<String, Integer> batch = new HashMap<>();
+        for (String feeling : pendingGlobalSent.keySet()) {
+            final Integer sent = pendingGlobalSent.remove(feeling); // a feeling sent meanwhile starts a new count
+            if (sent != null) {
+                batch.put(feeling, sent);
+            }
+        }
+        final File f = new File(folder, GLOBAL_FILE);
+        final FileConfiguration fc = loadForWrite(f, true);
+        if (fc != null) {
+            for (Map.Entry<String, Integer> e : batch.entrySet()) {
+                final String path = "Feelings.Sent." + e.getKey();
+                fc.set(path, fc.getInt(path) + e.getValue());
+            }
+            if (save(fc, f)) {
+                return;
+            }
+        }
+        batch.forEach((feeling, sent) -> pendingGlobalSent.merge(feeling, sent, Integer::sum));
     }
 
     @Override
-    public synchronized Map<String, Integer> getGlobalSent() {
-        return readGlobalSent(new File(folder, GLOBAL_FILE));
+    public void close() {
+        flush();
     }
 
     static Map<String, Integer> readGlobalSent(File f) {

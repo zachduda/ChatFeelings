@@ -51,7 +51,10 @@ public interface PlayerStorage {
     /** Adds one to the player's per-feeling and total sent counters. No-op if the player has no record. */
     void incrementSent(UUID uuid, String capitalizedFeeling);
 
-    /** Adds one to the server-wide counter for a feeling. */
+    /**
+     * Adds one to the server-wide counter for a feeling. Backends may keep it in memory until {@link #flush} or
+     * {@link #close}, but {@link #getGlobalSent} always includes it.
+     */
     void incrementGlobalSent(String capitalizedFeeling);
 
     /** Server-wide sent counters, keyed by capitalized feeling name. */
@@ -91,7 +94,11 @@ public interface PlayerStorage {
         return 0;
     }
 
-    /** Releases connections/handles. The storage must not be used afterwards. */
+    /** Writes out anything held in memory to save writes (YAML's server-wide counters). Called every few seconds. */
+    default void flush() {
+    }
+
+    /** Writes out anything not yet flushed and releases connections/handles. The storage must not be used afterwards. */
     default void close() {
     }
 }

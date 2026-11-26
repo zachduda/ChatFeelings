@@ -34,8 +34,10 @@ import org.bukkit.command.TabExecutor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import space.arim.morepaperlib.MorePaperLib;
+import space.arim.morepaperlib.scheduling.ScheduledTask;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -44,6 +46,8 @@ import java.util.function.Supplier;
 public class Main extends JavaPlugin {
     /** Skip metrics and update checks. */
     static final boolean BETA = false;
+    /** How often held-back stats are saved (YAML writes global.yml this often instead of on every feeling). */
+    private static final Duration STATS_SAVE_INTERVAL = Duration.ofSeconds(5);
 
     private MorePaperLib morePaperLib;
 
@@ -64,6 +68,7 @@ public class Main extends JavaPlugin {
     private UpdateChecker updateChecker;
     private Metrics metrics;
     private Placeholders placeholders;
+    private ScheduledTask statsSaver;
     private String storageType;
     private volatile boolean shuttingDown = false;
 
@@ -118,6 +123,7 @@ public class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
 
         scheduler.async(playerData::loadGlobalSent);
+        statsSaver = scheduler.asyncRepeating(playerData::flush, STATS_SAVE_INTERVAL, STATS_SAVE_INTERVAL);
         final Collection<? extends Player> online = getServer().getOnlinePlayers();
         if (online.isEmpty()) {
             purgeOldData();
@@ -165,6 +171,9 @@ public class Main extends JavaPlugin {
         }
         if (updateChecker != null) {
             updateChecker.stop();
+        }
+        if (statsSaver != null) {
+            statsSaver.cancel(); // playerData.close() below saves what's left
         }
         if (playerData != null && scheduler != null) {
             for (Player player : getServer().getOnlinePlayers()) {
