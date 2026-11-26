@@ -64,6 +64,16 @@
                             <shadedPattern>com.zachduda.chatfeelings.libs.morepaperlib</shadedPattern>
                         </relocation>
                     </relocations>
+                    <transformers>
+                        <!-- The filter above drops every MANIFEST.MF, ours included, so the jar gets a fresh one. It
+                             tells Paper (1.20.5+) the plugin doesn't use Spigot-mapped server internals, so Paper
+                             loads it as-is instead of remapping a copy into plugins/.paper-remapped on startup. -->
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                            <manifestEntries>
+                                <paperweight-mappings-namespace>mojang</paperweight-mappings-namespace>
+                            </manifestEntries>
+                        </transformer>
+                    </transformers>
                     <minimizeJar>true</minimizeJar>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                 </configuration>
@@ -111,15 +121,7 @@
         </repository>
         <repository>
             <id>placeholderapi</id>
-            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
-        </repository>
-        <repository>
-            <id>Scarsz-Nexus</id>
-            <url>https://nexus.scarsz.me/content/groups/public/</url>
-        </repository>
-        <repository>
-            <id>CodeMC</id>
-            <url>https://repo.codemc.org/repository/maven-public</url>
+            <url>https://repo.helpch.at/releases/</url>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -171,23 +173,57 @@
             <artifactId>EssentialsX</artifactId>
             <version>2.21.2</version>
             <scope>provided</scope>
+            <!-- The hook plugins are compile-only APIs. Their own dependencies (EssentialsX pulls in paper-api) must
+                 stay off our compile classpath, where they'd let Paper-only calls slip past the Spigot API. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.12.3</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>com.gitlab.ruany</groupId>
             <artifactId>LiteBansAPI</artifactId>
             <version>0.6.1</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.github.DevLeoko</groupId>
-            <artifactId>AdvancedBan</artifactId>
+            <!-- Only the core module: the top-level artifact is an empty aggregate of the Bukkit/Bungee/Bundle jars. -->
+            <groupId>com.github.DevLeoko.AdvancedBan</groupId>
+            <artifactId>AdvancedBan-Core</artifactId>
             <version>2.3.0</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <!-- @NotNull etc. Declared directly: it used to arrive only through EssentialsX's copy of paper-api. -->
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
