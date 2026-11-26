@@ -7,7 +7,9 @@ import java.lang.reflect.RecordComponent;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SettingsTest {
     @Test
@@ -22,6 +24,19 @@ class SettingsTest {
         assertEquals(0, s.ignoreCooldownSeconds());
         assertEquals(0, s.ignoreListCooldownSeconds());
         assertEquals(1, s.helpPageLength(), "/feelings divides by the page length");
+    }
+
+    @Test
+    void cleanupUnderOneDayIsTurnedOffRatherThanDeletingEveryone() {
+        for (int days : new int[]{0, -1}) {
+            final YamlConfiguration c = new YamlConfiguration();
+            c.set("Other.Player-Files.Cleanup", true);
+            c.set("Other.Player-Files.Cleanup-After-Days", days);
+            assertFalse(Settings.from(c).cleanupPlayerData(), days + " days");
+        }
+        final YamlConfiguration c = new YamlConfiguration();
+        c.set("Other.Player-Files.Cleanup-After-Days", 1);
+        assertTrue(Settings.from(c).cleanupPlayerData());
     }
 
     /**

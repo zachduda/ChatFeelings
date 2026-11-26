@@ -64,6 +64,11 @@ public record McVersion(int major, int minor, int patch) implements Comparable<M
         return Integer.compare(patch, o.patch);
     }
 
+    /** As players know it: "1.21.4", or "26.1" when there's no patch number. */
+    public String toShortString() {
+        return patch == 0 ? major + "." + minor : toString();
+    }
+
     @Override
     public String toString() {
         return major + "." + minor + "." + patch;

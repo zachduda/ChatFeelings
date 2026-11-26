@@ -70,7 +70,9 @@ public record Settings(
                 c.getBoolean("Other.CF-Alias", true),
                 c.getBoolean("Other.Vanished-Players.Check", true),
                 c.getBoolean("Other.Vanished-Players.Use-Legacy", false),
-                c.getBoolean("Other.Player-Files.Cleanup", true),
+                // Under 1 day would delete every offline player's data on each purge, so it turns cleanup off.
+                c.getBoolean("Other.Player-Files.Cleanup", true)
+                        && c.getInt("Other.Player-Files.Cleanup-After-Days", 185) >= 1,
                 c.getInt("Other.Player-Files.Cleanup-After-Days", 185),
                 c.getBoolean("Other.Player-Files.Erase-If-Banned", true),
                 c.getBoolean("Other.Updates.Check", true),

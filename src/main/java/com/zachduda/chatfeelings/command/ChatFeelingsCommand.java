@@ -5,8 +5,10 @@ import com.zachduda.chatfeelings.config.Messages;
 import com.zachduda.chatfeelings.config.Settings;
 import com.zachduda.chatfeelings.feeling.Feeling;
 import com.zachduda.chatfeelings.hook.PunishmentHook;
+import com.zachduda.chatfeelings.platform.ServerPlatform;
 import com.zachduda.chatfeelings.storage.PlayerData;
 import com.zachduda.chatfeelings.util.Log;
+import com.zachduda.chatfeelings.util.McVersion;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
@@ -125,7 +127,9 @@ public final class ChatFeelingsCommand implements TabExecutor {
 
     private void version(CommandSender sender) {
         header(sender);
-        feedback.send(sender, "&8&l> &7You're running &fv" + plugin.getPluginVersion());
+        // The platform and Minecraft version too, since they're the first thing asked in a bug report.
+        feedback.send(sender, "&8&l> &7You're running &fv" + plugin.getPluginVersion() + " &7on &f"
+                + ServerPlatform.name(plugin.getScheduler()) + " " + McVersion.current().toShortString());
         feedback.send(sender, "");
         feedback.pop(sender);
     }
@@ -465,7 +469,9 @@ public final class ChatFeelingsCommand implements TabExecutor {
                 feedback.bass(sender);
                 return;
             }
-            feedback.prefixed(sender, m.get(nowIgnoring ? "Ignoring-On-Player" : "Ignoring-Off-Player").replace("%player%", lookup));
+            final String name = plugin.getPlayerData().findName(target); // as they spell it, not as typed
+            feedback.prefixed(sender, m.get(nowIgnoring ? "Ignoring-On-Player" : "Ignoring-Off-Player")
+                    .replace("%player%", name != null ? name : lookup));
             feedback.pop(sender);
         });
     }

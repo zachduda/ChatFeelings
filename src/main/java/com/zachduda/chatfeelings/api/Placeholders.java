@@ -1,11 +1,14 @@
 package com.zachduda.chatfeelings.api;
 
 import com.zachduda.chatfeelings.Main;
+import com.zachduda.chatfeelings.feeling.Feeling;
 import com.zachduda.chatfeelings.storage.PlayerData;
-import com.zachduda.chatfeelings.util.Text;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
+
+import java.util.Locale;
+import java.util.function.Function;
 
 /**
  * PlaceholderAPI placeholders: %chatfeelings_total_sent%, %chatfeelings_incoming_allow% and
@@ -62,18 +65,37 @@ public class Placeholders extends PlaceholderExpansion {
             plugin.getPlayerData().prefetch(player.getUniqueId(), plugin.getScheduler()::async);
         }
 
-        if (identifier.equalsIgnoreCase("total_sent")) {
+        final String id = identifier.toLowerCase(Locale.ROOT);
+        if (id.equals("total_sent")) {
             return Integer.toString(data == null ? 0 : data.getTotalSent());
         }
-        if (identifier.equalsIgnoreCase("incoming_allow")) {
+        if (id.equals("incoming_allow")) {
             return (data == null || data.isAllowingFeelings()) ? yes : no;
         }
-        for (String fl : plugin.getFeelings().names()) {
-            if (identifier.equalsIgnoreCase("total_" + fl) || identifier.equalsIgnoreCase("total_" + fl + "s")
-                    || identifier.equalsIgnoreCase("total_" + fl + "es")) {
-                return Integer.toString(data == null ? 0 : data.getSent(Text.capitalize(fl)));
-            }
+        final Feeling feeling = feelingFor(id, plugin.getFeelings()::get);
+        if (feeling != null) {
+            return Integer.toString(data == null ? 0 : data.getSent(feeling.displayName()));
         }
         return null;
+    }
+
+    /**
+     * The feeling a lower-case "total_&lt;feeling&gt;" identifier counts, also accepting the plural ("total_hugs",
+     * "total_punches"), or null. Placeholders refresh constantly on scoreboards, so this is a couple of map
+     * lookups rather than a scan of every feeling.
+     */
+    static Feeling feelingFor(String id, Function<String, Feeling> byName) {
+        if (!id.startsWith("total_")) {
+            return null;
+        }
+        final String name = id.substring("total_".length());
+        Feeling feeling = byName.apply(name);
+        if (feeling == null && name.endsWith("s")) {
+            feeling = byName.apply(name.substring(0, name.length() - 1));
+        }
+        if (feeling == null && name.endsWith("es")) {
+            feeling = byName.apply(name.substring(0, name.length() - 2));
+        }
+        return feeling;
     }
 }

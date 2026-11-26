@@ -51,4 +51,10 @@ class McVersionTest {
         assertNull(McVersion.parse(""));
         assertNull(McVersion.parse("99999999999.1"), "too big for an int");
     }
+
+    @Test
+    void shortStringDropsAMissingPatch() {
+        assertEquals("26.1", McVersion.parse("26.1-R0.1-SNAPSHOT").toShortString());
+        assertEquals("1.21.4", McVersion.parse("1.21.4").toShortString());
+    }
 }

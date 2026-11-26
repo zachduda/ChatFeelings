@@ -19,7 +19,7 @@ public final class MetricsSetup {
 
     public static Metrics start(Main plugin) {
         final Metrics metrics = new Metrics(plugin, PLUGIN_ID);
-        final String platform = platform(plugin.getScheduler());
+        final String platform = ServerPlatform.name(plugin.getScheduler());
         metrics.addCustomChart(new SimplePie("server_version", () -> platform));
         metrics.addCustomChart(new SimplePie("update_notifications",
                 () -> plugin.getSettings().checkForUpdates() ? "Enabled" : "Disabled"));
@@ -34,27 +34,5 @@ public final class MetricsSetup {
             return usage;
         }));
         return metrics;
-    }
-
-    private static String platform(Scheduler scheduler) {
-        if (scheduler.isFolia()) {
-            return "Folia";
-        }
-        if (classExists("io.papermc.paper.configuration.Configuration") || classExists("com.destroystokyo.paper.PaperConfig")) {
-            return "Paper";
-        }
-        if (classExists("org.spigotmc.SpigotConfig")) {
-            return "Spigot";
-        }
-        return "Bukkit / Other";
-    }
-
-    private static boolean classExists(String name) {
-        try {
-            Class.forName(name);
-            return true;
-        } catch (ClassNotFoundException | LinkageError e) {
-            return false;
-        }
     }
 }

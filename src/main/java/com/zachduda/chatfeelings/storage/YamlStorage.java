@@ -1,6 +1,7 @@
 package com.zachduda.chatfeelings.storage;
 
 import com.zachduda.chatfeelings.util.Log;
+import com.zachduda.chatfeelings.util.YamlFiles;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -60,7 +61,7 @@ public class YamlStorage implements PlayerStorage {
             return;
         }
         try {
-            fc.save(f);
+            YamlFiles.writeAtomically(fc, f);
         } catch (IOException err) {
             Log.warn("Unable to save " + f.getName(), err);
         }
