@@ -109,8 +109,8 @@ public final class Punishments {
         return advancedBan;
     }
 
-    /** True if Essentials lists the player as vanished. */
-    public boolean isVanishedInEssentials(String playerName) {
-        return essentials != null && essentials.isVanished(playerName);
+    /** True if Essentials has the player vanished. */
+    public boolean isVanishedInEssentials(UUID uuid) {
+        return essentials != null && essentials.isVanished(uuid);
     }
 }

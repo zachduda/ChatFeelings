@@ -71,6 +71,8 @@ public final class FeelingService {
         final boolean holdsCooldown;
         final long reservedAt;
         final long cooldownMillis;
+        /** Set on the sender's thread just before delivery, since a nickname placeholder may read the sender. */
+        volatile String senderName;
 
         Attempt(CommandSender sender, Feeling feeling, String typedTarget, boolean holdsCooldown,
                 long reservedAt, long cooldownMillis) {
@@ -247,6 +249,12 @@ public final class FeelingService {
     }
 
     private void fireSendEvent(Attempt a, Player target, List<Player> recipients) {
+        if (a.senderPlayer != null && !a.senderPlayer.isOnline()) {
+            // Folia drops this task for a player who left; Spigot/Paper still run it, so match that here.
+            Log.debug(a.sender.getName() + " left before their /" + a.feeling.name() + " was sent.");
+            a.releaseCooldown();
+            return;
+        }
         final FeelingSendEvent event = new FeelingSendEvent(a.sender, target, a.feeling.displayName());
         call(event);
         if (event.isCancelled()) {
@@ -254,6 +262,7 @@ public final class FeelingService {
             a.releaseCooldown();
             return;
         }
+        a.senderName = names.displayName(a.sender);
         scheduler.entity(target, () -> deliver(a, target, recipients), a::targetGone);
     }
 
@@ -273,8 +282,8 @@ public final class FeelingService {
         }
 
         final Settings s = settings.get();
-        final String senderName = names.displayName(a.sender);
-        final String targetName = names.displayName(target);
+        final String senderName = a.senderName != null ? a.senderName : names.displayName(a.sender);
+        final String targetName = names.displayName(target); // on the target's own thread
         if (s.globalFeelings()) {
             final String global = f.globalMessage().replace("%sender%", senderName).replace("%target%", targetName);
             for (Player recipient : recipients) {

@@ -43,6 +43,7 @@ import java.util.Set;
  */
 public final class CommandRegistrar {
     private static final String CF_ALIAS = "cf";
+    private static final String ALL_NODE = "chatfeelings.all";
 
     private final Plugin plugin;
     private final MorePaperLib morePaperLib;
@@ -123,12 +124,13 @@ public final class CommandRegistrar {
             wanted.put(feeling.name(), feeling);
         }
         boolean changed = false;
+        boolean permissionsChanged = false;
         final List<String> added = new ArrayList<>();
 
         for (String label : List.copyOf(ours.keySet())) {
             final boolean stillWanted = label.equals(CF_ALIAS) ? cfAlias : wanted.containsKey(label);
             if (!stillWanted) {
-                unregister(label);
+                permissionsChanged |= unregister(label);
                 changed = true;
             }
         }
@@ -138,7 +140,7 @@ public final class CommandRegistrar {
                         ? feeling.description() : "A custom feeling added via the Feelings folder.";
                 if (register(new DynamicCommand(feeling.name(), description, "/" + feeling.name() + " <player>",
                         feelingExecutor, null))) {
-                    addPermission(feeling.name());
+                    permissionsChanged |= addPermission(feeling.name());
                     added.add(feeling.name());
                     changed = true;
                 }
@@ -150,6 +152,9 @@ public final class CommandRegistrar {
             changed = true;
         }
 
+        if (permissionsChanged) {
+            recalculateAllNode();
+        }
         if (changed && notifyPlayers) {
             reapplyServerAliases(added);
             refreshPlayers();
@@ -209,16 +214,17 @@ public final class CommandRegistrar {
                 && !(command instanceof org.bukkit.command.PluginCommand);
     }
 
-    private void unregister(String label) {
+    /** @return true if chatfeelings.all lost a child, so its holders need recalculating */
+    private boolean unregister(String label) {
         final Command command = ours.remove(label);
         if (command == null) {
-            return;
+            return false;
         }
         removeFromMap(label, command);
         command.unregister(commandMap);
         removeStaleHelpTopic(label);
-        removePermission(label);
         Log.debug("Unregistered /" + label);
+        return removePermission(label);
     }
 
     private void addHelpTopic(Command command) {
@@ -261,47 +267,75 @@ public final class CommandRegistrar {
         if (commandMap == null) {
             return;
         }
+        boolean permissionsChanged = false;
         for (String label : List.copyOf(ours.keySet())) {
-            unregister(label);
+            permissionsChanged |= unregister(label);
+        }
+        if (permissionsChanged) {
+            recalculateAllNode();
         }
     }
 
-    private void addPermission(String feeling) {
+    /**
+     * Adds chatfeelings.&lt;feeling&gt; as a child of chatfeelings.all. The caller recalculates chatfeelings.all
+     * afterwards, once for all the feelings it added rather than once each.
+     *
+     * @return true if chatfeelings.all changed
+     */
+    private boolean addPermission(String feeling) {
         final PluginManager pm = Bukkit.getPluginManager();
         final String node = "chatfeelings." + feeling;
         if (pm.getPermission(node) != null) {
-            return;
+            return false;
         }
         pm.addPermission(new Permission(node, "Allows using the custom /" + feeling + " feeling.", PermissionDefault.OP));
         addedPermissions.add(node);
-        final Permission all = pm.getPermission("chatfeelings.all");
-        if (all != null) {
-            all.getChildren().put(node, true);
-            all.recalculatePermissibles();
-        }
+        final Permission all = pm.getPermission(ALL_NODE);
+        return all != null && all.getChildren().put(node, true) == null;
     }
 
-    private void removePermission(String feeling) {
+    /** @return true if chatfeelings.all changed (see {@link #addPermission}) */
+    private boolean removePermission(String feeling) {
         final PluginManager pm = Bukkit.getPluginManager();
         final String node = "chatfeelings." + feeling;
         if (!addedPermissions.remove(node)) {
-            return;
+            return false;
         }
-        final Permission all = pm.getPermission("chatfeelings.all");
-        if (all != null && all.getChildren().remove(node) != null) {
-            all.recalculatePermissibles();
-        }
+        final Permission all = pm.getPermission(ALL_NODE);
+        final boolean changed = all != null && all.getChildren().remove(node) != null;
         pm.removePermission(node);
+        return changed;
     }
 
+    private static void recalculateAllNode() {
+        final Permission all = Bukkit.getPluginManager().getPermission(ALL_NODE);
+        if (all != null) {
+            all.recalculatePermissibles();
+        }
+    }
+
+    /**
+     * Sends the changed command list to online players. Spigot needs CraftServer#syncCommands to rebuild its
+     * command tree, and it (like Paper's) already resends the tree to every player, so nothing else is needed.
+     * Paper and Folia add commands to their tree as they're registered, and on Folia syncCommands would build
+     * every player's tree here on the global thread, so there each player is refreshed on their own thread.
+     */
     private void refreshPlayers() {
-        try {
-            Bukkit.getServer().getClass().getMethod("syncCommands").invoke(Bukkit.getServer());
-        } catch (ReflectiveOperationException | RuntimeException err) {
-            Log.debug("Couldn't re-sync the server's command tree: " + err);
+        if (!scheduler.isFolia() && syncServerCommands()) {
+            return;
         }
         for (Player player : Bukkit.getOnlinePlayers()) {
             scheduler.entity(player, player::updateCommands);
+        }
+    }
+
+    private static boolean syncServerCommands() {
+        try {
+            Bukkit.getServer().getClass().getMethod("syncCommands").invoke(Bukkit.getServer());
+            return true;
+        } catch (ReflectiveOperationException | RuntimeException err) {
+            Log.debug("Couldn't re-sync the server's command tree: " + err);
+            return false;
         }
     }
 }
