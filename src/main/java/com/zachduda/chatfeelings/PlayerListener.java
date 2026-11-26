@@ -33,7 +33,7 @@ final class PlayerListener implements Listener {
         }
         if (player.getUniqueId().equals(DEVELOPER)) {
             plugin.getFeedback().send(player, "&7This server is running &fChatFeelings &6v" + plugin.getPluginVersion()
-                    + " &7for " + McVersion.current());
+                    + " &7for " + McVersion.current().toShortString());
         }
     }
 

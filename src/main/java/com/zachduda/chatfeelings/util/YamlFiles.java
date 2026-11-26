@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
@@ -72,18 +74,38 @@ public final class YamlFiles {
         }
     }
 
-    public static boolean save(YamlConfiguration yml, File file) {
+    public static boolean save(FileConfiguration yml, File file) {
         final File parent = file.getParentFile();
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
             Log.warn("Unable to create the folder " + parent.getPath());
             return false;
         }
         try {
-            yml.save(file);
+            writeAtomically(yml, file);
             return true;
         } catch (IOException err) {
             Log.warn("Failed to save " + file.getName(), err);
             return false;
+        }
+    }
+
+    /**
+     * Writes to a temporary file beside {@code file} and then moves it into place, so a crash or a full disk
+     * mid-save leaves the previous file intact. Bukkit's own save() empties the file before writing it. A symlinked
+     * file (ie: a config shared between servers) is written where the link points, so the link itself survives.
+     */
+    public static void writeAtomically(FileConfiguration yml, File file) throws IOException {
+        final Path target = Files.isSymbolicLink(file.toPath()) ? file.toPath().toRealPath() : file.toPath();
+        final Path temp = target.resolveSibling(target.getFileName() + ".tmp");
+        try {
+            Files.writeString(temp, yml.saveToString(), StandardCharsets.UTF_8);
+            try {
+                Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+            } catch (AtomicMoveNotSupportedException notSupported) {
+                Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } finally {
+            Files.deleteIfExists(temp);
         }
     }
 }

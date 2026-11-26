@@ -32,7 +32,7 @@ public final class ConfigUpdater {
                 "Having trouble? Join our support discord: " + DISCORD));
 
         if (fileReadable) {
-            plugin.saveConfig();
+            YamlFiles.save(c, file);
         } else {
             Log.warn("config.yml has a formatting error, so default settings are being used until it's fixed. "
                     + "The file was not changed.");
@@ -44,6 +44,11 @@ public final class ConfigUpdater {
             Log.warn("Feeling radius cannot be 0, disabling the radius.");
             c.set("General.Radius.Radius-In-Blocks", 35);
             c.set("General.Radius.Enabled", false);
+        }
+
+        if (c.getBoolean("Other.Player-Files.Cleanup") && c.getInt("Other.Player-Files.Cleanup-After-Days") < 1) {
+            Log.warn("Other.Player-Files.Cleanup-After-Days must be at least 1. "
+                    + "Old player data won't be cleaned up until it is.");
         }
 
         if (!c.contains("Version", true)) {
